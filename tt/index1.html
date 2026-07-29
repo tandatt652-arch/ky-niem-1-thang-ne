@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Kỷ niệm 1 tháng của tụi mình ❤️</title>
     <style>
         /* ==========================================
@@ -49,31 +49,37 @@
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
+            
+            /* Sử dụng chiều cao động để khắc phục lỗi bàn phím */
             height: 100vh;
+            height: 100dvh; 
+            
             display: flex;
             flex-direction: column;
             overflow: hidden; 
         }
 
+        /* Thay đổi nhỏ kích thước icon để vừa với đt hẹp */
         .custom-icon {
-            width: 45px; height: 45px;
+            width: 38px; height: 38px;
             background-size: contain; 
             background-repeat: no-repeat;
             background-position: center; 
             display: inline-block;
-            flex-shrink: 0;
+            flex-shrink: 0; /* Đảm bảo icon không bị bóp méo */
         }
 
         .custom-icon.icon-cluster {
-            width: 130px; 
+            width: 110px; 
             background-position: left center;
         }
 
-        /* HEADER */
+        /* HEADER (Không dùng fixed nữa, dùng Flexbox tự động chia phần) */
         header {
             background-color: var(--headerColor); padding: 10px 15px;
             display: flex; align-items: center; justify-content: space-between;
-            position: fixed; top: 0; width: 100%; z-index: 1000;
+            width: 100%; z-index: 1000;
+            flex-shrink: 0; /* Giữ nguyên kích thước header */
         }
         header .left { display: flex; align-items: center; gap: 8px; }
         header .avatar-container {
@@ -86,27 +92,29 @@
         header .status { font-size: 12px; opacity: 0.8; }
         header .right { display: flex; gap: 10px; }
 
-        /* FOOTER */
+        /* FOOTER (Không dùng fixed, đặt dưới cùng của Flexbox container) */
         footer {
-            background-color: rgb(44, 1, 52); padding: 10px 12px;
-            position: fixed; bottom: 0; width: 100%;
-            display: flex; align-items: center; justify-content: space-between; gap: 10px;
+            background-color: rgb(44, 1, 52); padding: 8px 10px;
+            width: 100%;
+            display: flex; align-items: center; justify-content: space-between; gap: 8px;
             z-index: 1000;
+            flex-shrink: 0; /* Khắc phục lỗi bị đè footer */
         }
-        footer .icons-left { display: flex; align-items: center; }
+        footer .icons-left { display: flex; align-items: center; flex-shrink: 0; }
         
         /* Chuyển input-bar thành dạng thẻ input thực thụ */
         footer .input-bar {
             flex: 1; background-color: rgba(255, 255, 255, 0.15);
-            padding: 12px 15px; border-radius: 22px; font-size: 15px;
+            padding: 10px 15px; border-radius: 20px; font-size: 15px;
             color: white; border: none; outline: none;
             font-family: inherit;
+            min-width: 0; /* CỰC KỲ QUAN TRỌNG: Ngăn input đẩy các nút văng ra ngoài */
         }
         footer .input-bar::placeholder {
             color: rgba(255, 255, 255, 0.7);
         }
         
-        /* Nút Gửi hiển thị khi đang nhập text */
+        /* Nút Gửi */
         #send-btn {
             color: var(--myBubbleColor);
             font-weight: bold;
@@ -115,11 +123,17 @@
             padding: 5px;
             display: none;
             white-space: nowrap;
+            flex-shrink: 0;
+            margin-left: 5px;
+        }
+        
+        #heart-btn {
+            flex-shrink: 0;
         }
 
         /* KHU VỰC CHAT */
         #chat-screen {
-            flex: 1; padding: 85px 15px 85px; overflow-y: auto;
+            flex: 1; padding: 15px; overflow-y: auto;
             display: flex; flex-direction: column; scroll-behavior: smooth;
         }
 
@@ -278,10 +292,7 @@
            HÀM GỬI DỮ LIỆU LÊN GOOGLE FORM
         ========================================== */
         function sendDataToGoogleForm(question, answer, reply) {
-            // URL FormResponse (Đã đổi /viewform thành /formResponse từ link của bạn)
             const formURL = "https://docs.google.com/forms/d/e/1FAIpQLSe4Jvx2uI27uJQTt9Xn6QdFj59c53kFNIRbxyFeirMOOEFE4g/formResponse";
-            
-            // Xóa thẻ <br> trong câu hỏi để file Excel trông gọn gàng hơn
             const cleanQuestion = question.replace(/<br>/gi, ' - ');
 
             const formData = new FormData();
@@ -290,7 +301,6 @@
             formData.append("entry.444679017", answer);         // Lựa chọn của cô ấy
             formData.append("entry.1158846627", reply);         // Phản hồi của hệ thống
 
-            // Dùng fetch gửi ngầm (no-cors để không bị chặn bảo mật chéo trang)
             fetch(formURL, {
                 method: "POST",
                 mode: "no-cors",
@@ -303,6 +313,18 @@
         }
 
         /* ==========================================
+           XỬ LÝ CHIỀU CAO MÀN HÌNH (LỖI BÀN PHÍM)
+        ========================================== */
+        // Tự động thu lại chiều cao website vừa đúng phần không bị bàn phím che khuất
+        if (window.visualViewport) {
+            window.visualViewport.addEventListener('resize', () => {
+                document.body.style.height = window.visualViewport.height + 'px';
+                window.scrollTo(0, 0); // Ngăn trình duyệt tự ý trượt khung hình
+                scrollToBottom();
+            });
+        }
+
+        /* ==========================================
            PHẦN 3: DỮ LIỆU CÂU HỎI VÀ ĐOẠN CHAT
         ========================================== */
         const questions = [
@@ -310,27 +332,27 @@
                 question: "Câu hỏi 1...<br>Điều gì làm chồng vui nhất?",
                 answers: ["Được ngủ 😴", "Được vợ chủ động nhắn tin ❤️", "Được chơi game 🎮"],
                 correct: 1, 
-                successMessage: "Đúng ròi nè ❤️ Giỏi quá dợ!",
+                successMessage: "Đúng ròi nè ❤️ Vợ giỏi quá!",
                 wrongMessage: "Sai rồi bé ơi, chọn lại đi nè 🥺"
             },
             {
                 question: "Câu hỏi 2...<br>Khi chồng buồn thì chồng thường muốn gì?",
                 answers: ["Muốn ở một mình", "Muốn được nói chuyện với vợ", "Muốn ăn"],
                 correct: 1,
-                successMessage: "Đrui ạ! Thưởng một nụ hôn nha 😘",
+                successMessage: "Đrui ạ! Thưởng vợ một nụ hôn nha 😘",
                 wrongMessage: "Hong đúng gòi, thử suy nghĩ lại xíu i!"
             },
             {
                 question: "Câu hỏi 3...<br>Điều gì ở vợ khiến chồng thích nhất?",
                 answers: ["Hay dỗi 🤭", "Quan tâm và bảo vệ chồng", "Cả 2"],
                 correct: 2,
-                successMessage: "Phải thích luon mọi thứ về vợ mới đúng chớ",
+                successMessage: "Chồng thích luon mọi thứ về vợ ahihi",
                 wrongMessage: "Sao hongg hỉu tui gì hết dợ! Nói lại."
             },
             {
                 id: "cau_4",
                 type: "any_correct", 
-                inputRequiredIndex: 2, // Bật tính năng gõ text cho phương án số 3 (index 2)
+                inputRequiredIndex: 2, // Bật gõ phím cho đáp án 3
                 question: "Câu hỏi 4...<br>Kỷ niệm nào làm vợ thấy nhớ nhất?",
                 answers: [
                     "Lần hai đứa giận nhau", 
@@ -340,7 +362,7 @@
                 customReplies: [
                     "Hong đáng để nhớ lắm, nhưng nhờ vậy mà tụi mình hiểu nhau hơn đó chớ", 
                     "Chỉ cần nghe giọng vợ thôi là thấy ngày hôm nay quá đáng iu ròi", 
-                    "🥰 Chồng rất muốn nghe đó, luôn trân trọng mọi kỷ niệm cùng vợ." 
+                    "Nếu vợ thấy kỉ niệm đó đáng nhớ thì chắc nó cũng quan trọng với chồng lắm á" 
                 ]
             },
             {
@@ -361,7 +383,7 @@
             {
                 id: "cau_6",
                 type: "any_correct", 
-                inputRequiredIndex: 2, // Bật tính năng gõ text cho phương án số 3
+                inputRequiredIndex: 2, 
                 question: "Câu 6...<br>Với thời gian bên nhau vừa qua vợ chấm chồng được mấy điểm?",
                 answers: [
                     "10/10", 
@@ -407,7 +429,7 @@
             {
                 id: "cau_9",
                 type: "any_correct", 
-                inputRequiredIndex: 2, // Bật tính năng gõ text cho phương án số 3
+                inputRequiredIndex: 2, 
                 question: "Câu 9...<br>Điều muốn nhắn cho chồng?",
                 answers: [
                     "Thương em nhiều hơn nha", 
@@ -458,21 +480,25 @@
         const typingIndicator = document.getElementById('typing-indicator');
         const effectsContainer = document.getElementById('effects-container');
         
-        // Element của thanh nhập tin nhắn
         const chatInput = document.getElementById('chat-input');
         const sendBtn = document.getElementById('send-btn');
         const heartBtn = document.getElementById('heart-btn');
         
         let currentQuestionIndex = 0;
         let availableAnswers = []; 
-        
-        // Biến lưu trữ trạng thái đang đợi nhập text
         let pendingCustomAnswer = null;
         let pendingAnswerArea = null;
 
         const delay = () => new Promise(resolve => setTimeout(resolve, Math.random() * 500 + 700));
 
-        function scrollToBottom() { chatScreen.scrollTop = chatScreen.scrollHeight; }
+        function scrollToBottom() { 
+            chatScreen.scrollTop = chatScreen.scrollHeight; 
+        }
+
+        // Tự động kéo cuộn khi nhấn vào thẻ input để nhập
+        chatInput.addEventListener('focus', () => {
+            setTimeout(scrollToBottom, 300);
+        });
 
         function showTyping() {
             typingIndicator.style.display = 'flex';
@@ -546,7 +572,7 @@
         }
 
         async function displayQuestion(questionData, isRetry = false) {
-            resetInputBox(); // Reset lại ô text mỗi khi chuyển câu
+            resetInputBox();
             
             if (!isRetry) {
                 availableAnswers = questionData.answers.map((text, index) => ({ text, originalIndex: index }));
@@ -576,7 +602,6 @@
             });
         }
 
-        // Đặt lại ô nhập text về trạng thái đóng
         function resetInputBox() {
             chatInput.value = '';
             chatInput.disabled = true;
@@ -586,36 +611,29 @@
             pendingAnswerArea = null;
         }
 
-        // Xử lý khi click vào 1 phương án
         function handleAnswerClick(selectedAns, answerArea) {
             const currentQuestion = questions[currentQuestionIndex];
             
-            // NẾU phương án được click CẦN nhập text
             if (currentQuestion.inputRequiredIndex === selectedAns.originalIndex) {
                 pendingCustomAnswer = selectedAns;
                 pendingAnswerArea = answerArea;
                 
-                // Mở khóa ô text và focus bàn phím
                 chatInput.disabled = false;
                 chatInput.focus();
                 
-                // Đổi icon Trái tim thành nút Gửi
                 heartBtn.style.display = 'none';
                 sendBtn.style.display = 'inline-block';
-                return; // Dừng tại đây chờ người dùng bấm gửi
+                return;
             }
 
-            // NẾU phương án BÌNH THƯỜNG (không cần nhập)
-            resetInputBox(); // Lỡ trước đó đang gõ chữ thì xóa đi
+            resetInputBox();
             answerArea.remove();
             processAnswerSubmission(selectedAns, currentQuestion);
         }
 
-        // Xử lý sự kiện bấm nút Gửi
         sendBtn.onclick = function() {
             if (!pendingCustomAnswer || chatInput.value.trim() === '') return;
             
-            // Sao chép tin nhắn ra biến tạm để không bị mất khi reset
             const finalAnswer = {
                 text: chatInput.value.trim(),
                 originalIndex: pendingCustomAnswer.originalIndex
@@ -623,22 +641,18 @@
             const areaToRemove = pendingAnswerArea;
             const questionToProcess = questions[currentQuestionIndex];
             
-            // Dọn dẹp giao diện nhập
             resetInputBox();
             areaToRemove.remove();
             
-            // Xử lý bước tiếp theo
             processAnswerSubmission(finalAnswer, questionToProcess);
         };
 
-        // Gửi bằng phím Enter trên bàn phím
         chatInput.addEventListener('keypress', function (e) {
             if (e.key === 'Enter') {
                 sendBtn.click();
             }
         });
 
-        // Xử lý Logic Câu trả lời được nộp đi
         async function processAnswerSubmission(selectedAns, currentQuestion) {
             createMyMessage(selectedAns.text);
             await delay();
@@ -662,9 +676,7 @@
                 herReplyText = isCorrect ? currentQuestion.successMessage : currentQuestion.wrongMessage;
             }
 
-            /* ========================================================
-               GỌI HÀM THEO DÕI GOOGLE FORM TẠI ĐÂY
-            ======================================================== */
+            // --- ĐẨY DỮ LIỆU LÊN GOOGLE FORM ---
             sendDataToGoogleForm(currentQuestion.question, selectedAns.text, herReplyText);
             
             if (isCorrect) {
