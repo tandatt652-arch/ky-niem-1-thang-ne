@@ -2,6 +2,7 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
+    <!-- Thêm viewport-fit=cover để tràn viền và xử lý tai thỏ -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Kỷ niệm 1 tháng của tụi mình ❤️</title>
     <style>
@@ -41,22 +42,33 @@
         ========================================== */
         * { box-sizing: border-box; margin: 0; padding: 0; }
 
+        /* KHÓA CHẾT TRÌNH DUYỆT ĐỂ KHÔNG BỊ TRƯỢT KHI BÀN PHÍM MỞ */
+        html, body {
+            height: 100%;
+            width: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden; 
+            position: fixed; /* Bắt buộc để tránh lỗi scroll của iOS */
+            top: 0; left: 0;
+        }
+
         body {
             font-family: var(--fontFamily);
             color: white;
             background-color: #1a1a1a; 
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* LỚP HÌNH NỀN TÁCH RỜI (Sửa lỗi giật hình của iOS) */
+        .bg-wrapper {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
             background-image: var(--chatBackground);
             background-size: cover;
             background-position: center;
-            background-attachment: fixed;
-            
-            /* Sử dụng chiều cao động để khắc phục lỗi bàn phím */
-            height: 100vh;
-            height: 100dvh; 
-            
-            display: flex;
-            flex-direction: column;
-            overflow: hidden; 
+            z-index: -1;
         }
 
         /* Thay đổi nhỏ kích thước icon để vừa với đt hẹp */
@@ -66,7 +78,7 @@
             background-repeat: no-repeat;
             background-position: center; 
             display: inline-block;
-            flex-shrink: 0; /* Đảm bảo icon không bị bóp méo */
+            flex-shrink: 0; 
         }
 
         .custom-icon.icon-cluster {
@@ -74,12 +86,15 @@
             background-position: left center;
         }
 
-        /* HEADER (Không dùng fixed nữa, dùng Flexbox tự động chia phần) */
+        /* HEADER */
         header {
-            background-color: var(--headerColor); padding: 10px 15px;
+            background-color: var(--headerColor); 
+            /* Thêm safe-area-top để không bị lẹm vào tai thỏ iPhone */
+            padding: calc(10px + env(safe-area-inset-top)) 15px 10px 15px;
             display: flex; align-items: center; justify-content: space-between;
             width: 100%; z-index: 1000;
-            flex-shrink: 0; /* Giữ nguyên kích thước header */
+            flex-shrink: 0; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         }
         header .left { display: flex; align-items: center; gap: 8px; }
         header .avatar-container {
@@ -92,23 +107,25 @@
         header .status { font-size: 12px; opacity: 0.8; }
         header .right { display: flex; gap: 10px; }
 
-        /* FOOTER (Không dùng fixed, đặt dưới cùng của Flexbox container) */
+        /* FOOTER */
         footer {
-            background-color: rgb(44, 1, 52); padding: 8px 10px;
+            background-color: rgb(44, 1, 52); 
+            /* Thêm safe-area-bottom để né thanh vuốt ngang của điện thoại */
+            padding: 10px 10px calc(10px + env(safe-area-inset-bottom)) 10px;
             width: 100%;
             display: flex; align-items: center; justify-content: space-between; gap: 8px;
             z-index: 1000;
-            flex-shrink: 0; /* Khắc phục lỗi bị đè footer */
+            flex-shrink: 0; 
         }
         footer .icons-left { display: flex; align-items: center; flex-shrink: 0; }
         
-        /* Chuyển input-bar thành dạng thẻ input thực thụ */
+        /* Thẻ input nhập liệu */
         footer .input-bar {
             flex: 1; background-color: rgba(255, 255, 255, 0.15);
             padding: 10px 15px; border-radius: 20px; font-size: 15px;
             color: white; border: none; outline: none;
             font-family: inherit;
-            min-width: 0; /* CỰC KỲ QUAN TRỌNG: Ngăn input đẩy các nút văng ra ngoài */
+            min-width: 0; /* Quan trọng: Không đẩy các icon ra viền */
         }
         footer .input-bar::placeholder {
             color: rgba(255, 255, 255, 0.7);
@@ -131,9 +148,12 @@
             flex-shrink: 0;
         }
 
-        /* KHU VỰC CHAT */
+        /* KHU VỰC CHAT ĐỘC LẬP TỰ CUỘN */
         #chat-screen {
-            flex: 1; padding: 15px; overflow-y: auto;
+            flex: 1; 
+            padding: 15px; 
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch; /* Cuộn mượt trên iOS */
             display: flex; flex-direction: column; scroll-behavior: smooth;
         }
 
@@ -235,6 +255,9 @@
 </head>
 <body>
 
+    <!-- LỚP HÌNH NỀN -->
+    <div class="bg-wrapper"></div>
+
     <!-- HEADER -->
     <header>
         <div class="left">
@@ -283,9 +306,62 @@
 
     <script>
         /* ==========================================
+           PHẦN 3: KHAI BÁO CÁC PHẦN TỬ GIAO DIỆN (DOM)
+           (Phải đặt đầu tiên để tránh lỗi ReferenceError)
+        ========================================== */
+        const chatScreen = document.getElementById('chat-screen');
+        const typingIndicator = document.getElementById('typing-indicator');
+        const effectsContainer = document.getElementById('effects-container');
+        
+        const chatInput = document.getElementById('chat-input');
+        const sendBtn = document.getElementById('send-btn');
+        const heartBtn = document.getElementById('heart-btn');
+
+        /* ==========================================
+           CÁC HÀM TIỆN ÍCH CƠ BẢN
+        ========================================== */
+        const delay = () => new Promise(resolve => setTimeout(resolve, Math.random() * 500 + 700));
+
+        function scrollToBottom() { 
+            if (chatScreen) {
+                chatScreen.scrollTop = chatScreen.scrollHeight; 
+            }
+        }
+
+        /* ==========================================
+           QUẢN LÝ CHIỀU CAO CHỐNG BÀN PHÍM CHE (Visual Viewport API)
+        ========================================== */
+        function adjustLayoutForKeyboard() {
+            if (window.visualViewport) {
+                // Ép chiều cao body bằng đúng phần không gian mà màn hình còn lại khi bàn phím nhô lên
+                document.body.style.height = window.visualViewport.height + 'px';
+            }
+            scrollToBottom();
+        }
+
+        // Lắng nghe sự thay đổi của VisualViewport (khi bàn phím mở/đóng)
+        if (window.visualViewport) {
+            window.visualViewport.addEventListener('resize', adjustLayoutForKeyboard);
+            window.visualViewport.addEventListener('scroll', adjustLayoutForKeyboard);
+        }
+        // Gọi hàm 1 lần lúc trang web vừa load
+        adjustLayoutForKeyboard();
+
+        // Kéo màng hình xuống sau khi Focus (Bấm vào input)
+        chatInput.addEventListener('focus', () => {
+            setTimeout(scrollToBottom, 300);
+        });
+
+        // Bỏ focus khi bấm ra ngoài vùng Chat
+        chatScreen.addEventListener('touchstart', () => {
+            if(document.activeElement === chatInput) {
+                chatInput.blur();
+            }
+        });
+
+        /* ==========================================
            TẠO SESSION ID NGẪU NHIÊN ĐỂ THEO DÕI
         ========================================== */
-        // Tạo một ID định danh duy nhất cho mỗi lần cô ấy mở link
         const sessionID = "USER_" + Math.random().toString(36).substr(2, 6).toUpperCase();
 
         /* ==========================================
@@ -313,19 +389,7 @@
         }
 
         /* ==========================================
-           XỬ LÝ CHIỀU CAO MÀN HÌNH (LỖI BÀN PHÍM)
-        ========================================== */
-        // Tự động thu lại chiều cao website vừa đúng phần không bị bàn phím che khuất
-        if (window.visualViewport) {
-            window.visualViewport.addEventListener('resize', () => {
-                document.body.style.height = window.visualViewport.height + 'px';
-                window.scrollTo(0, 0); // Ngăn trình duyệt tự ý trượt khung hình
-                scrollToBottom();
-            });
-        }
-
-        /* ==========================================
-           PHẦN 3: DỮ LIỆU CÂU HỎI VÀ ĐOẠN CHAT
+           DỮ LIỆU CÂU HỎI VÀ ĐOẠN CHAT
         ========================================== */
         const questions = [
             {
@@ -474,31 +538,12 @@
         ];
 
         /* ==========================================
-           PHẦN 4: LOGIC ĐIỀU KHIỂN
+           LOGIC ĐIỀU KHIỂN CHÍNH
         ========================================== */
-        const chatScreen = document.getElementById('chat-screen');
-        const typingIndicator = document.getElementById('typing-indicator');
-        const effectsContainer = document.getElementById('effects-container');
-        
-        const chatInput = document.getElementById('chat-input');
-        const sendBtn = document.getElementById('send-btn');
-        const heartBtn = document.getElementById('heart-btn');
-        
         let currentQuestionIndex = 0;
         let availableAnswers = []; 
         let pendingCustomAnswer = null;
         let pendingAnswerArea = null;
-
-        const delay = () => new Promise(resolve => setTimeout(resolve, Math.random() * 500 + 700));
-
-        function scrollToBottom() { 
-            chatScreen.scrollTop = chatScreen.scrollHeight; 
-        }
-
-        // Tự động kéo cuộn khi nhấn vào thẻ input để nhập
-        chatInput.addEventListener('focus', () => {
-            setTimeout(scrollToBottom, 300);
-        });
 
         function showTyping() {
             typingIndicator.style.display = 'flex';
