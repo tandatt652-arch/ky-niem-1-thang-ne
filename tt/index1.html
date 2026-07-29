@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Kỷ niệm 1 tháng của tụi mình ❤️</title>
+    <style>
+        /* ==========================================
+           PHẦN 1: CẤU HÌNH VÀ BIẾN
+        ========================================== */
+        :root {
+            /* Tên và Avatar */
+            --yourName: "Bé Yêu"; 
+            --herAvatar: url("photo2.jpg"); 
+            
+            /* --- MÀU SẮC --- */
+            --myBubbleColor: #ff1493; 
+            --herBubbleColor: #3a0b3f; 
+            --headerColor: #8b1d72; 
+            
+            /* Hình nền chat */
+            --chatBackground: url("photo1.jpg"); 
+
+            /* --- CÁC ICON TÙY CHỈNH --- */
+            --iconBack: url("photo6.jpg");
+            --iconCall: url("photo3.jpg");
+            --iconVideo: url("photo4.jpg");
+            --iconInfo: url("photo5.jpg");
+            
+            /* Dùng 1 ảnh chữ nhật chứa cả cụm (cộng, camera, thư viện, mic) */
+            --iconGallery: url("photo7.jpg");
+            
+            /* Icon bên phải */
+            --iconHeart: url("photo8.jpg");
+
+            --fontFamily: 'Roboto', 'Segoe UI', 'SF Pro', sans-serif;
+        }
+
+        /* ==========================================
+           PHẦN 2: CSS GIAO DIỆN VÀ ANIMATION
+        ========================================== */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: var(--fontFamily);
+            color: white;
+            background-color: #1a1a1a; 
+            background-image: var(--chatBackground);
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden; 
+        }
+
+        .custom-icon {
+            width: 45px; height: 45px;
+            background-size: contain; 
+            background-repeat: no-repeat;
+            background-position: center; 
+            display: inline-block;
+            flex-shrink: 0;
+        }
+
+        .custom-icon.icon-cluster {
+            width: 130px; 
+            background-position: left center;
+        }
+
+        /* HEADER */
+        header {
+            background-color: var(--headerColor); padding: 10px 15px;
+            display: flex; align-items: center; justify-content: space-between;
+            position: fixed; top: 0; width: 100%; z-index: 1000;
+        }
+        header .left { display: flex; align-items: center; gap: 8px; }
+        header .avatar-container {
+            width: 42px; height: 42px; border-radius: 50%;
+            background-image: var(--herAvatar); background-size: cover; background-position: center;
+            background-color: #555; 
+        }
+        header .info { display: flex; flex-direction: column; }
+        header .name { font-weight: bold; font-size: 16px; }
+        header .status { font-size: 12px; opacity: 0.8; }
+        header .right { display: flex; gap: 10px; }
+
+        /* FOOTER */
+        footer {
+            background-color: rgb(44, 1, 52); padding: 10px 12px;
+            position: fixed; bottom: 0; width: 100%;
+            display: flex; align-items: center; justify-content: space-between; gap: 10px;
+            z-index: 1000;
+        }
+        footer .icons-left { display: flex; align-items: center; }
+        
+        /* Chuyển input-bar thành dạng thẻ input thực thụ */
+        footer .input-bar {
+            flex: 1; background-color: rgba(255, 255, 255, 0.15);
+            padding: 12px 15px; border-radius: 22px; font-size: 15px;
+            color: white; border: none; outline: none;
+            font-family: inherit;
+        }
+        footer .input-bar::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        /* Nút Gửi hiển thị khi đang nhập text */
+        #send-btn {
+            color: var(--myBubbleColor);
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+            padding: 5px;
+            display: none;
+            white-space: nowrap;
+        }
+
+        /* KHU VỰC CHAT */
+        #chat-screen {
+            flex: 1; padding: 85px 15px 85px; overflow-y: auto;
+            display: flex; flex-direction: column; scroll-behavior: smooth;
+        }
+
+        .msg-row {
+            width: 100%; display: flex; margin-bottom: 12px;
+            transform: translateY(20px); opacity: 0;
+            transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+        }
+        .msg-row.show { transform: translateY(0); opacity: 1; }
+        
+        .bubble {
+            max-width: 75%; padding: 10px 15px;
+            font-size: 15.5px; line-height: 1.4; color: white;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+            word-wrap: break-word;
+        }
+
+        .msg-my { justify-content: flex-end; }
+        .msg-my .bubble {
+            background-color: var(--myBubbleColor);
+            border-radius: 18px 18px 4px 18px;
+        }
+
+        .msg-her { justify-content: flex-start; align-items: flex-end; gap: 8px; }
+        .msg-her .avatar {
+            width: 30px; height: 30px; border-radius: 50%; flex-shrink: 0;
+            background-image: var(--herAvatar); background-size: cover; background-position: center;
+            background-color: #555;
+        }
+        .msg-her .bubble {
+            background-color: var(--herBubbleColor);
+            border-radius: 18px 18px 18px 4px;
+        }
+
+        .msg-her .bubble.question {
+            background-color: rgba(58, 11, 63);
+        }
+
+        .typing-bubble {
+            background-color: var(--herBubbleColor);
+            padding: 12px 18px; border-radius: 18px 18px 18px 4px;
+            display: flex; gap: 5px; align-items: center;
+        }
+        .typing-bubble span {
+            width: 6px; height: 6px; background-color: rgba(255, 255, 255, 0.6);
+            border-radius: 50%; display: block; animation: typing 1.4s infinite;
+        }
+        .typing-bubble span:nth-child(2) { animation-delay: 0.2s; }
+        .typing-bubble span:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes typing {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-4px); background-color: white; }
+        }
+
+        .answer-area {
+            align-self: flex-end; width: 100%; display: flex; flex-direction: column;
+            align-items: flex-end; gap: 8px; margin-bottom: 12px;
+        }
+        .answer-bubble {
+            background-color: rgba(255, 255, 255, 0.15); padding: 12px 15px;
+            border-radius: 18px; font-size: 15px; cursor: pointer; max-width: 80%;
+            border: 1px solid rgba(255, 255, 255, 0.3); text-align: right;
+            transform: translateY(15px); opacity: 0;
+            transition: transform 0.3s ease, opacity 0.3s ease, background-color 0.2s;
+        }
+        .answer-bubble.show { transform: translateY(0); opacity: 1; }
+        .answer-bubble:active { background-color: rgba(255, 255, 255, 0.4); }
+
+        #effects-container {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; z-index: 2000;
+        }
+        .heart {
+            position: absolute; color: #ff1493; font-size: 20px;
+            animation: flyUp 2s linear forwards; opacity: 0;
+        }
+        @keyframes flyUp {
+            0% { transform: translate(0, 0) scale(1); opacity: 1; }
+            100% { transform: translate(var(--flyX), -100vh) scale(0); opacity: 0; }
+        }
+
+        #end-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: black; opacity: 0; pointer-events: none;
+            transition: opacity 2s; z-index: 1500;
+        }
+        #end-screen.show { opacity: 0.8; }
+        .final-special {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            background-color: var(--myBubbleColor); padding: 25px 30px;
+            border-radius: 25px; font-size: 18px; font-weight: bold;
+            text-align: center; opacity: 0; z-index: 2100; display: none;
+            width: 80%; line-height: 1.5; box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+        }
+        .final-special.show { display: block; animation: fadeInSpecial 1s forwards; }
+        @keyframes fadeInSpecial { to { opacity: 1; } }
+
+    </style>
+</head>
+<body>
+
+    <!-- HEADER -->
+    <header>
+        <div class="left">
+            <div class="custom-icon" style="background-image: var(--iconBack);"></div>
+            <div class="avatar-container"></div>
+            <div class="info">
+                <span class="name">aiuu</span>
+                <span class="status">Đang hoạt động.</span>
+            </div>
+        </div>
+        <div class="right">
+            <div class="custom-icon" style="background-image: var(--iconCall);"></div>
+            <div class="custom-icon" style="background-image: var(--iconVideo);"></div>
+            <div class="custom-icon" style="background-image: var(--iconInfo);"></div>
+        </div>
+    </header>
+
+    <!-- KHU VỰC CHAT -->
+    <div id="chat-screen">
+        <div class="msg-row msg-her" id="typing-indicator" style="display: none;">
+            <div class="avatar"></div>
+            <div class="typing-bubble"><span></span><span></span><span></span></div>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer>
+        <div class="icons-left">
+            <div class="custom-icon icon-cluster" style="background-image: var(--iconGallery);"></div>
+        </div>
+        
+        <!-- Thanh nhập đã đổi thành thẻ input -->
+        <input type="text" class="input-bar" id="chat-input" placeholder="Nhắn tin..." disabled autocomplete="off">
+        
+        <!-- Nút Gửi (Mặc định ẩn) -->
+        <div id="send-btn">Gửi</div>
+        
+        <!-- Icon Tim -->
+        <div class="custom-icon" id="heart-btn" style="background-image: var(--iconHeart);"></div>
+    </footer>
+
+    <!-- HIỆU ỨNG -->
+    <div id="effects-container"></div>
+    <div id="end-screen"></div>
+    <div class="final-special" id="final-bubble">Chúc mừng kỷ niệm 1 tháng của tụi mình ❤️</div>
+
+    <script>
+        /* ==========================================
+           TẠO SESSION ID NGẪU NHIÊN ĐỂ THEO DÕI
+        ========================================== */
+        // Tạo một ID định danh duy nhất cho mỗi lần cô ấy mở link
+        const sessionID = "USER_" + Math.random().toString(36).substr(2, 6).toUpperCase();
+
+        /* ==========================================
+           HÀM GỬI DỮ LIỆU LÊN GOOGLE FORM
+        ========================================== */
+        function sendDataToGoogleForm(question, answer, reply) {
+            // URL FormResponse (Đã đổi /viewform thành /formResponse từ link của bạn)
+            const formURL = "https://docs.google.com/forms/d/e/1FAIpQLSe4Jvx2uI27uJQTt9Xn6QdFj59c53kFNIRbxyFeirMOOEFE4g/formResponse";
+            
+            // Xóa thẻ <br> trong câu hỏi để file Excel trông gọn gàng hơn
+            const cleanQuestion = question.replace(/<br>/gi, ' - ');
+
+            const formData = new FormData();
+            formData.append("entry.1666228409", sessionID);     // ID Ngẫu nhiên
+            formData.append("entry.1275903316", cleanQuestion); // Câu hỏi
+            formData.append("entry.444679017", answer);         // Lựa chọn của cô ấy
+            formData.append("entry.1158846627", reply);         // Phản hồi của hệ thống
+
+            // Dùng fetch gửi ngầm (no-cors để không bị chặn bảo mật chéo trang)
+            fetch(formURL, {
+                method: "POST",
+                mode: "no-cors",
+                body: formData
+            }).then(() => {
+                console.log("Data sent to Google Form successfully");
+            }).catch((err) => {
+                console.error("Error sending data to Google Form", err);
+            });
+        }
+
+        /* ==========================================
+           PHẦN 3: DỮ LIỆU CÂU HỎI VÀ ĐOẠN CHAT
+        ========================================== */
+        const questions = [
+            {
+                question: "Câu hỏi 1...<br>Điều gì làm chồng vui nhất?",
+                answers: ["Được ngủ 😴", "Được vợ chủ động nhắn tin ❤️", "Được chơi game 🎮"],
+                correct: 1, 
+                successMessage: "Đúng ròi nè ❤️ Giỏi quá dợ!",
+                wrongMessage: "Sai rồi bé ơi, chọn lại đi nè 🥺"
+            },
+            {
+                question: "Câu hỏi 2...<br>Khi chồng buồn thì chồng thường muốn gì?",
+                answers: ["Muốn ở một mình", "Muốn được nói chuyện với vợ", "Muốn ăn"],
+                correct: 1,
+                successMessage: "Đrui ạ! Thưởng một nụ hôn nha 😘",
+                wrongMessage: "Hong đúng gòi, thử suy nghĩ lại xíu i!"
+            },
+            {
+                question: "Câu hỏi 3...<br>Điều gì ở vợ khiến chồng thích nhất?",
+                answers: ["Hay dỗi 🤭", "Quan tâm và bảo vệ chồng", "Cả 2"],
+                correct: 2,
+                successMessage: "Phải thích luon mọi thứ về vợ mới đúng chớ",
+                wrongMessage: "Sao hongg hỉu tui gì hết dợ! Nói lại."
+            },
+            {
+                id: "cau_4",
+                type: "any_correct", 
+                inputRequiredIndex: 2, // Bật tính năng gõ text cho phương án số 3 (index 2)
+                question: "Câu hỏi 4...<br>Kỷ niệm nào làm vợ thấy nhớ nhất?",
+                answers: [
+                    "Lần hai đứa giận nhau", 
+                    "Lần gọi điện nói chuyện khuya", 
+                    "Một kỷ niệm khác (Viết ra nha)"
+                ],
+                customReplies: [
+                    "Hong đáng để nhớ lắm, nhưng nhờ vậy mà tụi mình hiểu nhau hơn đó chớ", 
+                    "Chỉ cần nghe giọng vợ thôi là thấy ngày hôm nay quá đáng iu ròi", 
+                    "🥰 Chồng rất muốn nghe đó, luôn trân trọng mọi kỷ niệm cùng vợ." 
+                ]
+            },
+            {
+                id: "cau_5",
+                type: "any_correct", 
+                question: "Câu 5...<br>Nếu được quay lại ngày đầu quen nhau?",
+                answers: [
+                    "Vẫn chọn quen chồng", 
+                    "Quen sớm hơn", 
+                    "Suy nghĩ thêm chút"
+                ],
+                customReplies: [
+                    "Cảm ơn vợ vì đã chọn chồng thêm một lần nữa hihi", 
+                    "Chồng cũng nghĩ d. Biết nhau sớm hơn chắc đỡ nhớ haa", 
+                    "Vậy chắc chồng sẽ cố tán vợ thêm lần nữa ớ"
+                ]
+            },
+            {
+                id: "cau_6",
+                type: "any_correct", 
+                inputRequiredIndex: 2, // Bật tính năng gõ text cho phương án số 3
+                question: "Câu 6...<br>Với thời gian bên nhau vừa qua vợ chấm chồng được mấy điểm?",
+                answers: [
+                    "10/10", 
+                    "9/10 (tạm tạm)", 
+                    "8/10 (Ghi rõ thiếu sót...)"
+                ],
+                customReplies: [
+                    "😎 Chồng xin cảm ơn giám khảo, nhưng vẫn sẽ cố để tháng sau không bị tụt điểm =))", 
+                    "Thiếu 1 điểm thì chồng xin đổi bằng một cái hun ạ :>", 
+                    "Nếu là thiếu sót thiệt thì chồng xin ghi nhận và thay đổi ạa"
+                ]
+            },
+            {
+                id: "cau_7",
+                type: "any_correct", 
+                question: "Câu 7...<br>Điều vợ mong nhất là gì?",
+                answers: [
+                    "Quan tâm vợ nhiều hơn", 
+                    "Tin tưởng vợ nhiều hơn", 
+                    "Luôn ở bên dù có chuyện gì"
+                ],
+                customReplies: [
+                    "Vâng ạ. Chồng sẽ để ý vợ nhiều hơn nữa", 
+                    "Chồng sẽ cố để vợ luôn thấy an toàn ạ", 
+                    "Đây cũng là điều chồng muốn hứa với vợ nhứt ạ"
+                ]
+            },
+            {
+                id: "cau_8",
+                type: "any_correct", 
+                question: "Câu 8...<br>Sau này cãi nhau thì sao?",
+                answers: [
+                    "Chồng phải chủ động xin lỗi", 
+                    "Chiến tranh lạnh luôn", 
+                    "Ngồi nói rõ với nhau"
+                ],
+                customReplies: [
+                    "Nếu chồng sai thì xin lỗi ngay ạ, còn em sai thì em tự biet đê chớ", 
+                    "Hong có được đâu nha, vậy là dễ đi lắm đó", 
+                    "Đây là cách chồng cũng mong hai đứa sẽ làm ạ, mà hong biết vợ có chịu hong thoi"
+                ]
+            },
+            {
+                id: "cau_9",
+                type: "any_correct", 
+                inputRequiredIndex: 2, // Bật tính năng gõ text cho phương án số 3
+                question: "Câu 9...<br>Điều muốn nhắn cho chồng?",
+                answers: [
+                    "Thương em nhiều hơn nha", 
+                    "Đừng bỏ em một mình", 
+                    "Viết câu riêng"
+                ],
+                customReplies: [
+                    "💖 Daa, chồng hứa sẽ thương vợ ngày hôm sau nhìu hơn ngày hôm trước ạ", 
+                    "💖 Daa, chồng thương vợ lắm ạ, mỗi lần có chuyện mình đừng bỏ nhau nhaa", 
+                    "✨ Daa chồng hiểu ròi ạ, xíu nữa chồng sẽ nói với vợ sau"
+                ]
+            },
+            {
+                id: "cau_10",
+                type: "any_correct", 
+                question: "Câu cuối (đặc biệt)...<br>Vợ có muốn tiếp tục đồng hành với chồng thật nhìu tháng sau nữa hông?",
+                answers: [
+                    "Có ❤️", 
+                    "Rất có ❤️❤️", 
+                    "Có mãi luôn 🥺"
+                ],
+                customReplies: [
+                    " Nghe vợ nói vậy là chồng vui lắm ròi.", 
+                    "😭 Vậy chồng phải cố gắng để xứng đáng với câu trả lời này.", 
+                    "❤️ Cảm ơn vợ vì đã bước vào cuộc đời chồng. Tháng đầu tiên chỉ là khởi đầu thui, chồng mong sẽ còn rất nhìu tháng, rất nhìu năm nữa được cùng vợ tạo thêm thật nhiều kỷ niệm đẹp nhó."
+                ]
+            }
+        ];
+
+        const initialConversation = [
+            { type: 'her', text: "Em ơi." },
+            { type: 'her', text: "Anh nhớ em." },
+            { type: 'her', text: "Tụi mình quen nhau được một tháng rồi." },
+            { type: 'her', text: "Mình chơi trò nhỏ nha." }
+        ];
+
+        const finalConversation = [
+            { type: 'her', text: "Cảm ơn em vì đã ở cạnh anh." },
+            { type: 'her', text: "Một tháng chưa phải dài." },
+            { type: 'her', text: "Nhưng đủ để anh biết..." },
+            { type: 'her', text: "Anh thương em nhiều lắm ❤️" }
+        ];
+
+        /* ==========================================
+           PHẦN 4: LOGIC ĐIỀU KHIỂN
+        ========================================== */
+        const chatScreen = document.getElementById('chat-screen');
+        const typingIndicator = document.getElementById('typing-indicator');
+        const effectsContainer = document.getElementById('effects-container');
+        
+        // Element của thanh nhập tin nhắn
+        const chatInput = document.getElementById('chat-input');
+        const sendBtn = document.getElementById('send-btn');
+        const heartBtn = document.getElementById('heart-btn');
+        
+        let currentQuestionIndex = 0;
+        let availableAnswers = []; 
+        
+        // Biến lưu trữ trạng thái đang đợi nhập text
+        let pendingCustomAnswer = null;
+        let pendingAnswerArea = null;
+
+        const delay = () => new Promise(resolve => setTimeout(resolve, Math.random() * 500 + 700));
+
+        function scrollToBottom() { chatScreen.scrollTop = chatScreen.scrollHeight; }
+
+        function showTyping() {
+            typingIndicator.style.display = 'flex';
+            chatScreen.appendChild(typingIndicator); 
+            scrollToBottom();
+        }
+
+        function hideTyping() { typingIndicator.style.display = 'none'; }
+
+        function vibrate() { if (navigator.vibrate) navigator.vibrate(30); }
+
+        function createHearts(count) {
+            vibrate();
+            for (let i = 0; i < count; i++) {
+                const heart = document.createElement('div');
+                heart.className = 'heart';
+                heart.innerHTML = '❤️';
+                heart.style.left = (window.innerWidth / 2) + (Math.random() - 0.5) * 100 + 'px';
+                heart.style.top = (window.innerHeight - 150) + 'px';
+                heart.style.setProperty('--flyX', (Math.random() - 0.5) * 200 + 'px');
+                heart.style.animationDelay = Math.random() * 0.3 + 's';
+                heart.style.fontSize = Math.random() * 10 + 15 + 'px';
+                effectsContainer.appendChild(heart);
+                heart.addEventListener('animationend', () => heart.remove());
+            }
+        }
+
+        function createHerMessage(text, isQuestion = false) {
+            const row = document.createElement('div');
+            row.className = 'msg-row msg-her';
+            
+            const bubbleClass = isQuestion ? 'bubble question' : 'bubble';
+            row.innerHTML = `
+                <div class="avatar"></div>
+                <div class="${bubbleClass}">${text}</div>
+            `;
+            
+            chatScreen.insertBefore(row, typingIndicator);
+            setTimeout(() => {
+                row.classList.add('show');
+                vibrate();
+                scrollToBottom();
+            }, 50);
+        }
+
+        function createMyMessage(text) {
+            const row = document.createElement('div');
+            row.className = 'msg-row msg-my';
+            row.innerHTML = `<div class="bubble">${text}</div>`;
+            
+            chatScreen.insertBefore(row, typingIndicator);
+            setTimeout(() => {
+                row.classList.add('show');
+                scrollToBottom();
+            }, 50);
+        }
+
+        async function playConversation(messages) {
+            for (const msg of messages) {
+                if (msg.type === 'her') {
+                    showTyping();
+                    await new Promise(r => setTimeout(r, 1200));
+                    hideTyping();
+                    createHerMessage(msg.text);
+                } else {
+                    await delay();
+                    createMyMessage(msg.text);
+                }
+                await delay();
+            }
+        }
+
+        async function displayQuestion(questionData, isRetry = false) {
+            resetInputBox(); // Reset lại ô text mỗi khi chuyển câu
+            
+            if (!isRetry) {
+                availableAnswers = questionData.answers.map((text, index) => ({ text, originalIndex: index }));
+                await delay();
+                createHerMessage(questionData.question, true); 
+            }
+
+            await new Promise(r => setTimeout(r, 800)); 
+
+            const answerArea = document.createElement('div');
+            answerArea.className = 'answer-area';
+            chatScreen.insertBefore(answerArea, typingIndicator);
+
+            availableAnswers.forEach((ans, idx) => {
+                const bubble = document.createElement('div');
+                bubble.className = 'answer-bubble';
+                bubble.innerHTML = ans.text;
+                
+                bubble.onclick = () => handleAnswerClick(ans, answerArea);
+                
+                answerArea.appendChild(bubble);
+
+                setTimeout(() => {
+                    bubble.classList.add('show');
+                    scrollToBottom();
+                }, idx * 150 + 50); 
+            });
+        }
+
+        // Đặt lại ô nhập text về trạng thái đóng
+        function resetInputBox() {
+            chatInput.value = '';
+            chatInput.disabled = true;
+            sendBtn.style.display = 'none';
+            heartBtn.style.display = 'inline-block';
+            pendingCustomAnswer = null;
+            pendingAnswerArea = null;
+        }
+
+        // Xử lý khi click vào 1 phương án
+        function handleAnswerClick(selectedAns, answerArea) {
+            const currentQuestion = questions[currentQuestionIndex];
+            
+            // NẾU phương án được click CẦN nhập text
+            if (currentQuestion.inputRequiredIndex === selectedAns.originalIndex) {
+                pendingCustomAnswer = selectedAns;
+                pendingAnswerArea = answerArea;
+                
+                // Mở khóa ô text và focus bàn phím
+                chatInput.disabled = false;
+                chatInput.focus();
+                
+                // Đổi icon Trái tim thành nút Gửi
+                heartBtn.style.display = 'none';
+                sendBtn.style.display = 'inline-block';
+                return; // Dừng tại đây chờ người dùng bấm gửi
+            }
+
+            // NẾU phương án BÌNH THƯỜNG (không cần nhập)
+            resetInputBox(); // Lỡ trước đó đang gõ chữ thì xóa đi
+            answerArea.remove();
+            processAnswerSubmission(selectedAns, currentQuestion);
+        }
+
+        // Xử lý sự kiện bấm nút Gửi
+        sendBtn.onclick = function() {
+            if (!pendingCustomAnswer || chatInput.value.trim() === '') return;
+            
+            // Sao chép tin nhắn ra biến tạm để không bị mất khi reset
+            const finalAnswer = {
+                text: chatInput.value.trim(),
+                originalIndex: pendingCustomAnswer.originalIndex
+            };
+            const areaToRemove = pendingAnswerArea;
+            const questionToProcess = questions[currentQuestionIndex];
+            
+            // Dọn dẹp giao diện nhập
+            resetInputBox();
+            areaToRemove.remove();
+            
+            // Xử lý bước tiếp theo
+            processAnswerSubmission(finalAnswer, questionToProcess);
+        };
+
+        // Gửi bằng phím Enter trên bàn phím
+        chatInput.addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                sendBtn.click();
+            }
+        });
+
+        // Xử lý Logic Câu trả lời được nộp đi
+        async function processAnswerSubmission(selectedAns, currentQuestion) {
+            createMyMessage(selectedAns.text);
+            await delay();
+
+            showTyping();
+            await new Promise(r => setTimeout(r, 1200));
+            hideTyping();
+            
+            let isCorrect = false;
+
+            if (currentQuestion.type === "any_correct") {
+                isCorrect = true; 
+            } else {
+                isCorrect = (selectedAns.originalIndex === currentQuestion.correct); 
+            }
+            
+            let herReplyText = "";
+            if (currentQuestion.customReplies && currentQuestion.customReplies[selectedAns.originalIndex]) {
+                herReplyText = currentQuestion.customReplies[selectedAns.originalIndex];
+            } else {
+                herReplyText = isCorrect ? currentQuestion.successMessage : currentQuestion.wrongMessage;
+            }
+
+            /* ========================================================
+               GỌI HÀM THEO DÕI GOOGLE FORM TẠI ĐÂY
+            ======================================================== */
+            sendDataToGoogleForm(currentQuestion.question, selectedAns.text, herReplyText);
+            
+            if (isCorrect) {
+                createHearts(20);
+                createHerMessage(herReplyText);
+                await delay();
+
+                currentQuestionIndex++;
+                if (currentQuestionIndex < questions.length) {
+                    displayQuestion(questions[currentQuestionIndex], false);
+                } else {
+                    endSequence();
+                }
+            } else {
+                createHerMessage(herReplyText);
+                await delay();
+                
+                availableAnswers = availableAnswers.filter(a => a.originalIndex !== selectedAns.originalIndex);
+                displayQuestion(currentQuestion, true);
+            }
+        }
+
+        async function endSequence() {
+            await delay();
+            await playConversation(finalConversation);
+            
+            const endScreen = document.getElementById('end-screen');
+            endScreen.classList.add('show');
+
+            const endHeartsInterval = setInterval(() => { createHearts(2); }, 300);
+
+            setTimeout(() => {
+                clearInterval(endHeartsInterval);
+                document.getElementById('final-bubble').classList.add('show');
+            }, 4000);
+        }
+
+        window.onload = async () => {
+            await delay(); 
+            await playConversation(initialConversation);
+            if (questions.length > 0) displayQuestion(questions[0]);
+        };
+
+    </script>
+</body>
+</html>
