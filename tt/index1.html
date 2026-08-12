@@ -1,770 +1,612 @@
 <!DOCTYPE html>
 <html lang="vi">
-<head> 
+<head>
     <meta charset="UTF-8">
-    <!-- Thêm viewport-fit=cover để tràn viền và xử lý tai thỏ -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Kỷ niệm 1 tháng của tụi mình ❤️</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trắc Nghiệm Dân Chủ</title>
     <style>
-        /* ==========================================
-           PHẦN 1: CẤU HÌNH VÀ BIẾN
-        ========================================== */
+        /* =========================================
+           CSS VARIABLES & RESET
+        ========================================= */
         :root {
-            /* Tên và Avatar */
-            --yourName: "cdangg"; 
-            --herAvatar: url("photo2.jpg"); 
-            
-            /* --- MÀU SẮC --- */
-            --myBubbleColor: #ff1493; 
-            --herBubbleColor: #3a0b3f; 
-            --headerColor: #8b1d72; 
-            
-            /* Hình nền chat */
-            --chatBackground: url("photo1.jpg"); 
-
-            /* --- CÁC ICON TÙY CHỈNH --- */
-            --iconBack: url("photo6.jpg");
-            --iconCall: url("photo3.jpg");
-            --iconVideo: url("photo4.jpg");
-            --iconInfo: url("photo5.jpg");
-            
-            /* Dùng 1 ảnh chữ nhật chứa cả cụm (cộng, camera, thư viện, mic) */
-            --iconGallery: url("photo7.jpg");
-            
-            /* Icon bên phải */
-            --iconHeart: url("photo8.jpg");
-
-            --fontFamily: 'Roboto', 'Segoe UI', 'SF Pro', sans-serif;
+            --primary: #4a90e2;
+            --success: #2ecc71;
+            --danger: #e74c3c;
+            --bg-color: #f5f7fa;
+            --card-bg: #ffffff;
+            --text-main: #2c3e50;
+            --text-muted: #7f8c8d;
         }
 
-        /* ==========================================
-           PHẦN 2: CSS GIAO DIỆN VÀ ANIMATION
-        ========================================== */
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-
-        /* KHÓA CHẾT TRÌNH DUYỆT ĐỂ KHÔNG BỊ TRƯỢT KHI BÀN PHÍM MỞ */
-        html, body {
-            height: 100%;
-            width: 100%;
+        * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            overflow: hidden; 
-            position: fixed; /* Bắt buộc để tránh lỗi scroll của iOS */
-            top: 0; left: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
         body {
-            font-family: var(--fontFamily);
-            color: white;
-            background-color: #1a1a1a; 
+            background-color: var(--bg-color);
+            color: var(--text-main);
             display: flex;
-            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+            background-image: radial-gradient(#d1d8e0 1px, transparent 1px);
+            background-size: 20px 20px;
         }
 
-        /* LỚP HÌNH NỀN TÁCH RỜI (Sửa lỗi giật hình của iOS) */
-        .bg-wrapper {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background-image: var(--chatBackground);
-            background-size: cover;
-            background-position: center;
-            z-index: -1;
+        /* =========================================
+           MAIN CONTAINER & CARD UI
+        ========================================= */
+        .game-wrapper {
+            width: 90%;
+            max-width: 600px;
+            background: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            padding: 30px;
+            text-align: center;
+            position: relative;
         }
 
-        /* Thay đổi nhỏ kích thước icon để vừa với đt hẹp */
-        .custom-icon {
-            width: 38px; height: 38px;
-            background-size: contain; 
-            background-repeat: no-repeat;
-            background-position: center; 
-            display: inline-block;
-            flex-shrink: 0; 
+        .question-title {
+            font-size: 24px;
+            margin-bottom: 20px;
+            line-height: 1.4;
         }
 
-        .custom-icon.icon-cluster {
-            width: 110px; 
-            background-position: left center;
-        }
-
-        /* HEADER */
-        header {
-            background-color: var(--headerColor); 
-            /* Thêm safe-area-top để không bị lẹm vào tai thỏ iPhone */
-            padding: calc(10px + env(safe-area-inset-top)) 15px 10px 15px;
-            display: flex; align-items: center; justify-content: space-between;
-            width: 100%; z-index: 1000;
-            flex-shrink: 0; 
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-        }
-        header .left { display: flex; align-items: center; gap: 8px; }
-        header .avatar-container {
-            width: 42px; height: 42px; border-radius: 50%;
-            background-image: var(--herAvatar); background-size: cover; background-position: center;
-            background-color: #555; 
-        }
-        header .info { display: flex; flex-direction: column; }
-        header .name { font-weight: bold; font-size: 16px; }
-        header .status { font-size: 12px; opacity: 0.8; }
-        header .right { display: flex; gap: 10px; }
-
-        /* FOOTER */
-        footer {
-            background-color: rgb(44, 1, 52); 
-            /* Thêm safe-area-bottom để né thanh vuốt ngang của điện thoại */
-            padding: 10px 10px calc(10px + env(safe-area-inset-bottom)) 10px;
-            width: 100%;
-            display: flex; align-items: center; justify-content: space-between; gap: 8px;
-            z-index: 1000;
-            flex-shrink: 0; 
-        }
-        footer .icons-left { display: flex; align-items: center; flex-shrink: 0; }
-        
-        /* Thẻ input nhập liệu */
-        footer .input-bar {
-            flex: 1; background-color: rgba(255, 255, 255, 0.15);
-            padding: 10px 15px; border-radius: 20px; font-size: 15px;
-            color: white; border: none; outline: none;
-            font-family: inherit;
-            min-width: 0; /* Quan trọng: Không đẩy các icon ra viền */
-        }
-        footer .input-bar::placeholder {
-            color: rgba(255, 255, 255, 0.7);
-        }
-        
-        /* Nút Gửi */
-        #send-btn {
-            color: var(--myBubbleColor);
+        .hint-text {
+            position: relative;
+            cursor: help;
+            border-bottom: 2px dashed var(--danger);
+            color: var(--danger);
             font-weight: bold;
-            font-size: 16px;
-            cursor: pointer;
-            padding: 5px;
-            display: none;
+        }
+        .hint-text::after {
+            content: "(Mật mã lồng sắt: 1357)";
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #333;
+            color: #fff;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 14px;
             white-space: nowrap;
-            flex-shrink: 0;
-            margin-left: 5px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
         }
+        .hint-text:hover::after {
+            opacity: 1;
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            width: 100%;
+            background: #ecf0f1;
+            border-radius: 10px;
+            height: 20px;
+            margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: var(--danger);
+            width: 0%;
+            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .progress-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 12px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        /* =========================================
+           LAYER MANAGEMENT & ANIMATIONS
+        ========================================= */
+        .layer {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+        .layer.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            50% { transform: translateX(10px); }
+            75% { transform: translateX(-10px); }
+        }
+        .shake-anim { animation: shake 0.4s ease; }
+
+        .btn {
+            padding: 12px 24px;
+            font-size: 18px;
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.2s, background 0.2s;
+        }
+        .btn:active { transform: scale(0.95); }
         
-        #heart-btn {
-            flex-shrink: 0;
-        }
-
-        /* KHU VỰC CHAT ĐỘC LẬP TỰ CUỘN */
-        #chat-screen {
-            flex: 1; 
-            padding: 15px; 
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch; /* Cuộn mượt trên iOS */
-            display: flex; flex-direction: column; scroll-behavior: smooth;
-        }
-
-        .msg-row {
-            width: 100%; display: flex; margin-bottom: 12px;
-            transform: translateY(20px); opacity: 0;
-            transition: transform 0.3s ease-out, opacity 0.3s ease-out;
-        }
-        .msg-row.show { transform: translateY(0); opacity: 1; }
+        .btn-yes { background: var(--success); color: white; margin-bottom: 15px; width: 100%; padding: 20px; font-size: 22px; }
+        .btn-yes:hover { background: #27ae60; }
         
-        .bubble {
-            max-width: 75%; padding: 10px 15px;
-            font-size: 15.5px; line-height: 1.4; color: white;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.2);
-            word-wrap: break-word;
+        .btn-no-start { background: var(--text-muted); color: white; width: 100%; }
+        .btn-no-start:hover { background: #95a5a6; }
+
+        /* =========================================
+           LAYER 1: BUTTON MATRIX
+        ========================================= */
+        .matrix-container {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .matrix-btn {
+            padding: 15px 0;
+            background: var(--danger);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .matrix-btn.fake-clicked {
+            background: var(--success) !important;
+            color: white;
+            pointer-events: none;
         }
 
-        .msg-my { justify-content: flex-end; }
-        .msg-my .bubble {
-            background-color: var(--myBubbleColor);
-            border-radius: 18px 18px 4px 18px;
+        /* =========================================
+           LAYER 2: THE CAGE
+        ========================================= */
+        .cage-wrapper {
+            border: 6px solid #2c3e50;
+            padding: 40px 20px;
+            border-radius: 12px;
+            position: relative;
+            background-image: repeating-linear-gradient(90deg, transparent, transparent 30px, rgba(44, 62, 80, 0.1) 30px, rgba(44, 62, 80, 0.1) 40px);
+        }
+        .padlock {
+            background: #f1c40f;
+            display: inline-block;
+            padding: 15px;
+            border-radius: 10px;
+            border: 3px solid #d4ac0d;
+        }
+        .padlock input {
+            font-size: 24px;
+            width: 100px;
+            text-align: center;
+            letter-spacing: 5px;
+            border: 2px solid #333;
+            border-radius: 5px;
+            padding: 5px;
+            font-weight: bold;
+        }
+        .btn-unlock {
+            background: #333;
+            color: #fff;
+            margin-top: 10px;
+            width: 100%;
         }
 
-        .msg-her { justify-content: flex-start; align-items: flex-end; gap: 8px; }
-        .msg-her .avatar {
-            width: 30px; height: 30px; border-radius: 50%; flex-shrink: 0;
-            background-image: var(--herAvatar); background-size: cover; background-position: center;
-            background-color: #555;
+        /* =========================================
+           LAYER 3: DRAG & DROP PUZZLE
+        ========================================= */
+        .puzzle-wrapper {
+            margin: 30px 0;
         }
-        .msg-her .bubble {
-            background-color: var(--herBubbleColor);
-            border-radius: 18px 18px 18px 4px;
+        .zones-container, .pieces-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .drop-zone {
+            width: 80px;
+            height: 80px;
+            border: 3px dashed #bdc3c7;
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #fafafa;
+        }
+        .draggable-piece {
+            width: 70px;
+            height: 70px;
+            background: var(--danger);
+            color: white;
+            font-size: 40px;
+            font-weight: bold;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 8px;
+            cursor: grab;
+            user-select: none;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+        }
+        .draggable-piece:active { cursor: grabbing; }
+        .draggable-piece.selected { border: 3px solid var(--primary); transform: scale(1.05); }
+
+        /* =========================================
+           LAYER 4: CAPTCHA TRAP
+        ========================================= */
+        .captcha-container {
+            border: 1px solid #dcdcdc;
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 4px;
+            text-align: left;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .captcha-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+        .captcha-row input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+        .trap-row {
+            margin-top: -5px;
+            margin-bottom: 20px;
+            margin-left: 30px;
+        }
+        .trap-row label {
+            font-size: 11px;
+            color: #999;
+            cursor: pointer;
+        }
+        .trap-row input {
+            transform: scale(0.8);
         }
 
-        .msg-her .bubble.question {
-            background-color: rgba(58, 11, 63);
+        /* =========================================
+           RESULT SCREEN
+        ========================================= */
+        .stamp {
+            font-size: 40px;
+            font-weight: 900;
+            color: var(--success);
+            border: 5px solid var(--success);
+            display: inline-block;
+            padding: 10px 30px;
+            border-radius: 10px;
+            transform: rotate(-10deg);
+            margin-top: 20px;
         }
-
-        .typing-bubble {
-            background-color: var(--herBubbleColor);
-            padding: 12px 18px; border-radius: 18px 18px 18px 4px;
-            display: flex; gap: 5px; align-items: center;
-        }
-        .typing-bubble span {
-            width: 6px; height: 6px; background-color: rgba(255, 255, 255, 0.6);
-            border-radius: 50%; display: block; animation: typing 1.4s infinite;
-        }
-        .typing-bubble span:nth-child(2) { animation-delay: 0.2s; }
-        .typing-bubble span:nth-child(3) { animation-delay: 0.4s; }
-        @keyframes typing {
-            0%, 60%, 100% { transform: translateY(0); }
-            30% { transform: translateY(-4px); background-color: white; }
-        }
-
-        .answer-area {
-            align-self: flex-end; width: 100%; display: flex; flex-direction: column;
-            align-items: flex-end; gap: 8px; margin-bottom: 12px;
-        }
-        .answer-bubble {
-            background-color: rgba(255, 255, 255, 0.15); padding: 12px 15px;
-            border-radius: 18px; font-size: 15px; cursor: pointer; max-width: 80%;
-            border: 1px solid rgba(255, 255, 255, 0.3); text-align: right;
-            transform: translateY(15px); opacity: 0;
-            transition: transform 0.3s ease, opacity 0.3s ease, background-color 0.2s;
-        }
-        .answer-bubble.show { transform: translateY(0); opacity: 1; }
-        .answer-bubble:active { background-color: rgba(255, 255, 255, 0.4); }
-
-        #effects-container {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            pointer-events: none; z-index: 2000;
-        }
-        .heart {
-            position: absolute; color: #ff1493; font-size: 20px;
-            animation: flyUp 2s linear forwards; opacity: 0;
-        }
-        @keyframes flyUp {
-            0% { transform: translate(0, 0) scale(1); opacity: 1; }
-            100% { transform: translate(var(--flyX), -100vh) scale(0); opacity: 0; }
-        }
-
-        #end-screen {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background-color: black; opacity: 0; pointer-events: none;
-            transition: opacity 2s; z-index: 1500;
-        }
-        #end-screen.show { opacity: 0.8; }
-        .final-special {
-            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            background-color: var(--myBubbleColor); padding: 25px 30px;
-            border-radius: 25px; font-size: 18px; font-weight: bold;
-            text-align: center; opacity: 0; z-index: 2100; display: none;
-            width: 80%; line-height: 1.5; box-shadow: 0 5px 15px rgba(0,0,0,0.5);
-        }
-        .final-special.show { display: block; animation: fadeInSpecial 1s forwards; }
-        @keyframes fadeInSpecial { to { opacity: 1; } }
-
     </style>
 </head>
 <body>
 
-    <!-- LỚP HÌNH NỀN -->
-    <div class="bg-wrapper"></div>
+<div class="game-wrapper">
+    <div class="progress-container" id="progress-wrapper">
+        <div class="progress-fill" id="progress-bar"></div>
+        <div class="progress-text" id="progress-text">Tiến độ chọn NO: 0%</div>
+    </div>
 
-    <!-- HEADER -->
-    <header>
-        <div class="left">
-            <div class="custom-icon" style="background-image: var(--iconBack);"></div>
-            <div class="avatar-container"></div>
-            <div class="info">
-                <span class="name">aiuu</span>
-                <span class="status">Đang hoạt động.</span>
+    <!-- MAIN QUESTION -->
+    <h1 class="question-title">
+       Vợ có muốn <span class="hint-text">nhận được 500k</span> không?
+    </h1>
+
+    <!-- LAYER 0: START -->
+    <div id="layer-0" class="layer active">
+        <button class="btn btn-yes" onclick="forceYes('Wao ham tiền ghê', 'Chọn YES ngay từ đầu không 1 chút suy nghĩ')">
+            YES
+        </button>
+        <button class="btn btn-no-start" onclick="goToLayer(1)">
+            No (Nhấn để từ chối)
+        </button>
+    </div>
+
+    <!-- LAYER 1: BUTTON MATRIX -->
+    <div id="layer-1" class="layer">
+        <p>Hệ thống yêu cầu xác nhận. Hãy tìm nút <strong>NO</strong> thật sự trong ma trận này:</p>
+        <div class="matrix-container" id="matrix-grid"></div>
+    </div>
+
+    <!-- LAYER 2: THE CAGE -->
+    <div id="layer-2" class="layer">
+        <p>Nút NO đã bị khóa bảo mật. Hãy tìm gợi ý ẩn đâu đó ở câu hỏi chính để mở khóa.</p>
+        <div class="cage-wrapper">
+            <div class="padlock" id="padlock-box">
+                <input type="password" id="cage-pwd" maxlength="4" placeholder="****" autocomplete="off">
+                <button class="btn btn-unlock" onclick="checkCagePassword()">Mở Khóa</button>
             </div>
-        </div>
-        <div class="right">
-            <div class="custom-icon" style="background-image: var(--iconCall);"></div>
-            <div class="custom-icon" style="background-image: var(--iconVideo);"></div>
-            <div class="custom-icon" style="background-image: var(--iconInfo);"></div>
-        </div>
-    </header>
-
-    <!-- KHU VỰC CHAT -->
-    <div id="chat-screen">
-        <div class="msg-row msg-her" id="typing-indicator" style="display: none;">
-            <div class="avatar"></div>
-            <div class="typing-bubble"><span></span><span></span><span></span></div>
         </div>
     </div>
 
-    <!-- FOOTER -->
-    <footer>
-        <div class="icons-left">
-            <div class="custom-icon icon-cluster" style="background-image: var(--iconGallery);"></div>
+    <!-- LAYER 3: DRAG & DROP PUZZLE -->
+    <div id="layer-3" class="layer">
+        <p>Nút NO đã bị vỡ! Hãy kéo thả (hoặc click chọn) để ghép các mảnh lại đúng thứ tự.</p>
+        <div class="puzzle-wrapper">
+            <div class="zones-container">
+                <div class="drop-zone" id="zone1"></div>
+                <div class="drop-zone" id="zone2"></div>
+            </div>
+            <div class="pieces-container" id="pieces-tray">
+                <div class="draggable-piece" id="pieceN" draggable="true">N</div>
+                <div class="draggable-piece" id="pieceO" draggable="true">O</div>
+            </div>
         </div>
+    </div>
+
+    <!-- LAYER 4: CAPTCHA TRAP -->
+    <div id="layer-4" class="layer">
+        <p>Bước kiểm tra cuối cùng để ghi nhận lựa chọn NO của vợ:</p>
+        <div class="captcha-container">
+            <div class="captcha-row">
+                <input type="checkbox" id="check-human">
+                <label for="check-human">Tôi không phải người máy và muốn chọn NO</label>
+            </div>
+            <div class="captcha-row trap-row">
+                <input type="checkbox" id="check-trap">
+                <label for="check-trap">Tôi đồng ý tuân thủ điều 3: Chuyển mọi quyết định NO thành YES.</label>
+            </div>
+        </div>
+        <button class="btn" style="background: var(--primary); color: white; width: 100%;" onclick="submitCaptcha()">
+            Xác Nhận Cuối Cùng
+        </button>
+    </div>
+
+    <!-- RESULT VIEW -->
+    <div id="result" class="layer">
+        <h2 id="result-title" style="margin-bottom: 10px;">Thành công!</h2>
+        <p id="result-desc">+500K.</p>
+        <div class="stamp" id="result-stamp">YES</div>
+    </div>
+</div>
+
+<script>
+    /* =========================================
+       GOOGLE FORMS TRACKING INTEGRATION
+    ========================================= */
+    // 1. Tạo ID người chơi ngẫu nhiên (Ví dụ: USER_A1B2C3)
+    const sessionId = "USER_" + Math.random().toString(36).substring(2, 8).toUpperCase();
+    
+    // 2. Nội dung câu hỏi (Cố định để gửi biểu mẫu)
+    const questionText = "Vợ có muốn được tặng 500k không?";
+
+    // 3. Hàm gửi dữ liệu ngầm lên Google Form
+    function sendTrackingData(userAction, resultReturned) {
+        // Chú ý: Đuôi URL phải là /formResponse (thay vì /viewform) để cho phép Gửi dữ liệu.
+        const formActionURL = "https://docs.google.com/forms/d/e/1FAIpQLSe4Jvx2uI27uJQTt9Xn6QdFj59c53kFNIRbxyFeirMOOEFE4g/formResponse";
         
-        <!-- Thanh nhập đã đổi thành thẻ input -->
-        <input type="text" class="input-bar" id="chat-input" placeholder="Nhắn tin..." disabled autocomplete="off">
-        
-        <!-- Nút Gửi (Mặc định ẩn) -->
-        <div id="send-btn">Gửi</div>
-        
-        <!-- Icon Tim -->
-        <div class="custom-icon" id="heart-btn" style="background-image: var(--iconHeart);"></div>
-    </footer>
+        const formData = new URLSearchParams();
+        formData.append("entry.1666228409", sessionId);      // ID random
+        formData.append("entry.1275903316", questionText);   // Câu hỏi
+        formData.append("entry.444679017", userAction);      // Lựa chọn / Hành động của cô ấy
+        formData.append("entry.1158846627", resultReturned); // Trả lời từ hệ thống
 
-    <!-- HIỆU ỨNG -->
-    <div id="effects-container"></div>
-    <div id="end-screen"></div>
-    <div class="final-special" id="final-bubble">Chúc mừng kỷ niệm 1 tháng của tụi mình, em có muốn hỏi lại anh câu nào thì em cứ tự nhiên nhee❤️</div>
-
-    <script>
-        /* ==========================================
-           PHẦN 3: KHAI BÁO CÁC PHẦN TỬ GIAO DIỆN (DOM)
-           (Phải đặt đầu tiên để tránh lỗi ReferenceError)
-        ========================================== */
-        const chatScreen = document.getElementById('chat-screen');
-        const typingIndicator = document.getElementById('typing-indicator');
-        const effectsContainer = document.getElementById('effects-container');
-        
-        const chatInput = document.getElementById('chat-input');
-        const sendBtn = document.getElementById('send-btn');
-        const heartBtn = document.getElementById('heart-btn');
-
-        /* ==========================================
-           CÁC HÀM TIỆN ÍCH CƠ BẢN
-        ========================================== */
-        const delay = () => new Promise(resolve => setTimeout(resolve, Math.random() * 500 + 700));
-
-        function scrollToBottom() { 
-            if (chatScreen) {
-                chatScreen.scrollTop = chatScreen.scrollHeight; 
-            }
-        }
-
-        /* ==========================================
-           QUẢN LÝ CHIỀU CAO CHỐNG BÀN PHÍM CHE (Visual Viewport API)
-        ========================================== */
-        function adjustLayoutForKeyboard() {
-            if (window.visualViewport) {
-                // Ép chiều cao body bằng đúng phần không gian mà màn hình còn lại khi bàn phím nhô lên
-                document.body.style.height = window.visualViewport.height + 'px';
-            }
-            scrollToBottom();
-        }
-
-        // Lắng nghe sự thay đổi của VisualViewport (khi bàn phím mở/đóng)
-        if (window.visualViewport) {
-            window.visualViewport.addEventListener('resize', adjustLayoutForKeyboard);
-            window.visualViewport.addEventListener('scroll', adjustLayoutForKeyboard);
-        }
-        // Gọi hàm 1 lần lúc trang web vừa load
-        adjustLayoutForKeyboard();
-
-        // Kéo màng hình xuống sau khi Focus (Bấm vào input)
-        chatInput.addEventListener('focus', () => {
-            setTimeout(scrollToBottom, 300);
+        // Gửi ngầm không tải lại trang (mode: 'no-cors' bỏ qua lỗi chính sách bảo mật)
+        fetch(formActionURL, {
+            method: "POST",
+            mode: "no-cors",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded"
+            },
+            body: formData.toString()
+        }).then(() => {
+            console.log("Đã bí mật gửi dữ liệu cho chủ nhân!");
+        }).catch((err) => {
+            console.error("Lỗi gửi Form: ", err);
         });
+    }
 
-        // Bỏ focus khi bấm ra ngoài vùng Chat
-        chatScreen.addEventListener('touchstart', () => {
-            if(document.activeElement === chatInput) {
-                chatInput.blur();
+
+    /* =========================================
+       STATE MANAGEMENT
+    ========================================= */
+    let currentLayer = 0;
+    const progressLevels = [0, 25, 50, 75, 100]; 
+
+    function goToLayer(layerNum) {
+        document.querySelectorAll('.layer').forEach(l => l.classList.remove('active'));
+        document.getElementById(`layer-${layerNum}`).classList.add('active');
+        currentLayer = layerNum;
+        
+        const progressPercent = progressLevels[layerNum - 1] || 0;
+        document.getElementById('progress-bar').style.width = `${progressPercent}%`;
+        document.getElementById('progress-text').innerText = `Tiến độ chọn NO: ${progressPercent}%`;
+
+        if (layerNum === 1) initLayer1();
+        if (layerNum === 3) initLayer3();
+    }
+
+    /* =========================================
+       END GAME LOGICS
+    ========================================= */
+    function forceYes(reasonText, trackingActionContext) {
+        document.querySelectorAll('.layer').forEach(l => l.classList.remove('active'));
+        document.getElementById('progress-wrapper').style.display = 'none'; 
+        
+        const res = document.getElementById('result');
+        res.classList.add('active');
+        
+        document.getElementById('result-title').innerText = "Hệ thống ghi nhận: YES!";
+        document.getElementById('result-title').style.color = "var(--success)";
+        document.getElementById('result-desc').innerText = reasonText;
+        document.getElementById('result-stamp').innerText = "YES";
+
+        // Gửi dữ liệu về Google Form
+        sendTrackingData(trackingActionContext, reasonText);
+    }
+
+    function trollSuccessEnd() {
+        document.querySelectorAll('.layer').forEach(l => l.classList.remove('active'));
+        document.getElementById('progress-wrapper').style.display = 'none';
+        
+        const res = document.getElementById('result');
+        res.classList.add('active');
+        
+        document.getElementById('result-title').innerText = "Hệ thống ghi nhận bạn đã chọn NO thành công!";
+        document.getElementById('result-title').style.color = "var(--danger)";
+        const finalMess = "Tuy nhiên theo quy định điều 3, mọi lựa chọn NO đều tự động tính là YES. Cảm ơn sự cống hiến của vợ!";
+        document.getElementById('result-desc').innerHTML = `Tuy nhiên theo <b>quy định điều 3</b>, mọi lựa chọn NO đều tự động tính là YES. Cảm ơn sự cống hiến của vợ!`;
+        document.getElementById('result-stamp').innerText = "Cố chấp ghê ha nhưng mà vẫn có tiền.";
+
+        // Gửi dữ liệu về Google Form (Trường hợp "cô ấy" cứng đầu chơi tới cùng)
+        sendTrackingData("Cố chấp vượt qua mọi Layer để chọn NO", finalMess);
+    }
+
+    /* =========================================
+       LAYER 1 LOGIC: MATRIX
+    ========================================= */
+    function initLayer1() {
+        const grid = document.getElementById('matrix-grid');
+        if (grid.children.length > 0) return; 
+
+        const totalButtons = 30;
+        const realIndex = Math.floor(Math.random() * totalButtons);
+
+        for (let i = 0; i < totalButtons; i++) {
+            const btn = document.createElement('button');
+            btn.className = 'matrix-btn';
+            btn.innerText = 'NO';
+            
+            if (i === realIndex) {
+                btn.onclick = () => goToLayer(2);
+            } else {
+                btn.onclick = function() {
+                    this.innerText = 'YES!';
+                    this.classList.add('fake-clicked');
+                    // Tùy chọn: Bắn tracking ngầm nhẹ mỗi khi bấp nhầm nút NO giả
+                    sendTrackingData("Bấm nhầm nút NO giả ở Layer 1", "Nút tự biến thành chữ YES!");
+                };
             }
-        });
+            grid.appendChild(btn);
+        }
+    }
 
-        /* ==========================================
-           TẠO SESSION ID NGẪU NHIÊN ĐỂ THEO DÕI
-        ========================================== */
-        const sessionID = "USER_" + Math.random().toString(36).substr(2, 6).toUpperCase();
+    /* =========================================
+       LAYER 2 LOGIC: THE CAGE
+    ========================================= */
+    function checkCagePassword() {
+        const pwd = document.getElementById('cage-pwd').value;
+        const padlockBox = document.getElementById('padlock-box');
+        
+        if (pwd === '1357') {
+            goToLayer(3);
+        } else {
+            padlockBox.classList.remove('shake-anim');
+            void padlockBox.offsetWidth; 
+            padlockBox.classList.add('shake-anim');
+            document.getElementById('cage-pwd').value = '';
+        }
+    }
 
-        /* ==========================================
-           HÀM GỬI DỮ LIỆU LÊN GOOGLE FORM
-        ========================================== */
-        function sendDataToGoogleForm(question, answer, reply) {
-            const formURL = "https://docs.google.com/forms/d/e/1FAIpQLSe4Jvx2uI27uJQTt9Xn6QdFj59c53kFNIRbxyFeirMOOEFE4g/formResponse";
-            const cleanQuestion = question.replace(/<br>/gi, ' - ');
+    /* =========================================
+       LAYER 3 LOGIC: DRAG & DROP PUZZLE
+    ========================================= */
+    function initLayer3() {
+        const pieces = document.querySelectorAll('.draggable-piece');
+        const zones = document.querySelectorAll('.drop-zone');
+        let selectedPiece = null; 
 
-            const formData = new FormData();
-            formData.append("entry.1666228409", sessionID);     // ID Ngẫu nhiên
-            formData.append("entry.1275903316", cleanQuestion); // Câu hỏi
-            formData.append("entry.444679017", answer);         // Lựa chọn của cô ấy
-            formData.append("entry.1158846627", reply);         // Phản hồi của hệ thống
+        const tray = document.getElementById('pieces-tray');
+        pieces.forEach(p => tray.appendChild(p));
 
-            fetch(formURL, {
-                method: "POST",
-                mode: "no-cors",
-                body: formData
-            }).then(() => {
-                console.log("Data sent to Google Form successfully");
-            }).catch((err) => {
-                console.error("Error sending data to Google Form", err);
+        pieces.forEach(p => {
+            p.addEventListener('dragstart', (e) => {
+                e.dataTransfer.setData('text/plain', e.target.id);
             });
-        }
-
-        /* ==========================================
-           DỮ LIỆU CÂU HỎI VÀ ĐOẠN CHAT
-        ========================================== */
-        const questions = [
-            {
-                question: "Câu hỏi 1...<br>Điều gì làm chồng vui nhất?",
-                answers: ["Được ngủ 😴", "Được vợ chủ động nhắn tin ❤️", "Được chơi game 🎮"],
-                correct: 1, 
-                successMessage: "Đúng ròi nè ❤️ Vợ giỏi quá! Tui mong chờ tin nhắn của mí người lắm đó nha",
-                wrongMessage: "Sai rồi bé ơi, chọn lại đi nè 🥺"
-            },
-            {
-                question: "Câu hỏi 2...<br>Khi chồng buồn thì chồng thường muốn gì?",
-                answers: ["Muốn ở một mình", "Muốn được nói chuyện với vợ", "Muốn ăn"],
-                correct: 1,
-                successMessage: "Đrui ạ! Trời mưa phải trốn dưới nóc nhà chớ 😘",
-                wrongMessage: "Hong đúng gòi, thử suy nghĩ lại xíu i!"
-            },
-            {
-                question: "Câu hỏi 3...<br>Điều gì ở vợ khiến chồng thích nhất?",
-                answers: ["Hay dỗi 🤭", "Quan tâm và bảo vệ chồng", "Cả 2"],
-                correct: 2,
-                successMessage: "Chồng thích luon mọi thứ về vợ ahihi",
-                wrongMessage: "Sao hongg hỉu tui gì hết dợ! Nói lại."
-            },
-            {
-                id: "cau_4",
-                type: "any_correct", 
-                inputRequiredIndex: 2, // Bật gõ phím cho đáp án 3
-                question: "Câu hỏi 4...<br>Kỷ niệm nào làm vợ thấy nhớ nhất?",
-                answers: [
-                    "Lần hai đứa giận nhau", 
-                    "Lần gọi điện nói chuyện khuya", 
-                    "Một kỷ niệm khác (Viết ra nha)"
-                ],
-                customReplies: [
-                    "Hong đáng để nhớ lắm, nhưng nhờ vậy mà tụi mình hiểu nhau hơn đó chớ", 
-                    "Chỉ cần nghe giọng vợ thôi là thấy ngày hôm nay quá đáng iu ròi", 
-                    "Nếu vợ thấy kỉ niệm đó đáng nhớ thì chắc nó cũng quan trọng với chồng lắm á" 
-                ]
-            },
-            {
-                id: "cau_5",
-                type: "any_correct", 
-                question: "Câu 5...<br>Nếu được quay lại ngày đầu quen nhau?",
-                answers: [
-                    "Vẫn chọn quen chồng", 
-                    "Quen sớm hơn", 
-                    "Suy nghĩ thêm chút"
-                ],
-                customReplies: [
-                    "Cảm ơn vợ vì đã chọn chồng thêm một lần nữa hihi", 
-                    "Chồng cũng nghĩ d. Biết nhau sớm hơn chắc đỡ nhớ haa", 
-                    "Vậy chắc chồng sẽ cố tán vợ thêm lần nữa ớ"
-                ]
-            },
-            {
-                id: "cau_6",
-                type: "any_correct", 
-                inputRequiredIndex: 2, 
-                question: "Câu 6...<br>Với thời gian bên nhau vừa qua vợ chấm chồng được mấy điểm?",
-                answers: [
-                    "10/10", 
-                    "9/10 (tạm tạm)", 
-                    "8/10 (Ghi rõ thiếu sót...)"
-                ],
-                customReplies: [
-                    "😎 Chồng xin cảm ơn giám khảo, nhưng vẫn sẽ cố để tháng sau không bị tụt điểm =))", 
-                    "Thiếu 1 điểm thì chồng xin đổi bằng một cái hun ạ :>", 
-                    "Nếu là thiếu sót thiệt thì chồng xin ghi nhận và thay đổi ạa"
-                ]
-            },
-            {
-                id: "cau_7",
-                type: "any_correct", 
-                question: "Câu 7...<br>Điều vợ mong nhất là gì?",
-                answers: [
-                    "Quan tâm vợ nhiều hơn", 
-                    "Tin tưởng vợ nhiều hơn", 
-                    "Luôn ở bên dù có chuyện gì"
-                ],
-                customReplies: [
-                    "Vâng ạ. Chồng sẽ để ý vợ nhiều hơn nữa", 
-                    "Chồng sẽ cố để vợ luôn thấy an toàn ạ", 
-                    "Đây cũng là điều chồng muốn hứa với vợ nhứt ạ"
-                ]
-            },
-            {
-                id: "cau_8",
-                type: "any_correct", 
-                question: "Câu 8...<br>Sau này cãi nhau thì sao?",
-                answers: [
-                    "Chồng phải chủ động xin lỗi", 
-                    "Chiến tranh lạnh luôn", 
-                    "Ngồi nói rõ với nhau"
-                ],
-                customReplies: [
-                    "Nếu chồng sai thì xin lỗi ngay ạ, còn em sai thì em tự biet đê chớ", 
-                    "Hong có được đâu nha, vậy là dễ đi lắm đó", 
-                    "Đây là cách chồng cũng mong hai đứa sẽ làm ạ, mà hong biết vợ có chịu hong thoi"
-                ]
-            },
-            {
-                id: "cau_9",
-                type: "any_correct", 
-                inputRequiredIndex: 2, 
-                question: "Câu 9...<br>Điều muốn nhắn cho chồng?",
-                answers: [
-                    "Thương em nhiều hơn nha", 
-                    "Đừng bỏ em một mình", 
-                    "Viết câu riêng"
-                ],
-                customReplies: [
-                    "💖 Daa, chồng hứa sẽ thương vợ ngày hôm sau nhìu hơn ngày hôm trước ạ", 
-                    "💖 Daa, chồng thương vợ lắm ạ, mỗi lần có chuyện mình đừng bỏ nhau nhaa", 
-                    "✨ Daa chồng hiểu ròi ạ, xíu nữa chồng sẽ nói với vợ sau"
-                ]
-            },
-            {
-                id: "cau_10",
-                type: "any_correct", 
-                question: "Câu cuối (đặc biệt)...<br>Vợ có muốn tiếp tục đồng hành với chồng thật nhìu tháng sau nữa hông?",
-                answers: [
-                    "Có ❤️", 
-                    "Rất có ❤️❤️", 
-                    "Có mãi luôn 🥺"
-                ],
-                customReplies: [
-                    " Nghe vợ nói vậy là chồng vui lắm ròi.", 
-                    "😭 Vậy chồng phải cố gắng để xứng đáng với câu trả lời này.", 
-                    "❤️ Cảm ơn vợ vì đã bước vào cuộc đời chồng. Tháng đầu tiên chỉ là khởi đầu thui, chồng mong sẽ còn rất nhìu tháng, rất nhìu năm nữa được cùng vợ tạo thêm thật nhiều kỷ niệm đẹp nhó."
-                ]
-            }
-        ];
-
-        const initialConversation = [
-            { type: 'her', text: "Vợ oii" },
-            { type: 'her', text: "Anh nhớ em quá i" },
-            { type: 'her', text: "Mà tụi mình quen nhau được tròn một tháng ròi á" },
-            { type: 'her', text: "Anh sẽ hỏi em vài câu hỏi nha ^^" }
-        ];
-
-        const finalConversation = [
-            { type: 'her', text: "Cảm ơn em vì đã chọn ở cạnh anh" },
-            { type: 'her', text: "Một tháng chưa phải dài" },
-            { type: 'her', text: "Nhưng đủ để anh biết..." },
-            { type: 'her', text: "Anh thương vợ nhiều lắm ❤️" }
-        ];
-
-        /* ==========================================
-           LOGIC ĐIỀU KHIỂN CHÍNH
-        ========================================== */
-        let currentQuestionIndex = 0;
-        let availableAnswers = []; 
-        let pendingCustomAnswer = null;
-        let pendingAnswerArea = null;
-
-        function showTyping() {
-            typingIndicator.style.display = 'flex';
-            chatScreen.appendChild(typingIndicator); 
-            scrollToBottom();
-        }
-
-        function hideTyping() { typingIndicator.style.display = 'none'; }
-
-        function vibrate() { if (navigator.vibrate) navigator.vibrate(30); }
-
-        function createHearts(count) {
-            vibrate();
-            for (let i = 0; i < count; i++) {
-                const heart = document.createElement('div');
-                heart.className = 'heart';
-                heart.innerHTML = '❤️';
-                heart.style.left = (window.innerWidth / 2) + (Math.random() - 0.5) * 100 + 'px';
-                heart.style.top = (window.innerHeight - 150) + 'px';
-                heart.style.setProperty('--flyX', (Math.random() - 0.5) * 200 + 'px');
-                heart.style.animationDelay = Math.random() * 0.3 + 's';
-                heart.style.fontSize = Math.random() * 10 + 15 + 'px';
-                effectsContainer.appendChild(heart);
-                heart.addEventListener('animationend', () => heart.remove());
-            }
-        }
-
-        function createHerMessage(text, isQuestion = false) {
-            const row = document.createElement('div');
-            row.className = 'msg-row msg-her';
-            
-            const bubbleClass = isQuestion ? 'bubble question' : 'bubble';
-            row.innerHTML = `
-                <div class="avatar"></div>
-                <div class="${bubbleClass}">${text}</div>
-            `;
-            
-            chatScreen.insertBefore(row, typingIndicator);
-            setTimeout(() => {
-                row.classList.add('show');
-                vibrate();
-                scrollToBottom();
-            }, 50);
-        }
-
-        function createMyMessage(text) {
-            const row = document.createElement('div');
-            row.className = 'msg-row msg-my';
-            row.innerHTML = `<div class="bubble">${text}</div>`;
-            
-            chatScreen.insertBefore(row, typingIndicator);
-            setTimeout(() => {
-                row.classList.add('show');
-                scrollToBottom();
-            }, 50);
-        }
-
-        async function playConversation(messages) {
-            for (const msg of messages) {
-                if (msg.type === 'her') {
-                    showTyping();
-                    await new Promise(r => setTimeout(r, 1200));
-                    hideTyping();
-                    createHerMessage(msg.text);
-                } else {
-                    await delay();
-                    createMyMessage(msg.text);
-                }
-                await delay();
-            }
-        }
-
-        async function displayQuestion(questionData, isRetry = false) {
-            resetInputBox();
-            
-            if (!isRetry) {
-                availableAnswers = questionData.answers.map((text, index) => ({ text, originalIndex: index }));
-                await delay();
-                createHerMessage(questionData.question, true); 
-            }
-
-            await new Promise(r => setTimeout(r, 800)); 
-
-            const answerArea = document.createElement('div');
-            answerArea.className = 'answer-area';
-            chatScreen.insertBefore(answerArea, typingIndicator);
-
-            availableAnswers.forEach((ans, idx) => {
-                const bubble = document.createElement('div');
-                bubble.className = 'answer-bubble';
-                bubble.innerHTML = ans.text;
-                
-                bubble.onclick = () => handleAnswerClick(ans, answerArea);
-                
-                answerArea.appendChild(bubble);
-
-                setTimeout(() => {
-                    bubble.classList.add('show');
-                    scrollToBottom();
-                }, idx * 150 + 50); 
-            });
-        }
-
-        function resetInputBox() {
-            chatInput.value = '';
-            chatInput.disabled = true;
-            sendBtn.style.display = 'none';
-            heartBtn.style.display = 'inline-block';
-            pendingCustomAnswer = null;
-            pendingAnswerArea = null;
-        }
-
-        function handleAnswerClick(selectedAns, answerArea) {
-            const currentQuestion = questions[currentQuestionIndex];
-            
-            if (currentQuestion.inputRequiredIndex === selectedAns.originalIndex) {
-                pendingCustomAnswer = selectedAns;
-                pendingAnswerArea = answerArea;
-                
-                chatInput.disabled = false;
-                chatInput.focus();
-                
-                heartBtn.style.display = 'none';
-                sendBtn.style.display = 'inline-block';
-                return;
-            }
-
-            resetInputBox();
-            answerArea.remove();
-            processAnswerSubmission(selectedAns, currentQuestion);
-        }
-
-        sendBtn.onclick = function() {
-            if (!pendingCustomAnswer || chatInput.value.trim() === '') return;
-            
-            const finalAnswer = {
-                text: chatInput.value.trim(),
-                originalIndex: pendingCustomAnswer.originalIndex
-            };
-            const areaToRemove = pendingAnswerArea;
-            const questionToProcess = questions[currentQuestionIndex];
-            
-            resetInputBox();
-            areaToRemove.remove();
-            
-            processAnswerSubmission(finalAnswer, questionToProcess);
-        };
-
-        chatInput.addEventListener('keypress', function (e) {
-            if (e.key === 'Enter') {
-                sendBtn.click();
-            }
         });
 
-        async function processAnswerSubmission(selectedAns, currentQuestion) {
-            createMyMessage(selectedAns.text);
-            await delay();
-
-            showTyping();
-            await new Promise(r => setTimeout(r, 1200));
-            hideTyping();
-            
-            let isCorrect = false;
-
-            if (currentQuestion.type === "any_correct") {
-                isCorrect = true; 
-            } else {
-                isCorrect = (selectedAns.originalIndex === currentQuestion.correct); 
-            }
-            
-            let herReplyText = "";
-            if (currentQuestion.customReplies && currentQuestion.customReplies[selectedAns.originalIndex]) {
-                herReplyText = currentQuestion.customReplies[selectedAns.originalIndex];
-            } else {
-                herReplyText = isCorrect ? currentQuestion.successMessage : currentQuestion.wrongMessage;
-            }
-
-            // --- ĐẨY DỮ LIỆU LÊN GOOGLE FORM ---
-            sendDataToGoogleForm(currentQuestion.question, selectedAns.text, herReplyText);
-            
-            if (isCorrect) {
-                createHearts(20);
-                createHerMessage(herReplyText);
-                await delay();
-
-                currentQuestionIndex++;
-                if (currentQuestionIndex < questions.length) {
-                    displayQuestion(questions[currentQuestionIndex], false);
-                } else {
-                    endSequence();
+        zones.forEach(z => {
+            z.addEventListener('dragover', (e) => e.preventDefault()); 
+            z.addEventListener('drop', (e) => {
+                e.preventDefault();
+                const id = e.dataTransfer.getData('text/plain');
+                const draggedElement = document.getElementById(id);
+                if (!z.hasChildNodes()) {
+                    z.appendChild(draggedElement);
+                    checkPuzzleLogic();
                 }
-            } else {
-                createHerMessage(herReplyText);
-                await delay();
-                
-                availableAnswers = availableAnswers.filter(a => a.originalIndex !== selectedAns.originalIndex);
-                displayQuestion(currentQuestion, true);
-            }
-        }
+            });
+        });
 
-        async function endSequence() {
-            await delay();
-            await playConversation(finalConversation);
-            
-            const endScreen = document.getElementById('end-screen');
-            endScreen.classList.add('show');
+        pieces.forEach(p => {
+            p.addEventListener('click', () => {
+                pieces.forEach(el => el.classList.remove('selected'));
+                selectedPiece = p;
+                p.classList.add('selected');
+            });
+        });
 
-            const endHeartsInterval = setInterval(() => { createHearts(2); }, 300);
+        zones.forEach(z => {
+            z.addEventListener('click', () => {
+                if (selectedPiece && !z.hasChildNodes()) {
+                    z.appendChild(selectedPiece);
+                    selectedPiece.classList.remove('selected');
+                    selectedPiece = null;
+                    checkPuzzleLogic();
+                }
+            });
+        });
+    }
 
+    function checkPuzzleLogic() {
+        const z1 = document.getElementById('zone1').firstElementChild;
+        const z2 = document.getElementById('zone2').firstElementChild;
+
+        if (z1 && z2) {
             setTimeout(() => {
-                clearInterval(endHeartsInterval);
-                document.getElementById('final-bubble').classList.add('show');
-            }, 4000);
+                if (z1.id === 'pieceN' && z2.id === 'pieceO') {
+                    goToLayer(4);
+                } else if (z1.id === 'pieceO' && z2.id === 'pieceN') {
+                    forceYes("Bạn đã ghép thành chữ 'ON' (Bật). Hệ thống ghi nhận bạn đã chọn YES!", "Ghép ngược chữ O và N ở Layer 3");
+                }
+            }, 500);
+        }
+    }
+
+    /* =========================================
+       LAYER 4 LOGIC: CAPTCHA
+    ========================================= */
+    function submitCaptcha() {
+        const isHumanChecked = document.getElementById('check-human').checked;
+        const isTrapChecked = document.getElementById('check-trap').checked;
+
+        if (!isHumanChecked) {
+            alert("Vui lòng xác nhận bạn không phải là người máy!");
+            return;
         }
 
-        window.onload = async () => {
-            await delay(); 
-            await playConversation(initialConversation);
-            if (questions.length > 0) displayQuestion(questions[0]);
-        };
+        if (isTrapChecked) {
+            forceYes("Bạn đã đánh dấu vào ô đồng ý chuyển NO thành YES ở bước CAPTCHA!", "Mắc bẫy CAPTCHA ở Layer 4");
+        } else {
+            trollSuccessEnd();
+        }
+    }
+</script>
 
-    </script>
 </body>
 </html>
