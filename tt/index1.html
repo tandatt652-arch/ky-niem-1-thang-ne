@@ -3,693 +3,872 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Logic Bẻ Lái - Hại Não Edition</title>
+    <title>Dành riêng cho em ✦</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Comic+Neue:wght@700&display=swap');
-
-        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-user-select: none; font-family: 'Comic Neue', cursive, sans-serif; }
-        body { background-color: #2c3e50; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; touch-action: none; }
-        
-        #game-wrapper {
-            position: relative; width: 420px; height: 700px; background-color: #fceabb;
-            border: 4px solid #000; border-radius: 20px; box-shadow: 10px 10px 0px rgba(0,0,0,0.5);
-            overflow: hidden; display: flex; flex-direction: column;
+        /* === CSS VARIABLES === */
+        :root {
+            --bg-midnight: #0a0b10;
+            --bg-deep: #16102b;
+            --gold: #d4af37;
+            --gold-light: #f9f1d8;
+            --champagne: #f7e1d7;
+            --wine-red: #5e0b15;
+            --pearl: #fdfbf7;
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(212, 175, 55, 0.3);
+            --shadow-gold: 0 0 20px rgba(212, 175, 55, 0.2);
         }
-        @media (max-width: 450px), (max-height: 750px) {
-            #game-wrapper { width: 100vw; height: 100vh; border-radius: 0; border: none; box-shadow: none; }
+
+        /* === RESET & GLOBAL === */
+        * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
+        body {
+            background-color: var(--bg-midnight);
+            color: var(--pearl);
+            font-family: 'Montserrat', sans-serif;
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        h1, h2, h3, .serif { font-family: 'Playfair Display', serif; font-weight: 600; }
+        
+        /* === BACKGROUND & CANVAS === */
+        #bg-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+        .bg-gradient {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0;
+            background: radial-gradient(circle at center, var(--bg-deep) 0%, var(--bg-midnight) 100%);
+            transition: background 2s ease;
         }
 
-        /* Header */
-        #header { display: flex; justify-content: space-between; align-items: center; padding: 15px; background-color: #fff; border-bottom: 4px solid #000; z-index: 100; }
-        .btn { background: #fff; border: 3px solid #000; border-radius: 10px; padding: 8px 12px; font-size: 18px; font-weight: bold; cursor: pointer; box-shadow: 3px 3px 0px #000; transition: transform 0.1s; }
-        .btn:active { transform: translate(3px, 3px); box-shadow: 0px 0px 0px #000; }
-        #level-title { font-size: 24px; font-weight: bold; text-transform: uppercase; }
+        /* === UI OVERLAYS === */
+        #ui-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 100; pointer-events: none; display: flex; flex-direction: column; justify-content: space-between; padding: 20px; }
+        .top-ui { display: flex; justify-content: space-between; align-items: center; pointer-events: auto; opacity: 0; transition: opacity 1s ease; }
+        .chapter-indicator { font-size: 0.8rem; letter-spacing: 2px; color: var(--gold); text-transform: uppercase; }
+        .controls button { background: none; border: none; color: var(--gold); font-size: 1.2rem; cursor: pointer; margin-left: 15px; text-shadow: 0 0 5px var(--gold); }
+        .progress-bar { position: absolute; bottom: 0; left: 0; height: 2px; background: var(--gold); width: 0%; transition: width 0.5s ease; box-shadow: 0 0 10px var(--gold); }
 
-        /* Game Area */
-        #game-area { flex: 1; position: relative; background: #fdfbfb; display: flex; justify-content: center; align-items: center; flex-direction: column; padding: 20px; overflow: hidden; }
-        .question-text { font-size: 22px; text-align: center; margin-bottom: 30px; position: absolute; top: 20px; width: 90%; pointer-events: none; z-index: 5; }
+        /* === SCENE CONTAINER === */
+        #app { position: relative; z-index: 10; width: 100%; max-width: 500px; height: 100%; display: flex; justify-content: center; align-items: center; flex-direction: column; text-align: center; padding: 20px; }
+        .scene { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; opacity: 0; visibility: hidden; transition: opacity 1.5s ease, transform 1.5s ease; transform: scale(0.95); padding: 20px;}
+        .scene.active { opacity: 1; visibility: visible; transform: scale(1); }
 
-        /* Modals */
-        .modal-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: none; justify-content: center; align-items: center; z-index: 250; }
-        .modal-box { background: #fff; border: 4px solid #000; border-radius: 15px; padding: 30px; text-align: center; width: 85%; box-shadow: 8px 8px 0px #000; position: relative; }
-        .close-btn { position: absolute; top: -15px; right: -15px; background: #ff4757; color: #fff; border: 3px solid #000; border-radius: 50%; width: 40px; height: 40px; font-size: 20px; font-weight: bold; cursor: pointer; }
-
-        @keyframes shake { 0%,100% {transform: translateX(0);} 25% {transform: translateX(-10px);} 50% {transform: translateX(10px);} 75% {transform: translateX(-10px);} }
-        .shake-anim { animation: shake 0.4s ease-in-out; }
-        @keyframes pop { 0% {transform: scale(0.8);} 50% {transform: scale(1.1);} 100% {transform: scale(1);} }
-        .pop-anim { animation: pop 0.5s ease-out; }
-        .confetti { position: absolute; width: 10px; height: 10px; background: red; z-index: 300; animation: fall 1.5s linear forwards; }
-        @keyframes fall { to { transform: translateY(800px) rotate(720deg); opacity: 0; } }
-
-        /* ================= LEVEL 1 ================= */
-        .scale-container { position: relative; width: 300px; height: 200px; display: flex; justify-content: center; align-items: flex-end; transition: transform 1.5s cubic-bezier(0.25, 0.1, 0.25, 1); }
-        .scale-base { width: 10px; height: 150px; background: #000; position: absolute; bottom: 0; left: 145px; z-index: 2; }
-        .fulcrum { width: 24px; height: 24px; background: #e84118; border-radius: 50%; position: absolute; bottom: 138px; left: 138px; z-index: 150; border: 2px solid #000; cursor: pointer; box-shadow: 0 0 8px #ff4757; }
-        .scale-beam { width: 280px; height: 10px; background: #000; position: absolute; bottom: 140px; transform-origin: center; transform: rotate(15deg); transition: transform 0.4s ease; z-index: 3; }
-        .scale-pan { width: 80px; height: 10px; border: 3px solid #000; position: absolute; border-top: none; }
-        .pan-left { left: 0; top: 10px; } .pan-right { right: 0; top: 10px; }
-        .weight { position: absolute; bottom: 10px; border: 3px solid #000; background: #7f8fa6; display: flex; justify-content: center; align-items: center; font-weight: bold; }
-        .weight-100 { width: 60px; height: 60px; left: 10px; } .weight-1 { width: 25px; height: 25px; right: 28px; }
+        /* === COMPONENTS === */
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: var(--shadow-gold), inset 0 0 20px rgba(255,255,255,0.02);
+            width: 100%;
+        }
         
-        #l1-pull-zone { position: absolute; left: 0; top: 20%; width: 40px; height: 60%; background: rgba(0,0,0,0.08); z-index: 20; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: bold; writing-mode: vertical-rl; cursor: grab; touch-action: none; border-right: 2px dashed #7f8c8d; }
+        .gold-btn {
+            background: linear-gradient(45deg, #a67c00, #bf953f, #fcf6ba, #b38728, #fdbf59);
+            background-size: 200% 200%;
+            color: #000;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 30px;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            font-size: 1rem;
+            letter-spacing: 1px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4);
+            transition: all 0.3s ease;
+            animation: gradientMove 3s ease infinite;
+            margin-top: 20px;
+        }
+        .gold-btn:active { transform: scale(0.95); }
+        .gold-btn.outline { background: transparent; border: 1px solid var(--gold); color: var(--gold); box-shadow: none; animation: none; }
+
+        .text-reveal { opacity: 0; transform: translateY(20px); transition: all 1s ease; }
+        .text-reveal.visible { opacity: 1; transform: translateY(0); }
+        .glow-text { text-shadow: 0 0 10px rgba(212, 175, 55, 0.5), 0 0 20px rgba(212, 175, 55, 0.3); color: var(--gold-light); }
+
+        /* === SPECIFIC SCENES === */
+        /* Intro */
+        .gift-box { font-size: 80px; filter: drop-shadow(0 0 20px rgba(212, 175, 55, 0.8)); cursor: pointer; transition: transform 0.3s ease; animation: float 3s ease-in-out infinite; margin-bottom: 30px; }
         
-        #l1-dev-overlay { position: absolute; top:0; left:0; width: 100%; height: 100%; background: rgba(44, 62, 80, 0.92); z-index: 100; display: none; color: #00ff00; font-family: monospace; pointer-events: none; }
-        .dev-axis { position: absolute; background: #00ff00; box-shadow: 0 0 6px #00ff00; }
-        .dev-x { width: 100%; height: 3px; top: 50%; } 
-        .dev-y { height: 100%; width: 3px; left: 50%; }
-        .dev-grid-line { position: absolute; background: rgba(0,255,0,0.25); }
+        /* Timeline */
+        .timeline-node { opacity: 0.3; transition: all 0.5s ease; cursor: pointer; margin: 15px 0; padding: 10px; border-left: 2px solid var(--gold); text-align: left; padding-left: 20px; }
+        .timeline-node.active, .timeline-node.completed { opacity: 1; }
+        .timeline-node.completed { border-color: var(--champagne); }
+        .timeline-node h3 { color: var(--gold); font-size: 1.1rem; margin-bottom: 5px; }
+        .timeline-node p { font-size: 0.9rem; color: var(--pearl); display: none; }
+        .timeline-node.completed p { display: block; animation: fadeIn 0.5s ease; }
+
+        /* Boss */
+        .boss-hp { width: 100%; height: 10px; background: rgba(255,255,255,0.1); border-radius: 5px; margin: 20px 0; overflow: hidden; border: 1px solid var(--gold); }
+        .hp-fill { height: 100%; background: linear-gradient(90deg, #ff4e50, #f9d423); width: 100%; transition: width 0.5s ease; }
+        .choice-btn { display: block; width: 100%; background: var(--glass-bg); border: 1px solid var(--glass-border); color: var(--pearl); padding: 12px; margin: 10px 0; border-radius: 10px; cursor: pointer; transition: all 0.3s ease; text-align: left; }
+        .choice-btn:active { background: rgba(212, 175, 55, 0.2); }
+
+        /* 10 Hours */
+        .big-clock { font-size: 4rem; color: var(--gold); letter-spacing: 5px; font-weight: 300; margin-bottom: 30px; font-variant-numeric: tabular-nums; }
+        .clock-msg { font-size: 1.1rem; font-style: italic; opacity: 0; transition: opacity 1s; height: 30px; }
+
+        /* Memory Box */
+        .memory-area { position: relative; width: 100%; height: 300px; }
+        .memory-item { position: absolute; font-size: 30px; cursor: pointer; filter: drop-shadow(0 0 10px rgba(255,255,255,0.5)); transition: all 1s ease; animation: float 3s infinite; }
+        .center-box { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 60px; filter: drop-shadow(0 0 20px var(--gold)); z-index: 5; }
         
-        #l1-input-box { position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%); background: #000; border: 3px solid #00ff00; padding: 20px; display: none; z-index: 200; box-shadow: 0 0 20px rgba(0,255,0,0.6); text-align: center; pointer-events: auto; }
-        #l1-input-box input { background: #000; color: #00ff00; border: 2px solid #00ff00; font-family: monospace; padding: 8px; width: 180px; margin-top: 10px; outline: none; text-align: center; font-size: 16px; }
+        /* Input */
+        .custom-input { width: 100%; background: transparent; border: none; border-bottom: 2px solid var(--gold); color: var(--pearl); font-family: 'Playfair Display', serif; font-size: 1.2rem; padding: 10px; outline: none; text-align: center; margin: 30px 0; resize: none; }
+        .custom-input::placeholder { color: rgba(255,255,255,0.3); }
 
-        /* ================= LEVEL 2 ================= */
-        .math-eq-box { padding: 20px; font-size: 32px; font-weight: bold; background: #fff; border: 3px dashed #000; border-radius: 10px; cursor: pointer; transition: all 0.3s; touch-action: none; }
-        .math-eq-box.highlighted { background: #3498db; color: #fff; }
-        .scratchpad-textarea { width: 100%; height: 80px; font-size: 20px; padding: 10px; font-family: monospace; border: 2px solid #000; resize: none; margin-bottom: 15px; }
-        @keyframes glitch { 0% { transform: translate(0) } 20% { transform: translate(-5px, 5px) } 40% { transform: translate(-5px, -5px) } 60% { transform: translate(5px, 5px) } 80% { transform: translate(5px, -5px) } 100% { transform: translate(0) } }
-        .glitch-effect { animation: glitch 0.1s infinite; color: red !important; text-shadow: 2px 2px 0px #000; }
-        #crash-screen { position: absolute; top:0; left:0; width:100%; height:100%; background:#0000aa; color:#fff; font-family: monospace; font-size:14px; padding:20px; display:none; z-index: 200; flex-direction:column; justify-content:center; }
+        /* Messages */
+        .floating-msg { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.8); border: 1px solid var(--gold); padding: 20px 30px; border-radius: 15px; font-family: 'Playfair Display', serif; font-size: 1.2rem; z-index: 1000; text-align: center; box-shadow: 0 0 30px rgba(212,175,35,0.3); pointer-events: none; opacity: 0; transition: opacity 0.3s; }
 
-        /* ================= LEVEL 3 ================= */
-        .color-btn { width: 200px; padding: 15px; margin: 10px; font-size: 22px; font-weight: bold; border: 3px solid #000; border-radius: 10px; cursor: pointer; box-shadow: 3px 3px 0px #000; }
-        .btn-bw1 { background: #ecf0f1; color: #000; }
-        .btn-bw2 { background: #7f8c8d; color: #fff; }
-        .btn-bw3 { background: #2c3e50; color: #fff; position: relative; overflow: hidden; }
-        #store-icon { position: absolute; top: 80px; left: 20px; font-size: 24px; cursor: pointer; z-index: 10; background: #fff; border: 2px solid #000; border-radius: 5px; padding: 5px; }
-        .gp-modal { background: #fff; border-radius: 10px; border: 1px solid #ccc; text-align: left; font-family: sans-serif; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
-        .gp-header { background: #fff; padding: 15px; border-bottom: 1px solid #eee; display: flex; align-items: center; gap: 10px; }
-        .gp-item { padding: 20px; display: flex; justify-content: space-between; font-weight: bold; }
-        .gp-payment { padding: 15px; background: #f9f9f9; }
-        .gp-pay-btn { width: 100%; background: #01875f; color: white; border: none; padding: 15px; font-size: 16px; font-weight: bold; cursor: pointer; }
-        #paint-drop { position: absolute; top: -100px; left: 50%; transform: translateX(-50%); width: 50px; height: 50px; background: #ff0000; border-radius: 5px; display: none; z-index: 20; transition: top 0.5s ease-in; }
+        /* DOM Particles */
+        .dom-particle { position: absolute; pointer-events: none; z-index: 999; animation: fall linear forwards; }
+        
+        /* === ANIMATIONS === */
+        @keyframes gradientMove { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes fall { to { transform: translateY(100vh) rotate(360deg); opacity: 0; } }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+        @keyframes pulseGlow { 0%, 100% { filter: drop-shadow(0 0 20px rgba(212, 175, 55, 0.8)); } 50% { filter: drop-shadow(0 0 40px rgba(255, 215, 0, 1)); } }
 
-        /* ================= LEVEL 4 ================= */
-        #l4-room { width: 100%; height: 100%; position: absolute; background: #95a5a6; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; padding-bottom: 50px; }
-        .bunk-bed { width: 85%; height: 350px; border: 8px solid #2c3e50; border-bottom: none; position: relative; display: flex; flex-direction: column; justify-content: space-between; padding: 20px 0; }
-        .bed-tier { width: 100%; height: 20px; background: #34495e; position: relative; display: flex; align-items: flex-end; justify-content: center; }
-        .military-char { width: 70px; height: 120px; position: absolute; bottom: 20px; display: flex; flex-direction: column; align-items: center; transition: all 0.5s; transform-origin: bottom; }
-        .m-head { width: 45px; height: 45px; background: #f1c27d; border: 2px solid #000; border-radius: 50%; position: relative; }
-        .m-eyes { position: absolute; top: 15px; width: 100%; text-align: center; font-weight: bold; font-size: 12px; }
-        .m-body { width: 60px; height: 75px; background: #27ae60; border: 2px solid #000; border-radius: 10px 10px 0 0; position: relative; }
-        .m-arm { width: 15px; height: 40px; background: #27ae60; border: 2px solid #000; position: absolute; right: -5px; top: 10px; transform-origin: top center; transition: transform 0.3s; }
-        #blanket { width: 120px; height: 80px; background: #2ecc71; border: 3px solid #145a32; position: absolute; bottom: 20px; right: 10px; border-radius: 40% 60% 70% 30%; cursor: pointer; transition: all 0.3s; touch-action: none; display: flex; justify-content: center; align-items: center; font-size: 10px; color: #145a32; font-weight: bold; }
-        .zzz { position: absolute; top: -30px; right: -20px; font-size: 20px; font-weight: bold; display: none; animation: pop 1s infinite alternate; }
+        /* Easter Egg UI */
+        .moon-icon { position: absolute; top: 20px; left: 20px; font-size: 24px; cursor: pointer; opacity: 0.5; z-index: 50; }
+        .flower-icon { font-size: 24px; cursor: pointer; transition: 0.3s; }
+        
+        /* Special Modes */
+        body.tong-tai-mode { filter: sepia(0.5) contrast(1.2); }
+        body.bao-boi-mode { filter: hue-rotate(300deg) saturate(1.5); }
 
-        /* ================= LEVEL 5 ================= */
-        #l5-timer { font-size: 60px; font-weight: bold; color: #ff4757; position: absolute; top: 80px; text-shadow: 2px 2px 0px #000; }
-        .big-red-btn { width: 150px; height: 150px; background: #ff4757; border: 6px solid #c0392b; border-radius: 50%; font-size: 24px; font-weight: bold; color: white; display: flex; justify-content: center; align-items: center; box-shadow: 0 10px 0 #c0392b; cursor: pointer; position: absolute; text-align: center; padding: 10px; touch-action: manipulation; }
-        .paper-tray { position: absolute; bottom: 30px; right: 20px; width: 80px; height: 60px; background: #dcdde1; border: 3px solid #000; border-radius: 5px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 3px 3px 0 #000; font-size: 12px; font-weight: bold; text-align: center; }
-        #form-overlay { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 280px; height: 350px; background: #fff; border: 4px solid #000; box-shadow: 10px 10px 0 rgba(0,0,0,0.5); z-index: 30; display: flex; flex-direction: column; padding: 20px; }
-        .form-title { font-size: 16px; font-weight: bold; text-align: center; margin-bottom: 15px; border-bottom: 2px solid #000; padding-bottom: 5px; }
-        .form-lines { flex: 1; border: 2px dashed #bdc3c7; background: #f9f9f9; cursor: crosshair; touch-action: none; position: relative; overflow: hidden; }
-        .ink-trail { position: absolute; width: 10px; height: 10px; background: #2980b9; border-radius: 50%; pointer-events: none; }
-        #mini-form { width: 60px; height: 80px; background: #fff; border: 2px solid #000; position: absolute; z-index: 50; display: none; cursor: grab; font-size: 8px; padding: 2px; text-align: center; box-shadow: 2px 2px 0 #000; }
     </style>
 </head>
 <body>
 
-<div id="game-wrapper">
-    <div id="header">
-        <button class="btn" onclick="showModal('settings-modal')">⚙️</button>
-        <div id="level-title">Level 1</div>
-        <div>
-            <button class="btn" onclick="showHint()">💡</button>
-            <button class="btn" onclick="loadLevel(currentLevel)">🔄</button>
-        </div>
-    </div>
-    <div id="game-area"></div>
+    <!-- Background -->
+    <div class="bg-gradient" id="bg-visual"></div>
+    <canvas id="bg-canvas"></canvas>
 
-    <!-- Modals -->
-    <div id="settings-modal" class="modal-overlay">
-        <div class="modal-box">
-            <button class="close-btn" onclick="hideModal('settings-modal')">X</button>
-            <h2>Cài đặt</h2><br>
-            <p>Âm lượng: 🔊 ||||||||||</p><br>
-            <p>Ngôn ngữ: Tiếng Việt</p>
+    <!-- UI Overlay -->
+    <div id="ui-layer">
+        <div class="top-ui" id="top-ui">
+            <div class="chapter-indicator" id="chapter-text">CH. 0 — Mở đầu</div>
+            <div class="controls">
+                <button id="btn-mute">🎵</button>
+            </div>
         </div>
+        <div class="progress-bar" id="progress-bar"></div>
     </div>
 
-    <div id="hint-modal" class="modal-overlay">
-        <div class="modal-box">
-            <button class="close-btn" onclick="hideModal('hint-modal')">X</button>
-            <h2>💡 Gợi Ý Hại Não</h2><br>
-            <p id="hint-text">Gợi ý nè</p>
+    <!-- Easter Egg Moon -->
+    <div class="moon-icon" id="moon">🌙</div>
+
+    <!-- Main Content -->
+    <div id="app">
+
+        <!-- SCENE 0: Intro -->
+        <div class="scene active" id="scene-0">
+            <div class="gift-box" id="intro-box">🎁</div>
+            <h1 class="serif text-reveal glow-text" id="intro-t1" style="font-size: 1.8rem; margin-bottom: 10px;">Dành riêng cho cô bé đặc biệt nhất.</h1>
+            <p class="text-reveal" id="intro-t2" style="font-size: 1rem; color: var(--champagne); margin-bottom: 40px; font-style: italic;">Một món quà nhỏ từ chồng của em.</p>
+            <button class="gold-btn text-reveal" id="btn-open-gift" style="display: none;">MỞ MÓN QUÀ ✦</button>
         </div>
-    </div>
 
-    <div id="result-popup" class="modal-overlay">
-        <div class="modal-box" id="result-box">
-            <h2 id="result-title" style="font-size: 30px;">Thắng rồi!</h2><br>
-            <p id="result-message" style="font-size: 18px; font-style: italic;">Bạn giỏi quá!</p><br><br>
-            <button class="btn" id="result-btn" style="background: #4cd137; color: white;">Chơi tiếp</button>
-        </div>
-    </div>
-</div>
-
-<script>
-    // --- Tracking & Core System ---
-    const SESSION_ID = 'HARDCORE_' + Math.random().toString(36).substring(2, 9).toUpperCase();
-    let currentLevel = 1;
-    const gameArea = document.getElementById('game-area');
-    let levelTimer = null;
-
-    function sendTrackingData(questionContent, userChoice, gameReply) {
-        const formUrl = "https://docs.google.com/forms/d/e/1FAIpQLSe4Jvx2uI27uJQTt9Xn6QdFj59c53kFNIRbxyFeirMOOEFE4g/formResponse";
-        const formData = new FormData();
-        formData.append("entry.1666228409", SESSION_ID);
-        formData.append("entry.1275903316", questionContent);
-        formData.append("entry.444679017", userChoice);
-        formData.append("entry.1158846627", gameReply);
-
-        fetch(formUrl, { method: "POST", mode: "no-cors", body: formData }).catch(err => {});
-    }
-
-    function triggerResult(isWin, msg, questionContext, userAction) {
-        sendTrackingData(questionContext, userAction, msg);
-        showResult(isWin, msg);
-    }
-
-    const levelData = {
-        1: { title: "Level 1", hint: "Mệt rồi không cho gợi ý nữa" },
-        2: { title: "Level 2", hint: "Mệt rồi không cho gợi ý nữa" },
-        3: { title: "Level 3", hint: "Mệt rồi không cho gợi ý nữa" },
-        4: { title: "Level 4", hint: "Mệt rồi không cho gợi ý nữa" },
-        5: { title: "Level 5", hint: "Mệt rồi không cho gợi ý nữa" }
-    };
-
-    function showModal(id) { document.getElementById(id).style.display = 'flex'; }
-    function hideModal(id) { document.getElementById(id).style.display = 'none'; }
-    function showHint() {
-        document.getElementById('hint-text').innerText = levelData[currentLevel].hint;
-        showModal('hint-modal');
-        sendTrackingData(`Mở Hint Level ${currentLevel}`, "Bấm xem gợi ý", levelData[currentLevel].hint);
-    }
-
-    function showResult(isWin, msg) {
-        hideModal('settings-modal'); hideModal('hint-modal');
-        
-        // Fix sự cố màn hình xanh Level 2 che khuất nút chuyển màn
-        const crashScreen = document.getElementById('crash-screen');
-        if (crashScreen) crashScreen.style.display = 'none';
-
-        const popup = document.getElementById('result-popup');
-        const title = document.getElementById('result-title');
-        const message = document.getElementById('result-message');
-        const btn = document.getElementById('result-btn');
-        const box = document.getElementById('result-box');
-
-        popup.style.display = 'flex';
-        message.innerText = msg;
-        
-        if (isWin) {
-            title.innerText = "Vợ  giỏi quáaaa";
-            title.style.color = "#4cd137";
-            btn.innerText = "Màn Tiếp Theo ➡️";
-            btn.onclick = () => { hideModal('result-popup'); nextLevel(); };
-            box.className = 'modal-box pop-anim';
-            createConfetti();
-        } else {
-            title.innerText = "Thua ròi nhaa";
-            title.style.color = "#e84118";
-            btn.innerText = "Thử Lại 🔄";
-            btn.onclick = () => { hideModal('result-popup'); loadLevel(currentLevel); };
-            box.className = 'modal-box shake-anim';
-            const wrapper = document.getElementById('game-wrapper');
-            wrapper.classList.remove('shake-anim');
-            void wrapper.offsetWidth; 
-            wrapper.classList.add('shake-anim');
-        }
-    }
-
-    function createConfetti() {
-        for(let i=0; i<30; i++) {
-            let conf = document.createElement('div');
-            conf.className = 'confetti';
-            conf.style.left = Math.random() * 100 + '%';
-            conf.style.backgroundColor = ['#e84118', '#4cd137', '#fbc531', '#00a8ff'][Math.floor(Math.random()*4)];
-            document.getElementById('game-wrapper').appendChild(conf);
-            setTimeout(() => conf.remove(), 1500);
-        }
-    }
-
-    function nextLevel() {
-        currentLevel++;
-        if (currentLevel > 5) {
-            currentLevel = 1;
-            alert("Chúc mừng! Bạn đã phá đảo thành công phiên bản siêu hại não!");
-            sendTrackingData("Kết thúc Game", "Phá đảo toàn bộ", "Hoàn thành 5 màn phiên bản Hardcore");
-        }
-        loadLevel(currentLevel);
-    }
-
-    function makeDraggable(el, onDrag, onDrop) {
-        let isDown = false; let startX, startY; let initialLeft, initialTop;
-        el.addEventListener('pointerdown', (e) => {
-            isDown = true; startX = e.clientX; startY = e.clientY;
-            if (window.getComputedStyle(el).position !== 'absolute') {
-                const rect = el.getBoundingClientRect(); const parentRect = gameArea.getBoundingClientRect();
-                el.style.position = 'absolute';
-                el.style.left = (rect.left - parentRect.left) + 'px';
-                el.style.top = (rect.top - parentRect.top) + 'px';
-            }
-            initialLeft = parseFloat(el.style.left) || 0; initialTop = parseFloat(el.style.top) || 0;
-            el.style.zIndex = 1000; el.setPointerCapture(e.pointerId);
-        });
-        el.addEventListener('pointermove', (e) => {
-            if (!isDown) return; e.preventDefault();
-            let dx = e.clientX - startX; let dy = e.clientY - startY;
-            el.style.left = initialLeft + dx + 'px'; el.style.top = initialTop + dy + 'px';
-            if (onDrag) onDrag(e, dx, dy);
-        });
-        el.addEventListener('pointerup', (e) => {
-            if (!isDown) return; isDown = false; el.style.zIndex = 50;
-            try { el.releasePointerCapture(e.pointerId); } catch(err) {}
-            if (onDrop) onDrop(e);
-        });
-    }
-
-    function checkCollision(el1, el2) {
-        const rect1 = el1.getBoundingClientRect(); const rect2 = el2.getBoundingClientRect();
-        return !(rect1.right < rect2.left || rect1.left > rect2.right || rect1.bottom < rect2.top || rect1.top > rect2.bottom);
-    }
-
-    function loadLevel(level) {
-        clearInterval(levelTimer);
-        document.getElementById('level-title').innerText = levelData[level].title;
-        switch(level) {
-            case 1: renderLevel1(); break;
-            case 2: renderLevel2(); break;
-            case 3: renderLevel3(); break;
-            case 4: renderLevel4(); break;
-            case 5: renderLevel5(); break;
-        }
-    }
-
-    // ==========================================
-    // --- LEVEL 1: CHIẾC CÂN CÔNG LÝ ---
-    // ==========================================
-    function renderLevel1() {
-        gameArea.innerHTML = `
-            <div class="question-text">Hãy giữ chiếc cân thăng bằng trong 5 giây.</div>
-            <div id="l1-pull-zone">Vuốt &gt;&gt;&gt;</div>
-            <div id="l1-dev-overlay">
-                <div class="dev-axis dev-x"></div>
-                <div class="dev-axis dev-y"></div>
-                <div class="dev-grid-line" style="width:100%; height:1px; top:25%;"></div>
-                <div class="dev-grid-line" style="width:100%; height:1px; top:75%;"></div>
-                <div class="dev-grid-line" style="width:1px; height:100%; left:25%;"></div>
-                <div class="dev-grid-line" style="width:1px; height:100%; left:75%;"></div>
-
-                <div style="position:absolute; top:20px; left:20px; font-weight:bold; font-size:16px;">[Debug Mode] Trục Tọa Độ Ảo (Oxy) Góc AEO là góc giữa trụ cân và Ox</div>
-                <div id="l1-input-box">
-                    <p>Nhập tham số can thiệp:</p>
-                    <input type="text" id="dev-math-input" placeholder="VD: tan(AEO)=3">
-                    <button class="btn" style="margin-top:10px; width:100%; font-size:14px; background:#00ff00; color:#000;" onclick="checkDevInput()">Execute</button>
+        <!-- SCENE 1: Timeline -->
+        <div class="scene" id="scene-1">
+            <h2 class="serif glow-text" style="margin-bottom: 20px;">Ngày ấy lần đầu gặp nhau...</h2>
+            <div class="glass-card" style="text-align: left; max-height: 60vh; overflow-y: auto;">
+                <p style="font-style: italic; margin-bottom: 20px; text-align: center;">Có một cô bé từng gửi cho anh 1 tô mì</p>
+                <div id="timeline-container">
+                    <!-- Nodes generated by JS -->
                 </div>
             </div>
-            <div class="scale-container" id="l1-container">
-                <div class="scale-base"></div>
-                <div class="fulcrum" id="l1-fulcrum"></div>
-                <div class="scale-beam" id="scale-beam">
-                    <div class="scale-pan pan-left">
-                        <div class="weight weight-100" onclick="triggerResult(false, 'Nặng quá không nhúc nhích!', 'Level 1', 'Bấm cục 100kg')">100kg</div>
-                    </div>
-                    <div class="scale-pan pan-right">
-                        <div class="weight weight-1">1kg</div>
-                    </div>
-                </div>
+            <button class="gold-btn outline" id="btn-next-1" style="margin-top: 20px; display: none;">Tiếp tục ✦</button>
+        </div>
+
+        <!-- SCENE 2: Quiz -->
+        <div class="scene" id="scene-2">
+            <h2 class="serif glow-text">Bài kiểm tra nhỏ</h2>
+            <p style="color: var(--champagne); margin-bottom: 30px; font-size: 0.9rem;">Xem em còn nhớ không nhé...</p>
+            <div class="glass-card" id="quiz-card">
+                <h3 id="quiz-q" style="margin-bottom: 20px; font-size: 1.1rem; line-height: 1.5;">Câu hỏi</h3>
+                <div id="quiz-options"></div>
             </div>
-        `;
+            <p id="quiz-feedback" style="margin-top: 20px; min-height: 24px; font-style: italic; color: var(--gold);"></p>
+        </div>
 
-        const pullZone = document.getElementById('l1-pull-zone');
-        const devOverlay = document.getElementById('l1-dev-overlay');
-        const fulcrum = document.getElementById('l1-fulcrum');
-        const inputBox = document.getElementById('l1-input-box');
+        <!-- SCENE 3: Boss -->
+        <div class="scene" id="scene-3">
+            <h2 class="serif glow-text" style="color: #ff4e50;">THE PRINCESS</h2>
+            <p style="font-size: 0.9rem; letter-spacing: 2px;">CÔ BÉ KHÓ CHIỀU</p>
+            
+            <div style="width: 100%; text-align: left; margin-top: 20px;">
+                <span style="font-size: 0.8rem;">Mức độ dỗi:</span>
+                <div class="boss-hp"><div class="hp-fill" id="boss-hp-bar"></div></div>
+            </div>
+
+            <div class="glass-card" style="margin-top: 10px;">
+                <p id="boss-dialogue" class="serif" style="font-size: 1.4rem; margin-bottom: 20px; font-style: italic;">"Em bình thường."</p>
+                <div id="boss-options"></div>
+            </div>
+        </div>
+
+        <!-- SCENE 4: 10 Hours -->
+        <div class="scene" id="scene-4">
+            <div class="big-clock" id="clock-display">00:00</div>
+            <div class="clock-msg serif" id="clock-msg-1">Có những ngày chúng mình nói chuyện cả ngày...</div>
+            <div class="clock-msg serif" id="clock-msg-2" style="position: absolute; top: 60%; width: 100%;">Có những lúc chẳng nói gì.</div>
+            <div class="clock-msg serif glow-text" id="clock-msg-3" style="position: absolute; top: 65%; width: 100%; font-size: 1.3rem;">Nhưng anh vẫn thích việc em ở đó, kể cả lúc ngủ.</div>
+            <button class="gold-btn outline" id="btn-next-4" style="position: absolute; bottom: 20px; opacity: 0; pointer-events: none; transition: 1s;">Chạm nhẹ ✦</button>
+        </div>
+
+        <!-- SCENE 5: Memory Box -->
+        <div class="scene" id="scene-5">
+            <h2 class="serif glow-text">Hộp Ký Ức</h2>
+            <p style="font-size: 0.8rem; margin-bottom: 20px;">Chạm vào từng mảnh ký ức bay quanh đây.</p>
+            <div class="memory-area" id="memory-area">
+                <div class="center-box" id="memory-box" style="animation: pulseGlow 3s infinite;">🔮</div>
+                <!-- Items injected by JS -->
+            </div>
+        </div>
+
+        <!-- SCENE 6: Question -->
+        <div class="scene" id="scene-6">
+            <h2 class="serif glow-text" style="margin-bottom: 10px;">Một câu hỏi cho em</h2>
+            <div class="glass-card">
+                <p style="line-height: 1.6; font-style: italic;" id="final-question-text">"Nếu hai đứa có một ngày trọn vẹn bên nhau mà không vướng bận gì, em muốn chúng ta sẽ làm gì?"</p>
+                <textarea class="custom-input" id="user-answer" rows="3" placeholder="Nhập suy nghĩ của em vào đây..."></textarea>
+                <button class="gold-btn" id="btn-save-answer">Gửi cho anh ✦</button>
+            </div>
+        </div>
+
+        <!-- SCENE 7: Ending -->
+        <div class="scene" id="scene-7">
+            <h1 class="serif glow-text text-reveal" id="end-t1" style="font-size: 1.5rem; margin-bottom: 20px;">Bảo bối đã đi đến cuối hành trình.</h1>
+            <div class="gift-box" id="final-box" style="font-size: 100px; margin: 30px 0; opacity: 0;">🏰</div>
+            <p class="text-reveal serif" id="end-t2" style="font-size: 1.2rem;">Nhưng...</p>
+            <p class="text-reveal glow-text serif" id="end-t3" style="font-size: 1.5rem; margin-top: 10px;">Đây chỉ là "Bản thử nghiệm".</p>
+            <p class="text-reveal" id="end-t4" style="margin-top: 20px; font-style: italic; font-size: 0.9rem;">Món quà thật, anh sẽ mở nó vào đúng sinh nhật em.</p>
+            <button class="gold-btn text-reveal" id="btn-final" style="margin-top: 40px; display: none;">ĐỢI ĐẾN NGÀY ĐÓ ✦</button>
+        </div>
+
+    </div>
+
+    <!-- Floating Message container -->
+    <div class="floating-msg" id="float-msg"></div>
+
+    <script>
+        /**
+         * ENGINE CỐT LÕI
+         */
         
-        let isDevMode = false;
-        let isDraggingZone = false;
-        let pStartX = 0;
+        // HỆ THỐNG TRACKING BẰNG GOOGLE FORM
+        // Tạo một ID ngẫu nhiên duy nhất cho phiên chơi này để biết các câu trả lời đến từ cùng 1 lần chơi
+        const sessionID = "BaoBoi_" + Math.random().toString(36).substr(2, 6).toUpperCase();
 
-        pullZone.addEventListener('pointerdown', (e) => { 
-            isDraggingZone = true;
-            pStartX = e.clientX; 
-            try { pullZone.setPointerCapture(e.pointerId); } catch(err) {}
-        });
-        
-        pullZone.addEventListener('pointermove', (e) => {
-            if (!isDraggingZone) return;
-            if (pStartX > 0 && e.clientX > pStartX + 40) {
-                devOverlay.style.display = 'block';
-                isDevMode = true;
-                isDraggingZone = false;
-                pullZone.style.display = 'none';
-                try { pullZone.releasePointerCapture(e.pointerId); } catch(err) {}
-            }
-        });
-        
-        pullZone.addEventListener('pointerup', (e) => { 
-            isDraggingZone = false; 
-            pStartX = 0;
-            try { pullZone.releasePointerCapture(e.pointerId); } catch(err) {}
-        });
+        function trackAction(question, choice, gameResponse) {
+            // URL Action form thực sự để Submit data (thay thế viewform bằng formResponse)
+            const formURL = "https://docs.google.com/forms/d/e/1FAIpQLSe4Jvx2uI27uJQTt9Xn6QdFj59c53kFNIRbxyFeirMOOEFE4g/formResponse";
+            
+            const formData = new URLSearchParams();
+            formData.append("entry.1666228409", sessionID);     // ID
+            formData.append("entry.1275903316", question);      // Câu hỏi / Tình huống
+            formData.append("entry.444679017", choice);         // Lựa chọn của cô ấy
+            formData.append("entry.1158846627", gameResponse);  // Câu trả lời hệ thống
+            
+            // Gửi data ngầm, không làm mới trang (mode no-cors)
+            fetch(formURL, {
+                method: "POST",
+                mode: "no-cors",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+                body: formData.toString()
+            }).catch(error => console.error("Error tracking", error)); 
+            // Bỏ qua lỗi hiển thị trên console để cô ấy không phát hiện
+        }
 
-        fulcrum.addEventListener('pointerdown', (e) => {
-            if (isDevMode) {
-                inputBox.style.display = 'block';
-                e.stopPropagation();
-            } else {
-                triggerResult(false, 'Hình như thiếu cái gì đó', 'Level 1', 'Bấm điểm tựa thường');
-            }
-        });
+        const App = {
+            state: {
+                chapter: 0,
+                totalChapters: 7,
+                audioEnabled: false,
+                easterEggCount: 0,
+                boxClicks: 0
+            },
+            
+            // Audio System (Web Audio API - No external files)
+            Audio: {
+                ctx: null,
+                init() {
+                    if (!this.ctx) {
+                        const AudioContext = window.AudioContext || window.webkitAudioContext;
+                        this.ctx = new AudioContext();
+                    }
+                    if(this.ctx.state === 'suspended') this.ctx.resume();
+                },
+                playTone(freq, type = 'sine', duration = 0.3, vol = 0.1) {
+                    if (!App.state.audioEnabled || !this.ctx) return;
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = type;
+                    osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+                    
+                    gain.gain.setValueAtTime(vol, this.ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + duration);
+                    
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start();
+                    osc.stop(this.ctx.currentTime + duration);
+                },
+                playClick() { this.playTone(600, 'sine', 0.1, 0.05); },
+                playMagic() {
+                    this.playTone(800, 'sine', 0.2, 0.05);
+                    setTimeout(() => this.playTone(1200, 'sine', 0.4, 0.05), 100);
+                    setTimeout(() => this.playTone(1600, 'sine', 0.6, 0.05), 200);
+                },
+                playError() { this.playTone(200, 'sawtooth', 0.2, 0.05); }
+            },
 
-        window.checkDevInput = () => {
-            const val = document.getElementById('dev-math-input').value.replace(/\s+/g, '').toLowerCase();
-            if (val.includes('tan(aeo)') && val.includes('3')) {
-                devOverlay.style.display = 'none';
-                const container = document.getElementById('l1-container');
-                const beam = document.getElementById('scale-beam');
-                
-                container.style.transform = 'skewX(-20deg) scaleY(1.1)';
-                beam.style.transform = 'rotate(0deg)';
-                
-                setTimeout(() => {
-                    triggerResult(true, 'Giỏi toán quá dợ, chắc mặc dù hong biết tại sao =>', 'Level 1', 'Nhập đúng tan(AEO)=3');
-                }, 1000);
-            } else {
-                triggerResult(false, 'Lỗi cú pháp (Syntax Error). Tỷ lệ lượng giác không chính xác!', 'Level 1', 'Nhập sai công thức');
+            // Particles (Canvas cho background, DOM cho burst)
+            Particles: {
+                canvas: document.getElementById('bg-canvas'),
+                ctx: null,
+                stars: [],
+                init() {
+                    this.ctx = this.canvas.getContext('2d');
+                    this.resize();
+                    window.addEventListener('resize', () => this.resize());
+                    for(let i=0; i<150; i++) {
+                        this.stars.push({
+                            x: Math.random() * this.canvas.width,
+                            y: Math.random() * this.canvas.height,
+                            r: Math.random() * 1.5,
+                            alpha: Math.random(),
+                            v: (Math.random() * 0.2) + 0.05
+                        });
+                    }
+                    this.animate();
+                },
+                resize() {
+                    this.canvas.width = window.innerWidth;
+                    this.canvas.height = window.innerHeight;
+                },
+                animate() {
+                    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                    this.stars.forEach(s => {
+                        s.y -= s.v;
+                        if(s.y < 0) s.y = this.canvas.height;
+                        s.alpha += (Math.random() - 0.5) * 0.05;
+                        if(s.alpha < 0.1) s.alpha = 0.1;
+                        if(s.alpha > 0.8) s.alpha = 0.8;
+                        
+                        this.ctx.beginPath();
+                        this.ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+                        this.ctx.fillStyle = `rgba(253, 251, 247, ${s.alpha})`;
+                        this.ctx.fill();
+                    });
+                    requestAnimationFrame(() => this.animate());
+                },
+                burst(x, y, color = '#f9d423', emoji = '') {
+                    for(let i=0; i<15; i++) {
+                        const p = document.createElement('div');
+                        p.className = 'dom-particle';
+                        p.innerHTML = emoji || '✦';
+                        p.style.left = x + 'px';
+                        p.style.top = y + 'px';
+                        p.style.color = color;
+                        p.style.fontSize = (Math.random() * 10 + 10) + 'px';
+                        
+                        const angle = Math.random() * Math.PI * 2;
+                        const velocity = Math.random() * 60 + 20;
+                        const tx = Math.cos(angle) * velocity;
+                        const ty = Math.sin(angle) * velocity - 50; // Throw upward slightly
+                        
+                        p.style.transform = `translate(${tx}px, ${ty}px)`;
+                        p.style.transition = 'all 1s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+                        document.body.appendChild(p);
+                        
+                        setTimeout(() => {
+                            p.style.transform = `translate(${tx}px, 100vh) rotate(360deg)`;
+                            p.style.opacity = '0';
+                        }, 50);
+                        
+                        setTimeout(() => p.remove(), 1050);
+                    }
+                }
+            },
+
+            // Utils
+            UI: {
+                showMsg(text) {
+                    const el = document.getElementById('float-msg');
+                    el.innerText = text;
+                    el.style.opacity = '1';
+                    setTimeout(() => el.style.opacity = '0', 2500);
+                },
+                updateProgress() {
+                    const pct = (App.state.chapter / App.state.totalChapters) * 100;
+                    document.getElementById('progress-bar').style.width = pct + '%';
+                    if(App.state.chapter > 0) {
+                        document.getElementById('top-ui').style.opacity = '1';
+                        document.getElementById('chapter-text').innerText = `CH. ${App.state.chapter}`;
+                    }
+                },
+                changeBg(type) {
+                    const bg = document.getElementById('bg-visual');
+                    if(type === 'romance') bg.style.background = 'radial-gradient(circle at center, #3a0014 0%, var(--bg-midnight) 100%)';
+                    else if(type === 'ballroom') bg.style.background = 'radial-gradient(circle at center, #5c4033 0%, #000 100%)';
+                    else bg.style.background = 'radial-gradient(circle at center, var(--bg-deep) 0%, var(--bg-midnight) 100%)';
+                }
+            },
+
+            // Navigation
+            nextScene() {
+                const current = document.getElementById(`scene-${App.state.chapter}`);
+                current.classList.remove('active');
+                App.state.chapter++;
+                const next = document.getElementById(`scene-${App.state.chapter}`);
+                if(next) {
+                    setTimeout(() => next.classList.add('active'), 800);
+                    App.UI.updateProgress();
+                    App.Scripts[`initCh${App.state.chapter}`] && App.Scripts[`initCh${App.state.chapter}`]();
+                }
             }
         };
-    }
 
-    // ==========================================
-    // --- LEVEL 2: BÀI TOÁN ĐƠN GIẢN ---
-    // ==========================================
-    function renderLevel2() {
-        gameArea.innerHTML = `
-            <div class="question-text">Tính: (có vẻ phải ngăn chồng tính được)</div>
-            <div class="math-eq-box" id="l2-equation">x² + 5x + 6 = 0</div>
-            <div style="margin-top: 20px; color:#555;">Tìm x. (Gợi ý: Quẹt để bôi đen)</div>
-
-            <div id="l2-scratchpad" class="modal-overlay">
-                <div class="modal-box" style="background: #fffae6;">
-                    <h3>Bảng Nháp Toán Học</h3>
-                    <p style="font-size:14px; margin-bottom:10px;">Nhập điều kiện của x</p>
-                    <textarea class="scratchpad-textarea" id="l2-scratch-input" placeholder="VD: x>0..."></textarea>
-                    <button class="btn" onclick="applyL2Math()">Xét điều kiện</button>
-                    <button class="btn" onclick="hideModal('l2-scratchpad')" style="background:#ccc;">Đóng</button>
-                </div>
-            </div>
-
-            <div id="crash-screen">
-                <h1 style="font-size:30px; margin-bottom:20px;">FATAL ERROR: MATH_OVERFLOW</h1>
-                <p>AI_MEMORY_CORRUPT: Invalid constraint forced.</p>
-                <p>Logic sequence broken at address 0xFF0012A.</p>
-                <br>
-                <p>Rebooting system... YOU WIN.</p>
-            </div>
-        `;
-
-        const eqBox = document.getElementById('l2-equation');
-        let startX = 0;
-
-        eqBox.addEventListener('pointerdown', (e) => { startX = e.clientX; try{eqBox.setPointerCapture(e.pointerId);}catch(e){} });
-        eqBox.addEventListener('pointermove', (e) => {
-            if (startX > 0 && Math.abs(e.clientX - startX) > 50) {
-                eqBox.classList.add('highlighted');
-                setTimeout(() => { showModal('l2-scratchpad'); }, 300);
-                startX = 0;
-            }
-        });
-        eqBox.addEventListener('pointerup', () => { startX = 0; });
-        
-        eqBox.onclick = () => {
-            if(!eqBox.classList.contains('highlighted')) {
-                triggerResult(false, 'Bấm vào đề bài không tự giải được đâu, phải lấy nháp ra!', 'Level 2', 'Bấm trực tiếp đề bài');
-            }
-        }
-
-        window.applyL2Math = () => {
-            const val = document.getElementById('l2-scratch-input').value.replace(/\s+/g, '').toLowerCase();
-            hideModal('l2-scratchpad');
-            
-            if (val.includes('x>-2') || val.includes('m>3')) {
-                eqBox.classList.remove('highlighted');
-                eqBox.classList.add('glitch-effect');
-                eqBox.innerText = 'loading.....';
-                
+        /**
+         * LOGIC TỪNG CHAPTER (THEO KỊCH BẢN)
+         */
+        App.Scripts = {
+            // Ch0: Intro
+            initCh0() {
+                setTimeout(() => document.getElementById('intro-t1').classList.add('visible'), 1000);
+                setTimeout(() => document.getElementById('intro-t2').classList.add('visible'), 2500);
                 setTimeout(() => {
-                    document.getElementById('crash-screen').style.display = 'flex';
+                    const btn = document.getElementById('btn-open-gift');
+                    btn.style.display = 'inline-block';
+                    setTimeout(() => btn.classList.add('visible'), 100);
+                }, 4000);
+
+                // Interactions
+                const btn = document.getElementById('btn-open-gift');
+                
+                // Easter egg: Hold button
+                let holdTimer;
+                btn.addEventListener('mousedown', () => holdTimer = setTimeout(() => App.UI.showMsg("Haha tính hack game à cô bé?"), 2000));
+                btn.addEventListener('mouseup', () => clearTimeout(holdTimer));
+                btn.addEventListener('touchstart', () => holdTimer = setTimeout(() => App.UI.showMsg("Haha tính hack game à cô bé?"), 2000));
+                btn.addEventListener('touchend', () => clearTimeout(holdTimer));
+
+                btn.addEventListener('click', (e) => {
+                    App.Audio.init();
+                    App.state.audioEnabled = true;
+                    document.getElementById('btn-mute').innerText = '🔊';
+                    App.Audio.playMagic();
+                    App.Particles.burst(e.clientX, e.clientY, '#d4af37');
+                    
+                    // Track người dùng mở quà
+                    trackAction("Vừa vào web", "Bấm MỞ MÓN QUÀ", "Chuyển sang Scene 1");
+
+                    // Flash effect
+                    document.body.style.background = '#fff';
                     setTimeout(() => {
-                        triggerResult(true, 'Chồng đã hết giải được rồi vì quy tắc vợ đặt ra, đúng là nóc nhà của tui!', 'Level 2', 'Nhập điều kiện x>-2 gây crash game');
-                    }, 2000);
-                }, 1000);
-            } else {
-                triggerResult(false, 'Điều kiện biện quá bình thường, chồng đã đã giải ra x = -2 và x = -3. Vợ thua rồi!', 'Level 2', 'Nhập sai điều kiện');
-            }
-        };
-    }
+                        document.body.style.background = '';
+                        App.nextScene();
+                    }, 200);
+                });
 
-    // ==========================================
-    // --- LEVEL 3: THỬ THÁCH MÙ MÀU ---
-    // ==========================================
-    function renderLevel3() {
-        gameArea.innerHTML = `
-            <div class="question-text">Nhấn nút màu Đỏ.</div>
-            <div id="store-icon" onclick="openPlayStore()">🛒</div>
-            
-            <div style="margin-top: 80px; display:flex; flex-direction:column; align-items:center;">
-                <button class="color-btn btn-bw1" onclick="triggerResult(false, 'Nút trắng xám mà!', 'Level 3', 'Bấm nút trắng')">Nút Trắng</button>
-                <button class="color-btn btn-bw2" onclick="triggerResult(false, 'Nút này xám đen!', 'Level 3', 'Bấm nút xám')">Nút Xám</button>
-                <button class="color-btn btn-bw3" id="l3-target-btn">
-                    <span id="l3-btn-text">Nút Đen</span>
-                    <div id="paint-drop"></div>
-                </button>
-            </div>
+                // Easter egg: Click box 7 times
+                document.getElementById('intro-box').addEventListener('click', (e) => {
+                    App.state.boxClicks++;
+                    App.Particles.burst(e.clientX, e.clientY, '#fff', '✨');
+                    App.Audio.playClick();
+                    if(App.state.boxClicks === 7) {
+                        App.UI.showMsg("Chưa tới ngày đâu cô bé 😏");
+                        App.state.boxClicks = 0;
+                    }
+                });
+            },
 
-            <div id="gp-modal" class="modal-overlay">
-                <div class="modal-box gp-modal" style="padding:0; width:90%; max-width:320px;">
-                    <div class="gp-header">
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/d/d0/Google_Play_Arrow_logo.svg" width="30">
-                        <span style="font-size:18px; font-weight:bold;">Google Play</span>
-                    </div>
-                    <div class="gp-item">
-                        <span>Mã màu Hex #FF0000</span>
-                        <span style="color:#27ae60;">0 ₫</span>
-                    </div>
-                    <div class="gp-payment">
-                        <p style="margin-bottom:10px; font-size:14px; color:#555;">Phương thức thanh toán:</p>
-                        <label style="display:block; margin-bottom:8px;"><input type="radio" name="paymethod" value="momo"> Ví MoMo</label>
-                        <label style="display:block; margin-bottom:8px;"><input type="radio" name="paymethod" value="shopeepay" id="rad-shopee"> Ví ShopeePay</label>
-                        <label style="display:block;"><input type="radio" name="paymethod" value="visa"> Thẻ tín dụng/Ghi nợ</label>
-                    </div>
-                    <button class="gp-pay-btn" onclick="processPayment()">XÁC NHẬN MUA</button>
-                </div>
-            </div>
-        `;
-
-        let isPainted = false;
-        const targetBtn = document.getElementById('l3-target-btn');
-        const paint = document.getElementById('paint-drop');
-
-        window.openPlayStore = () => { showModal('gp-modal'); };
-
-        window.processPayment = () => {
-            const shopee = document.getElementById('rad-shopee');
-            if (shopee.checked) {
-                hideModal('gp-modal');
-                paint.style.display = 'block';
-                setTimeout(() => { paint.style.top = '150px'; }, 100);
-                setTimeout(() => {
-                    targetBtn.style.background = '#ff0000';
-                    targetBtn.style.color = '#fff';
-                    document.getElementById('l3-btn-text').innerText = 'NÚT ĐỎ';
-                    isPainted = true;
-                    paint.style.display = 'none';
-                }, 600);
-            } else {
-                hideModal('gp-modal');
-                triggerResult(false, 'Giao dịch thất bại! Bạn chỉ quen chuyển khoản qua ShopeePay thôi mà!', 'Level 3', 'Thanh toán bằng thẻ khác');
-            }
-        };
-
-        targetBtn.onclick = () => {
-            if (isPainted) {
-                triggerResult(true, 'Mua màu Hex #FF0000 bằng ShopeePay thành công! Quá thông minh!', 'Level 3', 'Bấm nút sau khi đã sơn đỏ');
-            } else {
-                triggerResult(false, 'Nút này màu Đen. Mù màu hả trời?', 'Level 3', 'Bấm nút đen chưa sơn');
-            }
-        };
-    }
-
-    // ==========================================
-    // --- LEVEL 4: GIẤC NGỦ TRƯA ---
-    // ==========================================
-    function renderLevel4() {
-        gameArea.innerHTML = `
-            <div id="l4-room">
-                <div class="question-text" style="color:#fff;">Giúp chồng ngủ</div>
+            // Ch1: Timeline
+            initCh1() {
+                const data = [
+                    { t: "Em tìm tới anh trước", p: "...mặc dù là toàn liên quan tới chuyện học." },
+                    { t: "Có người chờ đợi và... nói 6", p: "Tưởng anh không để ý, ai dè..." },
+                    { t: "Đều thích nhau", p: "Cái khoảnh khắc nhận ra cả hai cùng hướng về nhau." },
+                    { t: "Anh chần chừ", p: "Bị ai kia kêu là 'tồi' vì thích mà không chịu nói liền 😌" },
+                    { t: "Tỏ tình", p: "Cuối cùng anh cũng nói ra. Nhưng em bảo 'để thi xong đã'...thấy nó sao sao á ta" },
+                    { t: "Hiện tại", p: "Và phần còn lại là lịch sử ❤️" }
+                ];
                 
-                <div class="bunk-bed">
-                    <div class="bed-tier" style="bottom: 120px;"></div>
-                    <div class="bed-tier">
-                        <div class="military-char" id="m-char">
-                            <div class="zzz" id="m-zzz">Zzz</div>
-                            <div class="m-head"><div class="m-eyes" id="m-eyes">O O</div></div>
-                            <div class="m-body">
-                                <div class="m-arm" id="m-arm"></div>
-                            </div>
+                const cont = document.getElementById('timeline-container');
+                cont.innerHTML = '';
+                
+                data.forEach((item, idx) => {
+                    const node = document.createElement('div');
+                    node.className = 'timeline-node';
+                    if(idx === 0) node.classList.add('active');
+                    node.innerHTML = `<h3>${item.t}</h3><p>${item.p}</p>`;
+                    
+                    node.addEventListener('click', function() {
+                        if(this.classList.contains('active')) {
+                            App.Audio.playClick();
+                            this.classList.add('completed');
+                            const next = this.nextElementSibling;
+                            if(next) {
+                                next.classList.add('active');
+                                cont.scrollTop = cont.scrollHeight;
+                            } else {
+                                document.getElementById('btn-next-1').style.display = 'inline-block';
+                            }
+                        }
+                    });
+                    cont.appendChild(node);
+                });
+
+                document.getElementById('btn-next-1').addEventListener('click', () => {
+                    App.Audio.playMagic();
+                    App.nextScene();
+                });
+            },
+
+            // Ch2: Quiz
+            initCh2() {
+                const qs = [
+                    { 
+                        q: "Trong chuyện tình này, ai là người 'tiếp cận' trước?", 
+                        a: ["Anh", "Em", "Không ai nhớ nữa"], 
+                        correct: 1, 
+                        cMsg: "Đúng rồi, cô bé tưởng anh quên thật à? 😌", 
+                        wMsg: "Sai rồi 😌 Trí nhớ kém ghê. Cho chọn lại đó." 
+                    },
+                    { 
+                        q: "Lúc anh tỏ tình, tại sao em không đồng ý ngay?", 
+                        a: ["Vì anh chần chừ làm em dỗi", "Vì em đang vướng thi cử", "Vì tự nhiên hết thích"], 
+                        correct: 1, 
+                        cMsg: "Học sinh gương mẫu quá cơ... mà cũng có gì đó sai sai ❤️", 
+                        wMsg: "Lý do gì kỳ vậy? Nhớ lại xem nào." 
+                    }
+                ];
+                
+                let curr = 0;
+                const renderQ = () => {
+                    if(curr >= qs.length) {
+                        App.nextScene();
+                        return;
+                    }
+                    document.getElementById('quiz-q').innerText = qs[curr].q;
+                    document.getElementById('quiz-feedback').innerText = "";
+                    const opts = document.getElementById('quiz-options');
+                    opts.innerHTML = '';
+                    
+                    qs[curr].a.forEach((opt, idx) => {
+                        const btn = document.createElement('button');
+                        btn.className = 'choice-btn';
+                        btn.innerText = opt;
+                        btn.addEventListener('click', (e) => {
+                            
+                            // ===== TRACKING CÂU TRẢ LỜI QUIZ =====
+                            const isCorrect = (idx === qs[curr].correct);
+                            const systemReply = isCorrect ? qs[curr].cMsg : qs[curr].wMsg;
+                            trackAction(`Quiz: ${qs[curr].q}`, opt, systemReply);
+
+                            if(isCorrect) {
+                                App.Audio.playMagic();
+                                App.Particles.burst(e.clientX, e.clientY, '#f9d423', '❤️');
+                                document.getElementById('quiz-card').style.boxShadow = "0 0 30px rgba(212, 175, 55, 0.6)";
+                                document.getElementById('quiz-feedback').innerText = qs[curr].cMsg;
+                                setTimeout(() => {
+                                    document.getElementById('quiz-card').style.boxShadow = "var(--shadow-gold)";
+                                    curr++;
+                                    renderQ();
+                                }, 2000);
+                            } else {
+                                App.Audio.playError();
+                                btn.style.animation = "shake 0.5s";
+                                setTimeout(() => btn.style.animation = "", 500);
+                                document.getElementById('quiz-feedback').innerText = qs[curr].wMsg;
+                            }
+                        });
+                        opts.appendChild(btn);
+                    });
+                };
+                renderQ();
+            },
+
+            // Ch3: Boss
+            initCh3() {
+                App.UI.changeBg('romance');
+                let hp = 100;
+                const phases = [
+                    { 
+                        dia: "Em k giận", 
+                        opts: [
+                            { t: "Ừ vậy thôi.", h: 0, m: "Ai dám..." },
+                            { t: "Anh biết em đang giận mà.", h: 30, m: "Khá hơn xíu." },
+                            { t: "Cục dàng đừng dận anh nữa mà", h: 50, m: "Tuyệt chiêu chí mạng! +100 điểm sát thương." }
+                        ]
+                    },
+                    {
+                        dia: "Tùy anh.",
+                        opts: [
+                            { t: "Vậy anh đi nha.", h: -20, m: "Toang!" },
+                            { t: "Thôi ngoan anh thương.", h: 50, m: "Bảo bối đã được xoa dịu." }
+                        ]
+                    }
+                ];
+
+                let p = 0;
+                
+                const updateBoss = () => {
+                    if(hp <= 0) {
+                        document.getElementById('boss-hp-bar').style.width = '0%';
+                        document.getElementById('boss-dialogue').innerText = '"Thôi bỏ qua cho anh đó 💖"';
+                        document.getElementById('boss-options').innerHTML = '<button class="gold-btn outline" id="btn-win-boss" style="width:100%">Tiếp tục yêu nhau ✦</button>';
+                        document.getElementById('btn-win-boss').addEventListener('click', () => { App.Audio.playMagic(); App.nextScene(); });
+                        return;
+                    }
+                    if(p >= phases.length) p = 0; // fallback loop
+                    
+                    document.getElementById('boss-hp-bar').style.width = hp + '%';
+                    document.getElementById('boss-dialogue').innerText = `"${phases[p].dia}"`;
+                    
+                    const opts = document.getElementById('boss-options');
+                    opts.innerHTML = '';
+                    phases[p].opts.forEach(opt => {
+                        const btn = document.createElement('button');
+                        btn.className = 'choice-btn';
+                        btn.innerText = opt.t;
+                        btn.addEventListener('click', (e) => {
+
+                            // ===== TRACKING SỰ LỰA CHỌN KHI BOSS DỖI =====
+                            trackAction(`Boss nói: ${phases[p].dia}`, opt.t, opt.m);
+
+                            if(opt.h > 0) App.Audio.playMagic(); else App.Audio.playError();
+                            hp -= opt.h;
+                            if(hp > 100) hp = 100;
+                            App.UI.showMsg(opt.m);
+                            p++;
+                            updateBoss();
+                        });
+                        opts.appendChild(btn);
+                    });
+                };
+                updateBoss();
+            },
+
+            // Ch4: 10 Hours
+            initCh4() {
+                App.UI.changeBg('default');
+                const clock = document.getElementById('clock-display');
+                let min = 0;
+                let hrs = 0;
+                
+                App.Audio.playTone(400, 'sine', 0.1, 0.02); // ticking sound
+
+                const interval = setInterval(() => {
+                    min += 15;
+                    if(min >= 60) { min = 0; hrs++; }
+                    
+                    let hStr = hrs < 10 ? '0'+hrs : hrs;
+                    let mStr = min < 10 ? '0'+min : min;
+                    clock.innerText = `${hStr}:${mStr}`;
+
+                    // Sound effect tick
+                    if(min % 30 === 0) App.Audio.playTone(600, 'sine', 0.05, 0.01);
+
+                    if(hrs >= 10) {
+                        clearInterval(interval);
+                        clock.innerText = "10:00+";
+                        
+                        // Sequence texts
+                        setTimeout(() => document.getElementById('clock-msg-1').style.opacity = '1', 1000);
+                        setTimeout(() => document.getElementById('clock-msg-2').style.opacity = '1', 3000);
+                        setTimeout(() => {
+                            document.getElementById('clock-msg-3').style.opacity = '1';
+                            const btn = document.getElementById('btn-next-4');
+                            btn.style.opacity = '1';
+                            btn.style.pointerEvents = 'auto';
+                        }, 5000);
+                    }
+                }, 40); // Fast forward time
+
+                document.getElementById('btn-next-4').addEventListener('click', () => {
+                    App.Audio.playMagic();
+                    App.nextScene();
+                });
+            },
+
+            // Ch5: Memory Box
+            initCh5() {
+                const area = document.getElementById('memory-area');
+                const box = document.getElementById('memory-box');
+                const memories = [
+                    { e: '📞', t: "Những cuộc gọi 10 tiếng..." },
+                    { e: '🌙', t: "Call lúc ngủ 'tht ra là quên tắt" },
+                    { e: '🎀', t: "Lúc em làm nũng đáng yêu cực." },
+                    { e: '❤️', t: "Những lời nói yêu thương" },
+                    { e: '💬', t: "Chia sẻ nhiều chuyện với nhau 'nói 6 ngta'" }
+                ];
+                let collected = 0;
+
+                memories.forEach((m, i) => {
+                    const el = document.createElement('div');
+                    el.className = 'memory-item';
+                    el.innerText = m.e;
+                    // Random position around center
+                    const angle = (i / memories.length) * Math.PI * 2;
+                    const radius = 100 + Math.random() * 40;
+                    el.style.left = `calc(50% + ${Math.cos(angle) * radius}px)`;
+                    el.style.top = `calc(50% + ${Math.sin(angle) * radius}px)`;
+                    
+                    el.addEventListener('click', function() {
+                        App.Audio.playClick();
+                        App.Particles.burst(this.getBoundingClientRect().left, this.getBoundingClientRect().top, '#fff', m.e);
+                        App.UI.showMsg(m.t);
+                        
+                        // Fly to center
+                        this.style.left = '50%';
+                        this.style.top = '50%';
+                        this.style.transform = 'translate(-50%, -50%) scale(0)';
+                        this.style.opacity = '0';
+                        
+                        collected++;
+                        if(collected === memories.length) {
+                            setTimeout(() => {
+                                box.innerText = '🎁';
+                                box.style.animation = 'none';
+                                box.style.transform = 'translate(-50%, -50%) scale(1.5)';
+                                App.Audio.playMagic();
+                                setTimeout(() => App.nextScene(), 2000);
+                            }, 1000);
+                        }
+                    });
+                    area.appendChild(el);
+                });
+            },
+
+            // Ch6: Question
+            initCh6() {
+                const btn = document.getElementById('btn-save-answer');
+                btn.addEventListener('click', () => {
+                    const ans = document.getElementById('user-answer').value;
+                    const questionText = document.getElementById('final-question-text').innerText;
+
+                    if(ans.trim().length < 2) {
+                        App.UI.showMsg("Viết cho anh một chút đi mà...");
+                        return;
+                    }
+                    localStorage.setItem('birthday_answer', ans);
+                    
+                    // ===== TRACKING CÂU TRẢ LỜI CẢM ĐỘNG CỦA CÔ ẤY =====
+                    trackAction(`Câu hỏi cuối: ${questionText}`, ans, "Anh đã lưu lại trong lòng❤️");
+
+                    App.Audio.playMagic();
+                    btn.innerText = "Anh đã lưu lại trong lòng❤️";
+                    btn.style.pointerEvents = 'none';
+                    setTimeout(() => App.nextScene(), 1500);
+                });
+            },
+
+            // Ch7: Ending
+            initCh7() {
+                App.UI.changeBg('ballroom');
+                const t1 = document.getElementById('end-t1');
+                const box = document.getElementById('final-box');
+                const t2 = document.getElementById('end-t2');
+                const t3 = document.getElementById('end-t3');
+                const t4 = document.getElementById('end-t4');
+                const btn = document.getElementById('btn-final');
+
+                setTimeout(() => box.style.opacity = '1', 1000);
+                setTimeout(() => { box.style.transform = 'scale(1.1)'; t2.classList.add('visible'); App.Audio.playTone(300, 'sawtooth', 0.5); }, 2500);
+                setTimeout(() => { t3.classList.add('visible'); box.innerText = '🔒'; }, 3500);
+                setTimeout(() => { t4.classList.add('visible'); }, 5000);
+                setTimeout(() => { btn.style.display = 'inline-block'; setTimeout(()=>btn.classList.add('visible'), 100); }, 6000);
+
+                btn.addEventListener('click', (e) => {
+                    App.Audio.playMagic();
+                    App.Particles.burst(e.clientX, e.clientY, '#f9d423', '✨');
+
+                    trackAction("Kết thúc game", "Bấm ĐỢI ĐẾN NGÀY ĐÓ", "Hoàn thành game");
+
+                    document.body.innerHTML = `
+                        <div style="height:100vh; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; background: #000; color: #fff;">
+                            <h1 style="font-family:'Playfair Display', serif; color: var(--gold); font-size: 2rem; margin-bottom: 20px; animation: fadeIn 2s;">Happy Birthday, my girl.</h1>
+                            <p style="font-family:'Montserrat', sans-serif; letter-spacing: 3px; font-size: 0.8rem; color: #888; animation: fadeIn 4s;">To be continued...</p>
                         </div>
-                        <div id="blanket">Vuốt để gấp</div>
-                    </div>
-                </div>
-            </div>
-        `;
-
-        const blanket = document.getElementById('blanket');
-        const char = document.getElementById('m-char');
-        const arm = document.getElementById('m-arm');
-        const eyes = document.getElementById('m-eyes');
-        const zzz = document.getElementById('m-zzz');
-
-        let foldCount = 0;
-        let lastY = 0;
-
-        blanket.addEventListener('pointerdown', (e) => { lastY = e.clientY; try{blanket.setPointerCapture(e.pointerId);}catch(e){} });
-        blanket.addEventListener('pointermove', (e) => {
-            if (lastY > 0 && Math.abs(e.clientY - lastY) > 30) {
-                foldCount++;
-                lastY = e.clientY;
-                
-                let progress = Math.min(foldCount / 8, 1);
-                let br1 = 40 - (40 * progress); let br2 = 60 - (60 * progress);
-                let br3 = 70 - (70 * progress); let br4 = 30 - (30 * progress);
-                
-                blanket.style.borderRadius = `${br1}% ${br2}% ${br3}% ${br4}%`;
-                blanket.style.width = (120 - (60 * progress)) + 'px';
-                blanket.style.height = (80 - (40 * progress)) + 'px';
-                blanket.innerText = progress > 0.5 ? 'Gấp...' : 'Vuốt...';
-
-                if (foldCount >= 8) {
-                    blanket.innerText = 'CỤC GẠCH';
-                    blanket.style.borderRadius = '0';
-                    blanket.style.border = '4px solid #145a32';
-                    triggerMilitaryRoutine();
-                }
-            }
-        });
-        window.addEventListener('pointerup', () => { lastY = 0; });
-
-        function triggerMilitaryRoutine() {
-            char.style.transform = 'translateY(-10px)';
-            setTimeout(() => { arm.style.transform = 'rotate(-130deg)'; }, 500);
-            setTimeout(() => { 
-                arm.style.transform = 'rotate(0deg)'; 
-                char.style.transform = 'translateY(15px) rotate(90deg) scale(0.8)';
-                eyes.innerText = '- -';
-                zzz.style.display = 'block';
-            }, 1500);
-            setTimeout(() => {
-                triggerResult(true, 'Gấp chăn lại nhưng vẫn ngủ dưới đất tại sợ làm méo chăn =))', 'Level 4', 'Vuốt gấp chăn thành cục gạch');
-            }, 2500);
-        }
-    }
-
-    // ==========================================
-    // --- LEVEL 5: CẤM BẤM NÚT ---
-    // ==========================================
-    function renderLevel5() {
-        gameArea.innerHTML = `
-            <div id="l5-timer">10</div>
-            <div class="big-red-btn" id="l5-btn" style="top: 45%; left: 50%; transform: translate(-50%, -50%);">
-                CẤM BẤM
-            </div>
-            
-            <div class="paper-tray" onclick="openForm()">Khay Giấy</div>
-
-            <div id="form-overlay">
-                <div class="form-title">ĐƠN ĐĂNG KÝ DỰ THI ĐGNL cho chồng<br>ĐHQG-HCM</div>
-                <p style="font-size:12px; margin-bottom:5px;">Họ tên: Trần Tấn Đạt...</p>
-                <p style="font-size:12px; margin-bottom:5px; color:#e84118;">Quẹt tay để ký tên & điền thông tin</p>
-                <div class="form-lines" id="form-lines"></div>
-            </div>
-
-            <div id="mini-form">ĐƠN ĐGNL ĐÃ KÝ</div>
-        `;
-
-        let timeLeft = 10;
-        let isButtonBlocked = false;
-        const timerEl = document.getElementById('l5-timer');
-        const btn = document.getElementById('l5-btn');
-        const overlay = document.getElementById('form-overlay');
-        const drawArea = document.getElementById('form-lines');
-        const miniForm = document.getElementById('mini-form');
-
-        levelTimer = setInterval(() => {
-            timeLeft--;
-            timerEl.innerText = timeLeft;
-            if (timeLeft <= 0) {
-                clearInterval(levelTimer);
-                if (isButtonBlocked) {
-                    triggerResult(true, 'Nút đỏ đã vào diện Hành chính chờ duyệt hồ sơ! Bạn đã đăng kí thành công cho chồng', 'Level 5', 'Dán đơn ĐGNL lên nút chặn giờ');
-                } else {
-                    triggerResult(false, 'Trễ mất lịch thi của chồng rồi =(())', 'Level 5', 'Chờ hết giờ mà không làm gì');
-                }
-            }
-        }, 1000);
-
-        btn.onclick = () => {
-            if (isButtonBlocked) {
-                // Không làm gì, đã bị chặn
-            } else {
-                clearInterval(levelTimer);
-                triggerResult(false, 'Đã bảo cấm bấm rồi mà! Vợ lì quá!', 'Level 5', 'Cố tình bấm nút');
+                    `;
+                });
             }
         };
 
-        window.openForm = () => { overlay.style.display = 'flex'; };
+        /**
+         * GLOBAL EVENTS & EASTER EGGS
+         */
+        document.addEventListener('DOMContentLoaded', () => {
+            App.Particles.init();
+            App.Scripts.initCh0();
 
-        let isDrawing = false;
-        let inkCount = 0;
-        drawArea.addEventListener('pointerdown', (e) => { isDrawing = true; try{drawArea.setPointerCapture(e.pointerId);}catch(err){} });
-        drawArea.addEventListener('pointermove', (e) => {
-            if (!isDrawing) return;
-            const rect = drawArea.getBoundingClientRect();
-            const dot = document.createElement('div');
-            dot.className = 'ink-trail';
-            dot.style.left = (e.clientX - rect.left - 5) + 'px';
-            dot.style.top = (e.clientY - rect.top - 5) + 'px';
-            drawArea.appendChild(dot);
-            inkCount++;
+            // Mute toggle
+            const muteBtn = document.getElementById('btn-mute');
+            muteBtn.addEventListener('click', () => {
+                App.state.audioEnabled = !App.state.audioEnabled;
+                muteBtn.innerText = App.state.audioEnabled ? '🔊' : '🔈';
+                muteBtn.style.opacity = App.state.audioEnabled ? '1' : '0.5';
+                if(App.state.audioEnabled) App.Audio.init();
+            });
+
+            // Easter Egg: Moon Click x5
+            let moonClicks = 0;
+            document.getElementById('moon').addEventListener('click', () => {
+                moonClicks++;
+                if(moonClicks === 5) {
+                    App.UI.showMsg("Anh vẫn luôn nhìn về phía em, như mặt trăng vậy 🌙");
+                    trackAction("Easter Egg", "Click Mặt trăng 5 lần", "Anh vẫn luôn nhìn về phía em, như mặt trăng vậy");
+                    moonClicks = 0;
+                }
+            });
+
+            // Easter Egg: Keyboard Shortcuts
+            window.addEventListener('keydown', (e) => {
+                if(e.key === 'l' || e.key === 'L') {
+                    document.body.classList.toggle('tong-tai-mode');
+                    if(document.body.classList.contains('tong-tai-mode')) App.UI.showMsg("🕶️ Chế độ Tổng Tài được kích hoạt!");
+                }
+                if(e.key === 'b' || e.key === 'B') {
+                    document.body.classList.toggle('bao-boi-mode');
+                    if(document.body.classList.contains('bao-boi-mode')) App.UI.showMsg("🎀 Bảo bối mode ON!");
+                }
+            });
+
+            // Easter Egg: Double click background -> Rain hearts
+            document.body.addEventListener('dblclick', (e) => {
+                if(e.target.tagName !== 'BUTTON' && e.target.tagName !== 'TEXTAREA') {
+                    for(let i=0; i<10; i++) {
+                        setTimeout(() => {
+                            App.Particles.burst(Math.random() * window.innerWidth, -50, '#ff4e50', '❤️');
+                        }, i * 100);
+                    }
+                    App.Audio.playTone(1000, 'sine', 0.1);
+                }
+            });
             
-            if (inkCount > 40) {
-                isDrawing = false;
-                overlay.style.display = 'none';
-                miniForm.style.display = 'block';
-                miniForm.style.left = '180px';
-                miniForm.style.top = '300px';
-            }
+            // Easter Egg: Click random stars in canvas
+            document.body.addEventListener('click', (e) => {
+                if(e.target.id === 'bg-canvas' || e.target === document.body) {
+                    if(Math.random() < 0.05) {
+                        App.UI.showMsg("Anh vẫn nhớ ngày đầu tiên...");
+                        App.Particles.burst(e.clientX, e.clientY, '#fff', '⭐');
+                    }
+                }
+            });
         });
-        drawArea.addEventListener('pointerup', () => { isDrawing = false; });
-
-        makeDraggable(miniForm, null, () => {
-            if (checkCollision(miniForm, btn)) {
-                miniForm.style.display = 'none';
-                isButtonBlocked = true;
-                btn.style.background = '#7f8c8d';
-                btn.style.borderColor = '#34495e';
-                btn.style.fontSize = '14px';
-                btn.innerHTML = 'HÀNH CHÍNH:<br>Chờ xét duyệt<br>Hồ sơ ĐGNL';
-                btn.style.boxShadow = '0 10px 0 #34495e';
-            }
-        });
-    }
-
-    // Khởi động Game
-    window.onload = () => {
-        sendTrackingData("Khởi động Game", "Bắt đầu", "Game sẵn sàng (Bộ logic Hại Não Fix Crash Screen)");
-        loadLevel(currentLevel);
-    };
-
-</script>
+    </script>
 </body>
 </html>
