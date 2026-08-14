@@ -104,6 +104,7 @@
             top: 20px;
             width: 90%;
             pointer-events: none;
+            z-index: 5;
         }
 
         /* Modals */
@@ -156,47 +157,51 @@
         }
         .pop-anim { animation: pop 0.5s ease-out; }
 
-        /* Level 1 */
+        /* Level 1 Styles */
         .scale-container { position: relative; width: 300px; height: 200px; display: flex; justify-content: center; align-items: flex-end; }
         .scale-base { width: 10px; height: 150px; background: #000; position: absolute; bottom: 0; left: 145px; }
-        .scale-beam { width: 280px; height: 10px; background: #000; position: absolute; bottom: 140px; transform-origin: center; transform: rotate(15deg); transition: transform 0.2s; }
+        .scale-beam { width: 280px; height: 10px; background: #000; position: absolute; bottom: 140px; transform-origin: center; transform: rotate(15deg); transition: transform 0.4s ease; }
         .scale-pan { width: 80px; height: 10px; border: 3px solid #000; position: absolute; border-top: none; }
         .pan-left { left: 0; top: 10px; }
         .pan-right { right: 0; top: 10px; }
-        .weight { position: absolute; bottom: 10px; border: 3px solid #000; background: #7f8fa6; display: flex; justify-content: center; align-items: center; font-weight: bold;}
+        .weight { position: absolute; bottom: 10px; border: 3px solid #000; background: #7f8fa6; display: flex; justify-content: center; align-items: center; font-weight: bold; }
         .weight-100 { width: 60px; height: 60px; left: 10px; }
-        .weight-5 { width: 30px; height: 30px; right: 25px; }
-        .scale-needle { width: 4px; height: 60px; background: #e84118; position: absolute; bottom: 145px; left: 148px; transform-origin: bottom center; transform: rotate(25deg); transition: transform 0.2s; cursor: pointer; }
-        .scale-needle::after { content: ''; position: absolute; top: -10px; left: -8px; width: 20px; height: 20px; background: transparent; border-radius: 50%; }
-        #progress-bar { width: 0%; height: 10px; background: #4cd137; position: absolute; top: 70px; border-radius: 5px; border: 2px solid #000; display: none; }
+        .weight-1 { width: 25px; height: 25px; right: 28px; }
+        .drag-time { display: inline-block; font-weight: bold; color: #e84118; cursor: grab; padding: 2px 6px; border: 2px dashed #e84118; border-radius: 8px; pointer-events: auto; background: #fff; position: relative; z-index: 50; }
 
-        /* Level 2 */
-        .math-equation { font-size: 28px; margin-bottom: 40px; }
-        .drag-x { display: inline-block; font-size: 32px; font-weight: bold; color: #e84118; cursor: pointer; padding: 0 5px; position: relative; z-index: 50; pointer-events: auto; }
-        .ans-btn { display: inline-block; margin: 10px; background: #fbc531; width: 60px; height: 60px; border-radius: 50%; text-align: center; line-height: 54px; font-size: 24px; font-weight: bold; border: 3px solid #000; cursor: pointer; }
-        .drop-zone { width: 60px; height: 60px; border: 3px dashed #000; display: inline-block; vertical-align: middle; margin-left: 10px; border-radius: 10px; background: #eee; }
+        /* Level 2 Styles */
+        .erasable-eq { font-size: 26px; font-weight: bold; margin-top: 60px; display: flex; align-items: center; justify-content: center; }
+        .equal-sign-container { display: inline-block; padding: 10px 15px; margin: 0 5px; cursor: pointer; touch-action: none; position: relative; border-radius: 8px; }
+        .equal-sign { font-size: 32px; font-weight: bold; color: #e84118; transition: opacity 0.1s; display: inline-block; }
+        .erase-hint { font-size: 14px; color: #888; margin-top: 15px; }
 
-        /* Level 3 */
-        .color-btn { width: 200px; padding: 15px; margin: 10px; font-size: 24px; font-weight: bold; border: 3px solid #000; border-radius: 10px; cursor: pointer; box-shadow: 3px 3px 0px #000; }
+        /* Level 3 Styles */
+        .color-btn { width: 200px; padding: 15px; margin: 10px; font-size: 22px; font-weight: bold; border: 3px solid #000; border-radius: 10px; cursor: pointer; box-shadow: 3px 3px 0px #000; transition: background 0.3s, transform 0.1s; }
         .btn-green { background: #4cd137; color: #fff; }
-        .btn-red { background: #e84118; color: #fff; }
         .btn-yellow { background: #fbc531; color: #000; }
+        .btn-white { background: #ffffff; color: #000; }
 
-        /* Level 4 */
-        #room { width: 100%; height: 100%; position: absolute; background: #87ceeb; transition: background 1s; }
-        .window { width: 120px; height: 150px; border: 5px solid #000; position: absolute; top: 100px; left: 50px; background: #fff; display: flex; justify-content: center; }
-        .sun { width: 60px; height: 60px; background: #fbc531; border-radius: 50%; border: 3px solid #000; margin-top: 20px; }
-        .bed { position: absolute; bottom: 100px; width: 80%; height: 120px; background: #ff7f50; border: 4px solid #000; border-radius: 20px; display: flex; justify-content: center; }
-        .face { width: 150px; height: 150px; background: #ffda79; border: 4px solid #000; border-radius: 50%; position: absolute; top: -70px; display: flex; justify-content: space-around; padding-top: 30px; }
-        .eye { width: 40px; height: 60px; background: #fff; border: 3px solid #000; border-radius: 50%; position: relative; overflow: hidden; }
-        .pupil { width: 20px; height: 20px; background: #000; border-radius: 50%; position: absolute; bottom: 10px; left: 7px; }
-        .eyelid { width: 100%; height: 0%; background: #ffda79; position: absolute; top: 0; left: 0; border-bottom: 2px solid #000; z-index: 2; touch-action: none; cursor: grab; }
-
-        /* Level 5 */
-        .big-red-button { width: 150px; height: 150px; background: #ff4757; border: 6px solid #c0392b; border-radius: 50%; font-size: 24px; font-weight: bold; color: white; display: flex; justify-content: center; align-items: center; box-shadow: 0 10px 0 #c0392b, 0 15px 10px rgba(0,0,0,0.5); cursor: grab; position: absolute; text-shadow: 2px 2px 0 #000; touch-action: none; }
-        .big-red-button:active { box-shadow: 0 2px 0 #c0392b, 0 5px 5px rgba(0,0,0,0.5); border-width: 4px; }
-        #timer-display { font-size: 60px; font-weight: bold; color: #ff4757; position: absolute; top: 80px; text-shadow: 2px 2px 0px #000; }
+        /* Level 4 Styles */
+        #room-l4 { width: 100%; height: 100%; position: absolute; background: #1a252f; transition: background 0.8s; overflow: hidden; }
+        .window-box { width: 130px; height: 160px; border: 5px solid #000; position: absolute; top: 70px; left: 30px; background: #2c3e50; overflow: hidden; border-radius: 10px; }
+        .celestial-body { width: 50px; height: 50px; border-radius: 50%; border: 3px solid #000; position: absolute; cursor: grab; touch-action: none; z-index: 2; }
+        .moon { background: #f1c40f; top: 50px; left: 40px; box-shadow: inset -8px -4px 0 #d4ac0d; }
+        .sun-l4 { background: #e67e22; top: 180px; left: 40px; }
         
+        .clock-box { position: absolute; top: 70px; right: 30px; width: 100px; height: 100px; background: #fff; border: 4px solid #000; border-radius: 50%; display: flex; justify-content: center; align-items: center; }
+        .clock-hand { width: 4px; height: 35px; background: #000; position: absolute; bottom: 50%; transform-origin: bottom center; transform: rotate(0deg); cursor: grab; touch-action: none; }
+        .clock-center { width: 10px; height: 10px; background: #e84118; border-radius: 50%; z-index: 3; }
+        
+        .bed-l4 { position: absolute; bottom: 80px; width: 80%; left: 10%; height: 130px; background: #e74c3c; border: 4px solid #000; border-radius: 15px; display: flex; justify-content: center; }
+        .character-head { width: 120px; height: 120px; background: #fed330; border: 4px solid #000; border-radius: 50%; position: absolute; top: -60px; display: flex; flex-direction: column; align-items: center; padding-top: 25px; transition: transform 0.4s; }
+        .eyes-tired { display: flex; gap: 20px; font-size: 24px; font-weight: bold; }
+        .character-suit { width: 100px; height: 50px; background: #2f3542; border: 3px solid #000; border-radius: 10px 10px 0 0; position: absolute; bottom: 0; display: none; }
+
+        /* Level 5 Styles */
+        #l5-timer { font-size: 70px; font-weight: bold; color: #ff4757; position: absolute; top: 80px; text-shadow: 3px 3px 0px #000; cursor: pointer; display: inline-block; touch-action: none; transition: transform 0.4s; z-index: 20; }
+        .big-red-btn { width: 160px; height: 160px; background: #ff4757; border: 6px solid #c0392b; border-radius: 50%; font-size: 26px; font-weight: bold; color: white; display: flex; justify-content: center; align-items: center; box-shadow: 0 10px 0 #c0392b, 0 15px 10px rgba(0,0,0,0.5); cursor: pointer; position: absolute; text-shadow: 2px 2px 0 #000; touch-action: manipulation; }
+        .big-red-btn:active { box-shadow: 0 2px 0 #c0392b, 0 5px 5px rgba(0,0,0,0.5); transform: translateY(8px); }
+
         .confetti { position: absolute; width: 10px; height: 10px; background: red; z-index: 200; animation: fall 1.5s linear forwards; }
         @keyframes fall { to { transform: translateY(800px) rotate(720deg); opacity: 0; } }
     </style>
@@ -231,7 +236,7 @@
     <div id="hint-modal" class="modal-overlay">
         <div class="modal-box">
             <button class="close-btn" onclick="hideModal('hint-modal')">X</button>
-            <h2>💡 Gợi Ý Vô Tri</h2>
+            <h2>💡 Gợi Ý</h2>
             <br>
             <p id="hint-text">Gợi ý nè</p>
         </div>
@@ -239,9 +244,9 @@
 
     <div id="result-popup" class="modal-overlay">
         <div class="modal-box" id="result-box">
-            <h2 id="result-title" style="font-size: 32px;">Thắng rồi!</h2>
+            <h2 id="result-title" style="font-size: 30px;">Thắng rồi!</h2>
             <br>
-            <p id="result-message" style="font-size: 20px; font-style: italic;">Bạn giỏi quá!</p>
+            <p id="result-message" style="font-size: 18px; font-style: italic;">Bạn giỏi quá!</p>
             <br><br>
             <button class="btn" id="result-btn" style="background: #4cd137; color: white;">Chơi tiếp</button>
         </div>
@@ -250,49 +255,39 @@
 
 <script>
     // --- KHAI BÁO BIẾN TOÀN CỤC & TRACKING ---
-    const SESSION_ID = 'VO_YEU_' + Math.random().toString(36).substring(2, 9).toUpperCase(); // Tạo ID phiên chơi
+    const SESSION_ID = 'VO_YEU_' + Math.random().toString(36).substring(2, 9).toUpperCase();
     let currentLevel = 1;
     const gameArea = document.getElementById('game-area');
     let levelTimer = null;
-    let dragElement = null;
-    let isDragging = false;
-    let startX, startY;
 
-    // --- HÀM GỬI DỮ LIỆU LÊN GOOGLE FORM NGẦM ---
     function sendTrackingData(questionContent, userChoice, gameReply) {
-        // Dùng URL /formResponse thay vì /viewform để nộp dữ liệu
         const formUrl = "https://docs.google.com/forms/d/e/1FAIpQLSe4Jvx2uI27uJQTt9Xn6QdFj59c53kFNIRbxyFeirMOOEFE4g/formResponse";
-        
         const formData = new FormData();
-        formData.append("entry.1666228409", SESSION_ID);           // ID người chơi
-        formData.append("entry.1275903316", questionContent);      // Nội dung câu hỏi/Màn chơi
-        formData.append("entry.444679017", userChoice);            // Thao tác của cô ấy
-        formData.append("entry.1158846627", gameReply);            // Câu trả lời của Game
+        formData.append("entry.1666228409", SESSION_ID);
+        formData.append("entry.1275903316", questionContent);
+        formData.append("entry.444679017", userChoice);
+        formData.append("entry.1158846627", gameReply);
 
-        // Gửi ngầm không làm mới trang (no-cors)
         fetch(formUrl, {
             method: "POST",
             mode: "no-cors",
             body: formData
         }).then(() => {
-            console.log("Đã track thành công về GG Form!");
-        }).catch(err => console.error("Lỗi track GG Form:", err));
+            console.log("Đã gửi dữ liệu về form!");
+        }).catch(err => console.error("Lỗi:", err));
     }
 
-    // --- HÀM ĐƯỢC CHẾ LẠI ĐỂ VỪA TRACKING VỪA SHOW KẾT QUẢ ---
     function triggerResult(isWin, msg, questionContext, userAction) {
-        // Gửi dữ liệu trước
         sendTrackingData(questionContext, userAction, msg);
-        // Hiện popup kết quả như cũ
         showResult(isWin, msg);
     }
 
     const levelData = {
-        1: { title: "Level 1", hint: "Muốn gợi ý thì hỏi anh nè" },
-        2: { title: "Level 2", hint: "Chồng em nè hỏi đi" },
-        3: { title: "Level 3", hint: "Hỏi chồng em nè" },
-        4: { title: "Level 4", hint: "Hỏi đi chồng em giúp cho" },
-        5: { title: "Level 5", hint: "Chồng em luôn sẵn sàng giúp ạ" }
+        1: { title: "Level 1", hint: "Hỏi chồng nè vợ ơi" },
+        2: { title: "Level 2", hint: "Chồng biết nè" },
+        3: { title: "Level 3", hint: "Dễ lắm chồng chỉ cho" },
+        4: { title: "Level 4", hint: "Chồng biết nè vợ ơi" },
+        5: { title: "Level 5", hint: "Bằng với khoảng thời gian mà chông sẽ yêu và thương vợ á" }
     };
 
     function showModal(id) { document.getElementById(id).style.display = 'flex'; }
@@ -316,14 +311,14 @@
         message.innerText = msg;
         
         if (isWin) {
-            title.innerText = "CHÍNH XÁC ròi vợ ơi!";
+            title.innerText = "CHÍNH XÁC ròi vợ ơi! 🎉";
             title.style.color = "#4cd137";
             btn.innerText = "Màn Tiếp Theo ➡️";
             btn.onclick = () => { hideModal('result-popup'); nextLevel(); };
             box.className = 'modal-box pop-anim';
             createConfetti();
         } else {
-            title.innerText = "Bé dở quá!";
+            title.innerText = "Thua rồi nè! 😜";
             title.style.color = "#e84118";
             btn.innerText = "Thử Lại 🔄";
             btn.onclick = () => { hideModal('result-popup'); loadLevel(currentLevel); };
@@ -350,48 +345,54 @@
         currentLevel++;
         if (currentLevel > 5) {
             currentLevel = 1;
-            alert("Chúc mừng vợ đã phá đảo con game thiểu năng này!");
-            sendTrackingData("Kết thúc Game", "Phá đảo", "Thành công hoàn tất 5 màn");
+            alert("Chúc mừng vợ đã phá đảo toàn bộ các màn chơi hack não này!");
+            sendTrackingData("Kết thúc Game", "Phá đảo toàn bộ", "Hoàn thành 5 màn phiên bản mới");
         }
         loadLevel(currentLevel);
     }
 
-    function makeDraggable(el, onDrag, onDrop, onDragStart) {
+    function makeDraggable(el, onDrag, onDrop) {
         let isDown = false;
-        el.style.touchAction = 'none';
-        let initialX = 0, initialY = 0;
+        let startX, startY;
+        let initialLeft = 0, initialTop = 0;
 
         el.addEventListener('pointerdown', (e) => {
             isDown = true;
-            dragElement = el;
-            startX = e.clientX; startY = e.clientY;
-            let stylePos = window.getComputedStyle(el).position;
-            if (stylePos === 'relative') {
-                initialX = parseFloat(el.style.left) || 0;
-                initialY = parseFloat(el.style.top) || 0;
-            } else {
-                initialX = el.offsetLeft;
-                initialY = el.offsetTop;
+            startX = e.clientX;
+            startY = e.clientY;
+            
+            const rect = el.getBoundingClientRect();
+            const parentRect = gameArea.getBoundingClientRect();
+            
+            // Set sang absolute nếu đang static/relative
+            if (window.getComputedStyle(el).position !== 'absolute') {
+                el.style.position = 'absolute';
+                el.style.left = (rect.left - parentRect.left) + 'px';
+                el.style.top = (rect.top - parentRect.top) + 'px';
             }
+            
+            initialLeft = parseFloat(el.style.left) || 0;
+            initialTop = parseFloat(el.style.top) || 0;
             el.style.zIndex = 1000;
-            if(onDragStart) onDragStart(e);
+            el.setPointerCapture(e.pointerId);
         });
 
-        document.addEventListener('pointermove', (e) => {
+        el.addEventListener('pointermove', (e) => {
             if (!isDown) return;
             e.preventDefault();
             let dx = e.clientX - startX;
             let dy = e.clientY - startY;
-            el.style.left = initialX + dx + 'px';
-            el.style.top = initialY + dy + 'px';
-            if(onDrag) onDrag(e, dx, dy);
-        }, {passive: false});
+            el.style.left = initialLeft + dx + 'px';
+            el.style.top = initialTop + dy + 'px';
+            if (onDrag) onDrag(e, dx, dy);
+        });
 
-        document.addEventListener('pointerup', (e) => {
+        el.addEventListener('pointerup', (e) => {
             if (!isDown) return;
             isDown = false;
             el.style.zIndex = 50;
-            if(onDrop) onDrop(e);
+            try { el.releasePointerCapture(e.pointerId); } catch(err) {}
+            if (onDrop) onDrop(e);
         });
     }
 
@@ -415,235 +416,300 @@
         }
     }
 
-    // --- LEVEL 1 ---
+    // ==========================================
+    // --- LEVEL 1: CHIẾC CÂN CÔNG LÝ (LOGIC MỚI) ---
+    // ==========================================
     function renderLevel1() {
         gameArea.innerHTML = `
-            <div class="question-text">Hãy giữ chiếc cân thăng bằng trong 5 giây.</div>
-            <div id="progress-bar"></div>
+            <div class="question-text">
+                Hãy giữ chiếc cân thăng bằng trong <span class="drag-time" id="drag-time-text">5 giây</span>.
+            </div>
             <div class="scale-container">
                 <div class="scale-base"></div>
-                <div class="scale-beam" id="beam">
-                    <div class="scale-pan pan-left"><div class="weight weight-100" onclick="triggerResult(false, 'Cục tạ 100kg không nhúc nhích!', 'Level 1: Cân công lý', 'Bấm vào quả tạ 100kg')">100</div></div>
-                    <div class="scale-pan pan-right"><div class="weight weight-5" onclick="triggerResult(false, 'Cục tạ 5kg, ủa phải 5kg hong ta', 'Level 1: Cân công lý', 'Bấm vào quả tạ 5kg')">5</div></div>
-                </div>
-                <div class="scale-needle" id="needle"></div>
-            </div>
-        `;
-
-        const needle = document.getElementById('needle');
-        const beam = document.getElementById('beam');
-        const progress = document.getElementById('progress-bar');
-        let holdTimer = null;
-        let ms = 0;
-
-        const startHold = (e) => {
-            e.preventDefault();
-            needle.style.transform = 'rotate(0deg)';
-            beam.style.transform = 'rotate(0deg)';
-            progress.style.display = 'block';
-            ms = 0;
-            holdTimer = setInterval(() => {
-                ms += 50;
-                progress.style.width = (ms / 5000) * 100 + '%';
-                if (ms >= 5000) {
-                    clearInterval(holdTimer);
-                    triggerResult(true, 'Thăng bằng rồi! Cơ tay vợ mạnh thiệt đó!', 'Level 1: Cân công lý', 'Giữ đúng kim cân trong 5 giây');
-                }
-            }, 50);
-        };
-
-        const stopHold = () => {
-            clearInterval(holdTimer);
-            if (ms > 0 && ms < 5000) {
-                needle.style.transform = 'rotate(25deg)';
-                beam.style.transform = 'rotate(15deg)';
-                progress.style.width = '0%';
-                progress.style.display = 'none';
-                sendTrackingData('Level 1: Cân công lý', `Giữ kim cân được ${ms/1000}s rồi thả`, 'Trượt ngã làm lại');
-                ms = 0;
-            }
-        };
-
-        needle.addEventListener('pointerdown', startHold);
-        document.addEventListener('pointerup', stopHold);
-    }
-
-    // --- LEVEL 2 ---
-    function renderLevel2() {
-        gameArea.innerHTML = `
-            <div class="question-text">Tính phương trình: <br><br><span style="font-size:28px;">Tính <span class="drag-x" id="the-x">x</span>² + 5x + 6 = 0</span><br><br>Tìm x cho chồng i.</div>
-            
-            <div style="margin-top: 150px; display:flex; justify-content:center; align-items:center;">
-                <span style="font-size:24px; font-weight:bold;">x = </span>
-                <div class="drop-zone" id="drop-x"></div>
-            </div>
-
-            <div style="margin-top: 50px;">
-                <div class="ans-btn" onclick="triggerResult(false, 'Học giỏi toán quá cũng khổ!', 'Level 2: Phương trình', 'Bấm chọn đáp án -2')">-2</div>
-                <div class="ans-btn" onclick="triggerResult(false, 'Tính ra -3 là dở rồi!', 'Level 2: Phương trình', 'Bấm chọn đáp án -3')">-3</div>
-                <div class="ans-btn" onclick="triggerResult(false, 'Sai bét!', 'Level 2: Phương trình', 'Bấm chọn đáp án ±5')">±5</div>
-                <div class="ans-btn" onclick="triggerResult(false, 'Về lớp 1 học lại i vợ!', 'Level 2: Phương trình', 'Bấm chọn đáp án 0')">0</div>
-            </div>
-        `;
-
-        const theX = document.getElementById('the-x');
-        const dropZone = document.getElementById('drop-x');
-
-        makeDraggable(theX, null, () => {
-            if (checkCollision(theX, dropZone)) {
-                theX.style.visibility = 'hidden'; 
-                dropZone.innerText = 'x';
-                dropZone.style.color = '#e84118';
-                dropZone.style.fontSize = '32px';
-                dropZone.style.fontWeight = 'bold';
-                dropZone.style.lineHeight = '54px';
-                dropZone.style.textAlign = 'center';
-                triggerResult(true, 'Quá xuất sắc! Vợ tui quá là giỏi luôn!', 'Level 2: Phương trình', 'Kéo chữ X trên đề bài bỏ vào ô trống');
-            }
-        });
-    }
-
-    // --- LEVEL 3 ---
-    function renderLevel3() {
-        gameArea.innerHTML = `
-            <div class="question-text">Nhấn nút màu Đỏ</div>
-            <div style="margin-top: 100px; display:flex; flex-direction:column; align-items:center;">
-                <button class="color-btn btn-green" onclick="triggerResult(false, 'Vợ bị lừa rồi nhé! Nút này màu xanh lá mà!', 'Level 3: Nút màu đỏ', 'Bấm nút xanh lá ghi chữ Đỏ')">Đỏ</button>
-                <button class="color-btn btn-red" onclick="triggerResult(false, 'Vợ bị lừa rồi nhé! Chữ ghi Xanh mà!', 'Level 3: Nút màu đỏ', 'Bấm nút đỏ ghi chữ Xanh')">Xanh</button>
-                <button class="color-btn btn-yellow" onclick="triggerResult(false, ' Nút này màu Vàng cơ mà =))', 'Level 3: Nút màu đỏ', 'Bấm nút vàng ghi chữ Vàng')">Vàng</button>
-            </div>
-        `;
-
-        const secretBtn = document.createElement('button');
-        secretBtn.className = 'color-btn btn-red';
-        secretBtn.innerText = 'Nút màu Đỏ';
-        secretBtn.style.padding = '10px';
-        secretBtn.style.fontSize = '18px';
-        secretBtn.onclick = () => { triggerResult(true, 'Vợ tìm ở đâu ra hay vậy?', 'Level 3: Nút màu đỏ', 'Mở Settings và bấm nút Đỏ bí mật'); };
-        document.getElementById('settings-secret-area').appendChild(document.createElement('hr'));
-        document.getElementById('settings-secret-area').appendChild(secretBtn);
-    }
-
-    // --- LEVEL 4 ---
-    function renderLevel4() {
-        gameArea.innerHTML = `
-            <div class="question-text" style="z-index: 10; background: rgba(255,255,255,0.7); padding:5px; border-radius:10px;">Buồn ngủ quá, Làm sao để chồng ngủ đây?</div>
-            <div id="room">
-                <div class="window" onclick="triggerResult(false, 'Đèn đường của thành phố, không tắt được đâu vợ ạ!', 'Level 4: Làm sao để ngủ', 'Bấm vào cửa sổ / mặt trời')">
-                    <div class="sun"></div>
-                </div>
-                <div class="bed" onclick="triggerResult(false, 'Gõ vào giường làm gì? Nằm im đi!', 'Level 4: Làm sao để ngủ', 'Bấm vào cái giường')">
-                    <div class="face">
-                        <div class="eye">
-                            <div class="pupil"></div>
-                            <div class="eyelid" id="eye1"></div>
-                        </div>
-                        <div class="eye">
-                            <div class="pupil"></div>
-                            <div class="eyelid" id="eye2"></div>
-                        </div>
+                <div class="scale-beam" id="scale-beam">
+                    <div class="scale-pan pan-left">
+                        <div class="weight weight-100" onclick="triggerResult(false, 'Quả tạ 100kg quá nặng để nhấc!', 'Level 1: Cân công lý', 'Bấm vào quả tạ 100kg')">100kg</div>
+                    </div>
+                    <div class="scale-pan pan-right" id="pan-right-target">
+                        <div class="weight weight-1" onclick="triggerResult(false, '1kg không đủ sức làm gì cả!', 'Level 1: Cân công lý', 'Bấm vào quả tạ 1kg')">1kg</div>
                     </div>
                 </div>
             </div>
         `;
 
-        const eye1 = document.getElementById('eye1');
-        const eye2 = document.getElementById('eye2');
-        const room = document.getElementById('room');
-        let isDown = false;
-        let startY = 0;
+        const timeText = document.getElementById('drag-time-text');
+        const beam = document.getElementById('scale-beam');
+        const rightPan = document.getElementById('pan-right-target');
 
-        const touchStart = (e) => {
-            isDown = true;
-            startY = e.clientY || e.touches[0].clientY;
-        };
-
-        const touchMove = (e) => {
-            if (!isDown) return;
-            e.preventDefault();
-            let currentY = e.clientY || (e.touches ? e.touches[0].clientY : 0);
-            let diff = currentY - startY;
-            if (diff > 0) {
-                let percent = Math.min((diff / 40) * 100, 100);
-                eye1.style.height = percent + '%';
-                eye2.style.height = percent + '%';
-                room.style.background = `rgba(135, 206, 235, ${1 - percent/100})`;
+        makeDraggable(timeText, null, () => {
+            if (checkCollision(timeText, rightPan)) {
+                // Thả trúng đĩa cân bên phải
+                timeText.style.display = 'none';
+                beam.style.transform = 'rotate(0deg)'; // Cân thăng bằng
                 
-                if (percent === 100) {
-                    isDown = false;
-                    room.style.background = '#2c3e50';
-                    setTimeout(() => triggerResult(true, 'Khò khò... ngủ ngon quá vợ oii!', 'Level 4: Làm sao để ngủ', 'Vuốt mắt cho nhắm lại thành công'), 500);
+                // Tạo một cục chữ "5 giây" nằm trên đĩa cân
+                const placedWeight = document.createElement('div');
+                placedWeight.className = 'weight';
+                placedWeight.style.width = '70px';
+                placedWeight.style.height = '40px';
+                placedWeight.style.right = '5px';
+                placedWeight.style.background = '#ff4757';
+                placedWeight.style.color = '#fff';
+                placedWeight.innerText = '5 GIÂY';
+                rightPan.appendChild(placedWeight);
+
+                setTimeout(() => {
+                    triggerResult(true, 'Không làm khó được vợ', 'Level 1: Cân công lý', 'Hỏi chồng nè vợ ơi');
+                }, 700);
+            }
+        });
+    }
+
+    // ==========================================
+    // --- LEVEL 2: BÀI TOÁN ĐƠN GIẢN (LOGIC MỚI) ---
+    // ==========================================
+    function renderLevel2() {
+        gameArea.innerHTML = `
+            <div class="question-text">Tìm x cho chồng i.</div>
+            
+            <div class="erasable-eq">
+                <span>x² + 5x + 6</span>
+                <div class="equal-sign-container" id="equal-box">
+                    <span class="equal-sign" id="equal-sign">=</span>
+                </div>
+                <span>0</span>
+            </div>
+            
+            <div class="erase-hint">Khó quá ta</div>
+
+            <div style="margin-top: 40px;">
+                <div class="btn" style="margin: 8px;" onclick="triggerResult(false, 'Tính ra -2 là chuẩn toán học nhưng sai chuẩn troll!', 'Level 2: Phương trình', 'Bấm đáp án -2')">x = -2</div>
+                <div class="btn" style="margin: 8px;" onclick="triggerResult(false, 'Tính ra -3 cũng bị lừa nốt!', 'Level 2: Phương trình', 'Bấm đáp án -3')">x = -3</div>
+                <div class="btn" style="margin: 8px;" onclick="triggerResult(false, 'Số 0 không giải quyết được gì!', 'Level 2: Phương trình', 'Bấm đáp án 0')">x = 0</div>
+            </div>
+        `;
+
+        const equalBox = document.getElementById('equal-box');
+        const equalSign = document.getElementById('equal-sign');
+        let rubCount = 0;
+        let lastX = 0;
+
+        const handleRub = (e) => {
+            let currentX = e.clientX || (e.touches && e.touches[0].clientX);
+            if (Math.abs(currentX - lastX) > 8) {
+                rubCount++;
+                lastX = currentX;
+                let opacity = Math.max(0, 1 - (rubCount / 18));
+                equalSign.style.opacity = opacity;
+
+                if (rubCount >= 18) {
+                    equalBox.removeEventListener('pointermove', handleRub);
+                    equalSign.style.display = 'none';
+                    setTimeout(() => {
+                        triggerResult(true, 'Không còn dấu "=" thì làm gì còn bài toán nào nữa! Vợ đỉnh quá!', 'Level 2: Phương trình', 'Hỏi chồng đi mòo');
+                    }, 400);
                 }
             }
         };
 
-        const touchEnd = () => {
-            if (eye1.style.height !== '100%') {
-                eye1.style.height = '0%';
-                eye2.style.height = '0%';
-                room.style.background = '#87ceeb';
-            }
-            isDown = false;
-        };
+        equalBox.addEventListener('pointerdown', (e) => {
+            lastX = e.clientX || (e.touches && e.touches[0].clientX);
+            equalBox.addEventListener('pointermove', handleRub);
+        });
 
-        const face = document.querySelector('.face');
-        face.addEventListener('pointerdown', touchStart);
-        document.addEventListener('pointermove', touchMove, {passive: false});
-        document.addEventListener('pointerup', touchEnd);
+        window.addEventListener('pointerup', () => {
+            equalBox.removeEventListener('pointermove', handleRub);
+        });
     }
 
-    // --- LEVEL 5 ---
+    // ==========================================
+    // --- LEVEL 3: THỬ THÁCH MÙ MÀU (LOGIC MỚI) ---
+    // ==========================================
+    function renderLevel3() {
+        gameArea.innerHTML = `
+            <div class="question-text">Nhấn nút màu Đỏ</div>
+            <div style="margin-top: 80px; display:flex; flex-direction:column; align-items:center;">
+                <button class="color-btn btn-green" onclick="triggerResult(false, 'Nút này màu xanh lá mà vợ!', 'Level 3: Nút màu đỏ', 'Bấm nút Xanh lá')">Xanh Lá</button>
+                <button class="color-btn btn-yellow" onclick="triggerResult(false, 'Màu vàng chói lọi chứ đâu phải màu đỏ!', 'Level 3: Nút màu đỏ', 'Bấm nút Vàng')">Vàng</button>
+                <button class="color-btn btn-white" id="troll-white-btn">Trắng</button>
+            </div>
+        `;
+
+        const whiteBtn = document.getElementById('troll-white-btn');
+        let angerLevel = 0;
+        const angerPhrases = [
+            "Trắng", 
+            "Đừng bấm nữa!", 
+            "Tức rồi nha 😠", 
+            "ĐÃ BẢO LÀ TRẮNG!", 
+            "TỨC ĐỎ MẶT RỒI 😡"
+        ];
+
+        whiteBtn.onclick = () => {
+            angerLevel++;
+            if (angerLevel < 5) {
+                whiteBtn.innerText = angerPhrases[angerLevel];
+                // Chuyển dần từ trắng sang hồng rồi sang đỏ
+                let redVal = 255;
+                let otherVal = Math.max(0, 255 - (angerLevel * 60));
+                whiteBtn.style.backgroundColor = `rgb(${redVal}, ${otherVal}, ${otherVal})`;
+                whiteBtn.style.color = angerLevel >= 3 ? '#fff' : '#000';
+                
+                // Hiệu ứng rung nút
+                whiteBtn.classList.add('shake-anim');
+                setTimeout(() => whiteBtn.classList.remove('shake-anim'), 300);
+            } else if (angerLevel === 5) {
+                // Đã tức đỏ mặt cực độ
+                whiteBtn.style.backgroundColor = '#ff0000';
+                whiteBtn.style.color = '#ffffff';
+                whiteBtn.innerText = 'ĐỎ RỰC RỒI ĐÓ!';
+                whiteBtn.style.transform = 'scale(1.1)';
+            } else {
+                // Lần bấm tiếp theo khi nút đã đỏ hoàn toàn -> THẮNG
+                triggerResult(true, 'Bị vợ chọc tức quá nên nút Trắng biến thành nút Đỏ luôn rồi!', 'Level 3: Nút màu đỏ', 'Hỏi chồng là biết chớ gì');
+            }
+        };
+    }
+
+    // ==========================================
+    // --- LEVEL 4: GIẤC NGỦ TRƯA (LOGIC MỚI) ---
+    // ==========================================
+    function renderLevel4() {
+        gameArea.innerHTML = `
+            <div id="room-l4">
+                <div class="question-text" style="color: #fff; z-index: 10;">Chồng lại buồn ngủ nữa rồi, làm sao đây vợ ơi.</div>
+                
+                <div class="window-box">
+                    <div class="celestial-body moon" id="moon-obj"></div>
+                    <div class="celestial-body sun-l4" id="sun-obj"></div>
+                </div>
+
+                <div class="clock-box">
+                    <div class="clock-hand" id="clock-hand"></div>
+                    <div class="clock-center"></div>
+                    <span style="position: absolute; top: 5px; font-weight: bold; font-size: 12px;">12</span>
+                    <span style="position: absolute; bottom: 5px; font-weight: bold; font-size: 12px;">6</span>
+                    <span style="position: absolute; left: 8px; font-weight: bold; font-size: 12px;">9</span>
+                    <span style="position: absolute; right: 8px; font-weight: bold; font-size: 12px;">3</span>
+                </div>
+
+                <div class="bed-l4">
+                    <div class="character-head" id="char-head">
+                        <div class="eyes-tired" id="char-eyes">😴</div>
+                        <div style="font-size: 14px; margin-top: 5px; font-weight: bold;">Chồng buồn ngủ quá...</div>
+                    </div>
+                    <div class="character-suit" id="char-suit"></div>
+                </div>
+            </div>
+        `;
+
+        const moon = document.getElementById('moon-obj');
+        const sun = document.getElementById('sun-obj');
+        const room = document.getElementById('room-l4');
+        const clockHand = document.getElementById('clock-hand');
+        const charEyes = document.getElementById('char-eyes');
+        const charHead = document.getElementById('char-head');
+        const charSuit = document.getElementById('char-suit');
+
+        let isSunRisen = false;
+        let isClockSeven = false;
+
+        // Kéo Mặt Trăng để Mặt Trời mọc
+        makeDraggable(moon, (e, dx, dy) => {
+            if (dy < -40 || dx > 50) {
+                moon.style.display = 'none';
+                sun.style.top = '50px';
+                sun.style.transition = 'top 0.5s ease';
+                room.style.background = '#87ceeb';
+                isSunRisen = true;
+                checkWinCondition();
+            }
+        });
+
+        // Xoay kim đồng hồ
+        let isClockDragging = false;
+        clockHand.addEventListener('pointerdown', () => { isClockDragging = true; });
+        window.addEventListener('pointerup', () => { isClockDragging = false; });
+        
+        window.addEventListener('pointermove', (e) => {
+            if (!isClockDragging) return;
+            const clock = document.querySelector('.clock-box').getBoundingClientRect();
+            const centerX = clock.left + clock.width / 2;
+            const centerY = clock.top + clock.height / 2;
+            const angleRad = Math.atan2(e.clientY - centerY, e.clientX - centerX);
+            let angleDeg = angleRad * (180 / Math.PI) + 90;
+            if (angleDeg < 0) angleDeg += 360;
+
+            clockHand.style.transform = `rotate(${angleDeg}deg)`;
+
+            // Góc ~ 210 độ (tương đương hướng 7 giờ sáng)
+            if (angleDeg >= 195 && angleDeg <= 230) {
+                isClockSeven = true;
+                checkWinCondition();
+            }
+        });
+
+        function checkWinCondition() {
+            if (isSunRisen && isClockSeven) {
+                charEyes.innerText = '😳';
+                charHead.style.transform = 'translateY(-30px)';
+                charSuit.style.display = 'block';
+                setTimeout(() => {
+                    triggerResult(true, 'Trời sáng luôn rồi dậy call với vợ luôn chứ ngủ gì nữa', 'Level 4: Làm sao để ngủ', 'Chồng biết cách nè');
+                }, 600);
+            }
+        }
+    }
+
+    // ==========================================
+    // --- LEVEL 5: CẤM BẤM NÚT (LOGIC MỚI) ---
+    // ==========================================
     function renderLevel5() {
         gameArea.innerHTML = `
-            <div id="timer-display">10</div>
-            <div class="big-red-button" id="big-btn" style="top: 50%; left: 50%; transform: translate(-50%, -50%);">CẤM BẤM</div>
+            <div id="l5-timer">10</div>
+            <div class="big-red-btn" id="l5-btn" style="top: 55%; left: 50%; transform: translate(-50%, -50%);">CẤM BẤM</div>
         `;
 
         let timeLeft = 10;
-        const timerDisplay = document.getElementById('timer-display');
-        const btn = document.getElementById('big-btn');
-        const wrapper = document.getElementById('game-wrapper');
+        let isInfinite = false;
+        const timerEl = document.getElementById('l5-timer');
+        const btn = document.getElementById('l5-btn');
 
         levelTimer = setInterval(() => {
-            timeLeft--;
-            timerDisplay.innerText = timeLeft;
-            if (timeLeft <= 0) {
-                clearInterval(levelTimer);
-                triggerResult(false, 'Bộ tưởng chờ thoi là thắng hả', 'Level 5: Cấm bấm nút', 'Đợi hết 10 giây không làm gì cả');
+            if (!isInfinite) {
+                timeLeft--;
+                timerEl.innerText = timeLeft;
+                if (timeLeft <= 0) {
+                    clearInterval(levelTimer);
+                    triggerResult(false, 'Hết giờ rồi! Đã bảo là không được đứng nhìn mà!', 'Level 5: Cấm bấm nút', 'Đợi hết thời gian');
+                }
             }
         }, 1000);
 
-        let clickFlag = false;
+        // Chạm vào số 10 để xoay ngang thành vô cực (∞)
+        timerEl.onclick = () => {
+            isInfinite = true;
+            clearInterval(levelTimer);
+            timerEl.style.transform = 'rotate(90deg) scale(1.3)';
+            timerEl.innerText = '8'; // Số 8 xoay ngang thành biểu tượng vô cực ∞
+            timerEl.style.color = '#4cd137';
+        };
 
-        makeDraggable(btn, 
-            (e, dx, dy) => { 
-                if(Math.abs(dx) > 5 || Math.abs(dy) > 5) clickFlag = true;
-                
-                const btnRect = btn.getBoundingClientRect();
-                const wrapRect = wrapper.getBoundingClientRect();
-                
-                if (btnRect.right < wrapRect.left || btnRect.left > wrapRect.right || btnRect.bottom < wrapRect.top || btnRect.top > wrapRect.bottom) {
-                    clearInterval(levelTimer);
-                    triggerResult(true, 'Không còn nút màu đỏ nữa ròi hihi', 'Level 5: Cấm bấm nút', 'Kéo vứt cái nút đỏ ra khỏi màn hình');
-                    btn.style.display = 'none'; 
-                }
-            }, 
-            (e) => { 
-                if (!clickFlag) {
-                    clearInterval(levelTimer);
-                    triggerResult(false, 'Đã bảo CẤM BẤM rồi mà, vợ lì quá nha', 'Level 5: Cấm bấm nút', 'Cố tình bấm vào nút đỏ');
-                }
-            },
-            (e) => { 
-                clickFlag = false;
+        // Bấm nút
+        btn.onclick = () => {
+            if (isInfinite) {
+                triggerResult(true, 'Chồng sẽ yêu vợ chừng ấy thời gian thiệt đó nhaa', 'Level 5: Cấm bấm nút', 'Đó là thời gian mà chồng sẽ yêu và thương vợ');
+            } else {
+                clearInterval(levelTimer);
+                triggerResult(false, 'Đã bảo cấm bấm khi đồng hồ đang đếm ngược rồi mà!', 'Level 5: Cấm bấm nút', 'Bấm nút khi chưa khoá thời gian');
             }
-        );
+        };
     }
 
-    // Khởi động
+    // Khởi động Game
     window.onload = () => {
         console.log("Game Loaded - Session ID:", SESSION_ID);
-        sendTrackingData("Khởi động Game", "Bắt đầu chơi", "Game sẵn sàng");
+        sendTrackingData("Khởi động Game", "Bắt đầu chơi", "Game sẵn sàng (Bộ logic mới)");
         loadLevel(currentLevel);
     };
 
