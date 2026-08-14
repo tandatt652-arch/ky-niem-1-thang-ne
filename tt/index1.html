@@ -3,207 +3,107 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Logic Bẻ Lái - The Gaslight Room</title>
+    <title>Logic Bẻ Lái - Hại Não Edition</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Comic+Neue:wght@700&display=swap');
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            user-select: none;
-            -webkit-user-select: none;
-            font-family: 'Comic Neue', cursive, sans-serif;
-        }
-
-        body {
-            background-color: #2c3e50;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            overflow: hidden;
-            touch-action: none;
-        }
-
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-user-select: none; font-family: 'Comic Neue', cursive, sans-serif; }
+        body { background-color: #2c3e50; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; touch-action: none; }
+        
         #game-wrapper {
-            position: relative;
-            width: 420px;
-            height: 700px;
-            background-color: #fceabb;
-            border: 4px solid #000;
-            border-radius: 20px;
-            box-shadow: 10px 10px 0px rgba(0,0,0,0.5);
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
+            position: relative; width: 420px; height: 700px; background-color: #fceabb;
+            border: 4px solid #000; border-radius: 20px; box-shadow: 10px 10px 0px rgba(0,0,0,0.5);
+            overflow: hidden; display: flex; flex-direction: column;
         }
-
         @media (max-width: 450px), (max-height: 750px) {
-            #game-wrapper {
-                width: 100vw;
-                height: 100vh;
-                border-radius: 0;
-                border: none;
-                box-shadow: none;
-            }
+            #game-wrapper { width: 100vw; height: 100vh; border-radius: 0; border: none; box-shadow: none; }
         }
 
         /* Header */
-        #header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px;
-            background-color: #fff;
-            border-bottom: 4px solid #000;
-            z-index: 10;
-        }
-
-        .btn {
-            background: #fff;
-            border: 3px solid #000;
-            border-radius: 10px;
-            padding: 8px 12px;
-            font-size: 18px;
-            font-weight: bold;
-            cursor: pointer;
-            box-shadow: 3px 3px 0px #000;
-            transition: transform 0.1s;
-        }
-
-        .btn:active {
-            transform: translate(3px, 3px);
-            box-shadow: 0px 0px 0px #000;
-        }
-
-        #level-title {
-            font-size: 24px;
-            font-weight: bold;
-            text-transform: uppercase;
-        }
+        #header { display: flex; justify-content: space-between; align-items: center; padding: 15px; background-color: #fff; border-bottom: 4px solid #000; z-index: 100; }
+        .btn { background: #fff; border: 3px solid #000; border-radius: 10px; padding: 8px 12px; font-size: 18px; font-weight: bold; cursor: pointer; box-shadow: 3px 3px 0px #000; transition: transform 0.1s; }
+        .btn:active { transform: translate(3px, 3px); box-shadow: 0px 0px 0px #000; }
+        #level-title { font-size: 24px; font-weight: bold; text-transform: uppercase; }
 
         /* Game Area */
-        #game-area {
-            flex: 1;
-            position: relative;
-            background: #fdfbfb;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-            padding: 20px;
-            overflow: hidden;
-        }
-
-        .question-text {
-            font-size: 22px;
-            text-align: center;
-            margin-bottom: 30px;
-            position: absolute;
-            top: 20px;
-            width: 90%;
-            pointer-events: none;
-            z-index: 5;
-        }
+        #game-area { flex: 1; position: relative; background: #fdfbfb; display: flex; justify-content: center; align-items: center; flex-direction: column; padding: 20px; overflow: hidden; }
+        .question-text { font-size: 22px; text-align: center; margin-bottom: 30px; position: absolute; top: 20px; width: 90%; pointer-events: none; z-index: 5; }
 
         /* Modals */
-        .modal-overlay {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.6);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 100;
-        }
+        .modal-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: none; justify-content: center; align-items: center; z-index: 250; }
+        .modal-box { background: #fff; border: 4px solid #000; border-radius: 15px; padding: 30px; text-align: center; width: 85%; box-shadow: 8px 8px 0px #000; position: relative; }
+        .close-btn { position: absolute; top: -15px; right: -15px; background: #ff4757; color: #fff; border: 3px solid #000; border-radius: 50%; width: 40px; height: 40px; font-size: 20px; font-weight: bold; cursor: pointer; }
 
-        .modal-box {
-            background: #fff;
-            border: 4px solid #000;
-            border-radius: 15px;
-            padding: 30px;
-            text-align: center;
-            width: 80%;
-            box-shadow: 8px 8px 0px #000;
-            position: relative;
-        }
-
-        .close-btn {
-            position: absolute;
-            top: -15px; right: -15px;
-            background: #ff4757;
-            color: #fff;
-            border: 3px solid #000;
-            border-radius: 50%;
-            width: 40px; height: 40px;
-            font-size: 20px; font-weight: bold;
-            cursor: pointer;
-        }
-
-        @keyframes shake {
-            0% { transform: translateX(0); }
-            25% { transform: translateX(-10px); }
-            50% { transform: translateX(10px); }
-            75% { transform: translateX(-10px); }
-            100% { transform: translateX(0); }
-        }
+        @keyframes shake { 0%,100% {transform: translateX(0);} 25% {transform: translateX(-10px);} 50% {transform: translateX(10px);} 75% {transform: translateX(-10px);} }
         .shake-anim { animation: shake 0.4s ease-in-out; }
-
-        @keyframes pop {
-            0% { transform: scale(0.8); }
-            50% { transform: scale(1.1); }
-            100% { transform: scale(1); }
-        }
+        @keyframes pop { 0% {transform: scale(0.8);} 50% {transform: scale(1.1);} 100% {transform: scale(1);} }
         .pop-anim { animation: pop 0.5s ease-out; }
-
-        /* Level 1 Styles */
-        .scale-container { position: relative; width: 300px; height: 200px; display: flex; justify-content: center; align-items: flex-end; }
-        .scale-base { width: 10px; height: 150px; background: #000; position: absolute; bottom: 0; left: 145px; }
-        .scale-beam { width: 280px; height: 10px; background: #000; position: absolute; bottom: 140px; transform-origin: center; transform: rotate(15deg); transition: transform 0.4s ease; }
-        .scale-pan { width: 80px; height: 10px; border: 3px solid #000; position: absolute; border-top: none; }
-        .pan-left { left: 0; top: 10px; }
-        .pan-right { right: 0; top: 10px; }
-        .weight { position: absolute; bottom: 10px; border: 3px solid #000; background: #7f8fa6; display: flex; justify-content: center; align-items: center; font-weight: bold; }
-        .weight-100 { width: 60px; height: 60px; left: 10px; }
-        .weight-1 { width: 25px; height: 25px; right: 28px; }
-        .drag-time { display: inline-block; font-weight: bold; color: #e84118; cursor: grab; padding: 2px 6px; border: 2px dashed #e84118; border-radius: 8px; pointer-events: auto; background: #fff; position: relative; z-index: 50; }
-
-        /* Level 2 Styles */
-        .erasable-eq { font-size: 26px; font-weight: bold; margin-top: 60px; display: flex; align-items: center; justify-content: center; }
-        .equal-sign-container { display: inline-block; padding: 10px 15px; margin: 0 5px; cursor: pointer; touch-action: none; position: relative; border-radius: 8px; }
-        .equal-sign { font-size: 32px; font-weight: bold; color: #e84118; transition: opacity 0.1s; display: inline-block; }
-        .erase-hint { font-size: 14px; color: #888; margin-top: 15px; }
-
-        /* Level 3 Styles */
-        .color-btn { width: 200px; padding: 15px; margin: 10px; font-size: 22px; font-weight: bold; border: 3px solid #000; border-radius: 10px; cursor: pointer; box-shadow: 3px 3px 0px #000; transition: background 0.3s, transform 0.1s; }
-        .btn-green { background: #4cd137; color: #fff; }
-        .btn-yellow { background: #fbc531; color: #000; }
-        .btn-white { background: #ffffff; color: #000; }
-
-        /* Level 4 Styles */
-        #room-l4 { width: 100%; height: 100%; position: absolute; background: #1a252f; transition: background 0.8s; overflow: hidden; }
-        .window-box { width: 130px; height: 160px; border: 5px solid #000; position: absolute; top: 70px; left: 30px; background: #2c3e50; overflow: hidden; border-radius: 10px; }
-        .celestial-body { width: 50px; height: 50px; border-radius: 50%; border: 3px solid #000; position: absolute; cursor: grab; touch-action: none; z-index: 2; }
-        .moon { background: #f1c40f; top: 50px; left: 40px; box-shadow: inset -8px -4px 0 #d4ac0d; }
-        .sun-l4 { background: #e67e22; top: 180px; left: 40px; }
-        
-        .clock-box { position: absolute; top: 70px; right: 30px; width: 100px; height: 100px; background: #fff; border: 4px solid #000; border-radius: 50%; display: flex; justify-content: center; align-items: center; }
-        .clock-hand { width: 4px; height: 35px; background: #000; position: absolute; bottom: 50%; transform-origin: bottom center; transform: rotate(0deg); cursor: grab; touch-action: none; }
-        .clock-center { width: 10px; height: 10px; background: #e84118; border-radius: 50%; z-index: 3; }
-        
-        .bed-l4 { position: absolute; bottom: 80px; width: 80%; left: 10%; height: 130px; background: #e74c3c; border: 4px solid #000; border-radius: 15px; display: flex; justify-content: center; }
-        .character-head { width: 120px; height: 120px; background: #fed330; border: 4px solid #000; border-radius: 50%; position: absolute; top: -60px; display: flex; flex-direction: column; align-items: center; padding-top: 25px; transition: transform 0.4s; }
-        .eyes-tired { display: flex; gap: 20px; font-size: 24px; font-weight: bold; }
-        .character-suit { width: 100px; height: 50px; background: #2f3542; border: 3px solid #000; border-radius: 10px 10px 0 0; position: absolute; bottom: 0; display: none; }
-
-        /* Level 5 Styles */
-        #l5-timer { font-size: 70px; font-weight: bold; color: #ff4757; position: absolute; top: 80px; text-shadow: 3px 3px 0px #000; cursor: pointer; display: inline-block; touch-action: none; transition: transform 0.4s; z-index: 20; }
-        .big-red-btn { width: 160px; height: 160px; background: #ff4757; border: 6px solid #c0392b; border-radius: 50%; font-size: 26px; font-weight: bold; color: white; display: flex; justify-content: center; align-items: center; box-shadow: 0 10px 0 #c0392b, 0 15px 10px rgba(0,0,0,0.5); cursor: pointer; position: absolute; text-shadow: 2px 2px 0 #000; touch-action: manipulation; }
-        .big-red-btn:active { box-shadow: 0 2px 0 #c0392b, 0 5px 5px rgba(0,0,0,0.5); transform: translateY(8px); }
-
-        .confetti { position: absolute; width: 10px; height: 10px; background: red; z-index: 200; animation: fall 1.5s linear forwards; }
+        .confetti { position: absolute; width: 10px; height: 10px; background: red; z-index: 300; animation: fall 1.5s linear forwards; }
         @keyframes fall { to { transform: translateY(800px) rotate(720deg); opacity: 0; } }
+
+        /* ================= LEVEL 1 ================= */
+        .scale-container { position: relative; width: 300px; height: 200px; display: flex; justify-content: center; align-items: flex-end; transition: transform 1.5s cubic-bezier(0.25, 0.1, 0.25, 1); }
+        .scale-base { width: 10px; height: 150px; background: #000; position: absolute; bottom: 0; left: 145px; z-index: 2; }
+        .fulcrum { width: 24px; height: 24px; background: #e84118; border-radius: 50%; position: absolute; bottom: 138px; left: 138px; z-index: 150; border: 2px solid #000; cursor: pointer; box-shadow: 0 0 8px #ff4757; }
+        .scale-beam { width: 280px; height: 10px; background: #000; position: absolute; bottom: 140px; transform-origin: center; transform: rotate(15deg); transition: transform 0.4s ease; z-index: 3; }
+        .scale-pan { width: 80px; height: 10px; border: 3px solid #000; position: absolute; border-top: none; }
+        .pan-left { left: 0; top: 10px; } .pan-right { right: 0; top: 10px; }
+        .weight { position: absolute; bottom: 10px; border: 3px solid #000; background: #7f8fa6; display: flex; justify-content: center; align-items: center; font-weight: bold; }
+        .weight-100 { width: 60px; height: 60px; left: 10px; } .weight-1 { width: 25px; height: 25px; right: 28px; }
+        
+        #l1-pull-zone { position: absolute; left: 0; top: 20%; width: 40px; height: 60%; background: rgba(0,0,0,0.08); z-index: 20; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: bold; writing-mode: vertical-rl; cursor: grab; touch-action: none; border-right: 2px dashed #7f8c8d; }
+        
+        #l1-dev-overlay { position: absolute; top:0; left:0; width: 100%; height: 100%; background: rgba(44, 62, 80, 0.92); z-index: 100; display: none; color: #00ff00; font-family: monospace; pointer-events: none; }
+        .dev-axis { position: absolute; background: #00ff00; box-shadow: 0 0 6px #00ff00; }
+        .dev-x { width: 100%; height: 3px; top: 50%; } 
+        .dev-y { height: 100%; width: 3px; left: 50%; }
+        .dev-grid-line { position: absolute; background: rgba(0,255,0,0.25); }
+        
+        #l1-input-box { position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%); background: #000; border: 3px solid #00ff00; padding: 20px; display: none; z-index: 200; box-shadow: 0 0 20px rgba(0,255,0,0.6); text-align: center; pointer-events: auto; }
+        #l1-input-box input { background: #000; color: #00ff00; border: 2px solid #00ff00; font-family: monospace; padding: 8px; width: 180px; margin-top: 10px; outline: none; text-align: center; font-size: 16px; }
+
+        /* ================= LEVEL 2 ================= */
+        .math-eq-box { padding: 20px; font-size: 32px; font-weight: bold; background: #fff; border: 3px dashed #000; border-radius: 10px; cursor: pointer; transition: all 0.3s; touch-action: none; }
+        .math-eq-box.highlighted { background: #3498db; color: #fff; }
+        .scratchpad-textarea { width: 100%; height: 80px; font-size: 20px; padding: 10px; font-family: monospace; border: 2px solid #000; resize: none; margin-bottom: 15px; }
+        @keyframes glitch { 0% { transform: translate(0) } 20% { transform: translate(-5px, 5px) } 40% { transform: translate(-5px, -5px) } 60% { transform: translate(5px, 5px) } 80% { transform: translate(5px, -5px) } 100% { transform: translate(0) } }
+        .glitch-effect { animation: glitch 0.1s infinite; color: red !important; text-shadow: 2px 2px 0px #000; }
+        #crash-screen { position: absolute; top:0; left:0; width:100%; height:100%; background:#0000aa; color:#fff; font-family: monospace; font-size:14px; padding:20px; display:none; z-index: 200; flex-direction:column; justify-content:center; }
+
+        /* ================= LEVEL 3 ================= */
+        .color-btn { width: 200px; padding: 15px; margin: 10px; font-size: 22px; font-weight: bold; border: 3px solid #000; border-radius: 10px; cursor: pointer; box-shadow: 3px 3px 0px #000; }
+        .btn-bw1 { background: #ecf0f1; color: #000; }
+        .btn-bw2 { background: #7f8c8d; color: #fff; }
+        .btn-bw3 { background: #2c3e50; color: #fff; position: relative; overflow: hidden; }
+        #store-icon { position: absolute; top: 80px; left: 20px; font-size: 24px; cursor: pointer; z-index: 10; background: #fff; border: 2px solid #000; border-radius: 5px; padding: 5px; }
+        .gp-modal { background: #fff; border-radius: 10px; border: 1px solid #ccc; text-align: left; font-family: sans-serif; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        .gp-header { background: #fff; padding: 15px; border-bottom: 1px solid #eee; display: flex; align-items: center; gap: 10px; }
+        .gp-item { padding: 20px; display: flex; justify-content: space-between; font-weight: bold; }
+        .gp-payment { padding: 15px; background: #f9f9f9; }
+        .gp-pay-btn { width: 100%; background: #01875f; color: white; border: none; padding: 15px; font-size: 16px; font-weight: bold; cursor: pointer; }
+        #paint-drop { position: absolute; top: -100px; left: 50%; transform: translateX(-50%); width: 50px; height: 50px; background: #ff0000; border-radius: 5px; display: none; z-index: 20; transition: top 0.5s ease-in; }
+
+        /* ================= LEVEL 4 ================= */
+        #l4-room { width: 100%; height: 100%; position: absolute; background: #95a5a6; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; padding-bottom: 50px; }
+        .bunk-bed { width: 85%; height: 350px; border: 8px solid #2c3e50; border-bottom: none; position: relative; display: flex; flex-direction: column; justify-content: space-between; padding: 20px 0; }
+        .bed-tier { width: 100%; height: 20px; background: #34495e; position: relative; display: flex; align-items: flex-end; justify-content: center; }
+        .military-char { width: 70px; height: 120px; position: absolute; bottom: 20px; display: flex; flex-direction: column; align-items: center; transition: all 0.5s; transform-origin: bottom; }
+        .m-head { width: 45px; height: 45px; background: #f1c27d; border: 2px solid #000; border-radius: 50%; position: relative; }
+        .m-eyes { position: absolute; top: 15px; width: 100%; text-align: center; font-weight: bold; font-size: 12px; }
+        .m-body { width: 60px; height: 75px; background: #27ae60; border: 2px solid #000; border-radius: 10px 10px 0 0; position: relative; }
+        .m-arm { width: 15px; height: 40px; background: #27ae60; border: 2px solid #000; position: absolute; right: -5px; top: 10px; transform-origin: top center; transition: transform 0.3s; }
+        #blanket { width: 120px; height: 80px; background: #2ecc71; border: 3px solid #145a32; position: absolute; bottom: 20px; right: 10px; border-radius: 40% 60% 70% 30%; cursor: pointer; transition: all 0.3s; touch-action: none; display: flex; justify-content: center; align-items: center; font-size: 10px; color: #145a32; font-weight: bold; }
+        .zzz { position: absolute; top: -30px; right: -20px; font-size: 20px; font-weight: bold; display: none; animation: pop 1s infinite alternate; }
+
+        /* ================= LEVEL 5 ================= */
+        #l5-timer { font-size: 60px; font-weight: bold; color: #ff4757; position: absolute; top: 80px; text-shadow: 2px 2px 0px #000; }
+        .big-red-btn { width: 150px; height: 150px; background: #ff4757; border: 6px solid #c0392b; border-radius: 50%; font-size: 24px; font-weight: bold; color: white; display: flex; justify-content: center; align-items: center; box-shadow: 0 10px 0 #c0392b; cursor: pointer; position: absolute; text-align: center; padding: 10px; touch-action: manipulation; }
+        .paper-tray { position: absolute; bottom: 30px; right: 20px; width: 80px; height: 60px; background: #dcdde1; border: 3px solid #000; border-radius: 5px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 3px 3px 0 #000; font-size: 12px; font-weight: bold; text-align: center; }
+        #form-overlay { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 280px; height: 350px; background: #fff; border: 4px solid #000; box-shadow: 10px 10px 0 rgba(0,0,0,0.5); z-index: 30; display: flex; flex-direction: column; padding: 20px; }
+        .form-title { font-size: 16px; font-weight: bold; text-align: center; margin-bottom: 15px; border-bottom: 2px solid #000; padding-bottom: 5px; }
+        .form-lines { flex: 1; border: 2px dashed #bdc3c7; background: #f9f9f9; cursor: crosshair; touch-action: none; position: relative; overflow: hidden; }
+        .ink-trail { position: absolute; width: 10px; height: 10px; background: #2980b9; border-radius: 50%; pointer-events: none; }
+        #mini-form { width: 60px; height: 80px; background: #fff; border: 2px solid #000; position: absolute; z-index: 50; display: none; cursor: grab; font-size: 8px; padding: 2px; text-align: center; box-shadow: 2px 2px 0 #000; }
     </style>
 </head>
 <body>
@@ -217,45 +117,38 @@
             <button class="btn" onclick="loadLevel(currentLevel)">🔄</button>
         </div>
     </div>
-
     <div id="game-area"></div>
 
+    <!-- Modals -->
     <div id="settings-modal" class="modal-overlay">
         <div class="modal-box">
             <button class="close-btn" onclick="hideModal('settings-modal')">X</button>
-            <h2>Cài đặt</h2>
-            <br>
-            <p>Âm lượng: 🔊 ||||||||||</p>
-            <br>
+            <h2>Cài đặt</h2><br>
+            <p>Âm lượng: 🔊 ||||||||||</p><br>
             <p>Ngôn ngữ: Tiếng Việt</p>
-            <br>
-            <div id="settings-secret-area"></div>
         </div>
     </div>
 
     <div id="hint-modal" class="modal-overlay">
         <div class="modal-box">
             <button class="close-btn" onclick="hideModal('hint-modal')">X</button>
-            <h2>💡 Gợi Ý</h2>
-            <br>
+            <h2>💡 Gợi Ý Hại Não</h2><br>
             <p id="hint-text">Gợi ý nè</p>
         </div>
     </div>
 
     <div id="result-popup" class="modal-overlay">
         <div class="modal-box" id="result-box">
-            <h2 id="result-title" style="font-size: 30px;">Thắng rồi!</h2>
-            <br>
-            <p id="result-message" style="font-size: 18px; font-style: italic;">Vợ giỏi quá!</p>
-            <br><br>
+            <h2 id="result-title" style="font-size: 30px;">Thắng rồi!</h2><br>
+            <p id="result-message" style="font-size: 18px; font-style: italic;">Bạn giỏi quá!</p><br><br>
             <button class="btn" id="result-btn" style="background: #4cd137; color: white;">Chơi tiếp</button>
         </div>
     </div>
 </div>
 
 <script>
-    // --- KHAI BÁO BIẾN TOÀN CỤC & TRACKING ---
-    const SESSION_ID = 'VO_YEU_' + Math.random().toString(36).substring(2, 9).toUpperCase();
+    // --- Tracking & Core System ---
+    const SESSION_ID = 'HARDCORE_' + Math.random().toString(36).substring(2, 9).toUpperCase();
     let currentLevel = 1;
     const gameArea = document.getElementById('game-area');
     let levelTimer = null;
@@ -268,13 +161,7 @@
         formData.append("entry.444679017", userChoice);
         formData.append("entry.1158846627", gameReply);
 
-        fetch(formUrl, {
-            method: "POST",
-            mode: "no-cors",
-            body: formData
-        }).then(() => {
-            console.log("Đã gửi dữ liệu về form!");
-        }).catch(err => console.error("Lỗi:", err));
+        fetch(formUrl, { method: "POST", mode: "no-cors", body: formData }).catch(err => {});
     }
 
     function triggerResult(isWin, msg, questionContext, userAction) {
@@ -283,16 +170,15 @@
     }
 
     const levelData = {
-        1: { title: "Level 1", hint: "Hỏi chồng nè vợ ơi" },
-        2: { title: "Level 2", hint: "Chồng biết nè" },
-        3: { title: "Level 3", hint: "Dễ lắm chồng chỉ cho" },
-        4: { title: "Level 4", hint: "Chồng biết nè vợ ơi" },
-        5: { title: "Level 5", hint: "Bằng với khoảng thời gian mà chông sẽ yêu và thương vợ á" }
+        1: { title: "Level 1", hint: "Mệt rồi không cho gợi ý nữa" },
+        2: { title: "Level 2", hint: "Mệt rồi không cho gợi ý nữa" },
+        3: { title: "Level 3", hint: "Mệt rồi không cho gợi ý nữa" },
+        4: { title: "Level 4", hint: "Mệt rồi không cho gợi ý nữa" },
+        5: { title: "Level 5", hint: "Mệt rồi không cho gợi ý nữa" }
     };
 
     function showModal(id) { document.getElementById(id).style.display = 'flex'; }
     function hideModal(id) { document.getElementById(id).style.display = 'none'; }
-    
     function showHint() {
         document.getElementById('hint-text').innerText = levelData[currentLevel].hint;
         showModal('hint-modal');
@@ -301,6 +187,11 @@
 
     function showResult(isWin, msg) {
         hideModal('settings-modal'); hideModal('hint-modal');
+        
+        // Fix sự cố màn hình xanh Level 2 che khuất nút chuyển màn
+        const crashScreen = document.getElementById('crash-screen');
+        if (crashScreen) crashScreen.style.display = 'none';
+
         const popup = document.getElementById('result-popup');
         const title = document.getElementById('result-title');
         const message = document.getElementById('result-message');
@@ -311,14 +202,14 @@
         message.innerText = msg;
         
         if (isWin) {
-            title.innerText = "CHÍNH XÁC ròi vợ ơi! 🎉";
+            title.innerText = "Vợ  giỏi quáaaa";
             title.style.color = "#4cd137";
             btn.innerText = "Màn Tiếp Theo ➡️";
             btn.onclick = () => { hideModal('result-popup'); nextLevel(); };
             box.className = 'modal-box pop-anim';
             createConfetti();
         } else {
-            title.innerText = "Thua rồi nè! 😜";
+            title.innerText = "Thua ròi nhaa";
             title.style.color = "#e84118";
             btn.innerText = "Thử Lại 🔄";
             btn.onclick = () => { hideModal('result-popup'); loadLevel(currentLevel); };
@@ -345,68 +236,46 @@
         currentLevel++;
         if (currentLevel > 5) {
             currentLevel = 1;
-            alert("Chúc mừng vợ đã phá đảo toàn bộ các màn chơi hack não này!");
-            sendTrackingData("Kết thúc Game", "Phá đảo toàn bộ", "Hoàn thành 5 màn phiên bản mới");
+            alert("Chúc mừng! Bạn đã phá đảo thành công phiên bản siêu hại não!");
+            sendTrackingData("Kết thúc Game", "Phá đảo toàn bộ", "Hoàn thành 5 màn phiên bản Hardcore");
         }
         loadLevel(currentLevel);
     }
 
     function makeDraggable(el, onDrag, onDrop) {
-        let isDown = false;
-        let startX, startY;
-        let initialLeft = 0, initialTop = 0;
-
+        let isDown = false; let startX, startY; let initialLeft, initialTop;
         el.addEventListener('pointerdown', (e) => {
-            isDown = true;
-            startX = e.clientX;
-            startY = e.clientY;
-            
-            const rect = el.getBoundingClientRect();
-            const parentRect = gameArea.getBoundingClientRect();
-            
-            // Set sang absolute nếu đang static/relative
+            isDown = true; startX = e.clientX; startY = e.clientY;
             if (window.getComputedStyle(el).position !== 'absolute') {
+                const rect = el.getBoundingClientRect(); const parentRect = gameArea.getBoundingClientRect();
                 el.style.position = 'absolute';
                 el.style.left = (rect.left - parentRect.left) + 'px';
                 el.style.top = (rect.top - parentRect.top) + 'px';
             }
-            
-            initialLeft = parseFloat(el.style.left) || 0;
-            initialTop = parseFloat(el.style.top) || 0;
-            el.style.zIndex = 1000;
-            el.setPointerCapture(e.pointerId);
+            initialLeft = parseFloat(el.style.left) || 0; initialTop = parseFloat(el.style.top) || 0;
+            el.style.zIndex = 1000; el.setPointerCapture(e.pointerId);
         });
-
         el.addEventListener('pointermove', (e) => {
-            if (!isDown) return;
-            e.preventDefault();
-            let dx = e.clientX - startX;
-            let dy = e.clientY - startY;
-            el.style.left = initialLeft + dx + 'px';
-            el.style.top = initialTop + dy + 'px';
+            if (!isDown) return; e.preventDefault();
+            let dx = e.clientX - startX; let dy = e.clientY - startY;
+            el.style.left = initialLeft + dx + 'px'; el.style.top = initialTop + dy + 'px';
             if (onDrag) onDrag(e, dx, dy);
         });
-
         el.addEventListener('pointerup', (e) => {
-            if (!isDown) return;
-            isDown = false;
-            el.style.zIndex = 50;
+            if (!isDown) return; isDown = false; el.style.zIndex = 50;
             try { el.releasePointerCapture(e.pointerId); } catch(err) {}
             if (onDrop) onDrop(e);
         });
     }
 
     function checkCollision(el1, el2) {
-        const rect1 = el1.getBoundingClientRect();
-        const rect2 = el2.getBoundingClientRect();
+        const rect1 = el1.getBoundingClientRect(); const rect2 = el2.getBoundingClientRect();
         return !(rect1.right < rect2.left || rect1.left > rect2.right || rect1.bottom < rect2.top || rect1.top > rect2.bottom);
     }
 
     function loadLevel(level) {
         clearInterval(levelTimer);
         document.getElementById('level-title').innerText = levelData[level].title;
-        document.getElementById('settings-secret-area').innerHTML = ''; 
-        
         switch(level) {
             case 1: renderLevel1(); break;
             case 2: renderLevel2(); break;
@@ -417,299 +286,407 @@
     }
 
     // ==========================================
-    // --- LEVEL 1: CHIẾC CÂN CÔNG LÝ (LOGIC MỚI) ---
+    // --- LEVEL 1: CHIẾC CÂN CÔNG LÝ ---
     // ==========================================
     function renderLevel1() {
         gameArea.innerHTML = `
-            <div class="question-text">
-                Hãy giữ chiếc cân thăng bằng trong <span class="drag-time" id="drag-time-text">5 giây</span>.
+            <div class="question-text">Hãy giữ chiếc cân thăng bằng trong 5 giây.</div>
+            <div id="l1-pull-zone">Vuốt &gt;&gt;&gt;</div>
+            <div id="l1-dev-overlay">
+                <div class="dev-axis dev-x"></div>
+                <div class="dev-axis dev-y"></div>
+                <div class="dev-grid-line" style="width:100%; height:1px; top:25%;"></div>
+                <div class="dev-grid-line" style="width:100%; height:1px; top:75%;"></div>
+                <div class="dev-grid-line" style="width:1px; height:100%; left:25%;"></div>
+                <div class="dev-grid-line" style="width:1px; height:100%; left:75%;"></div>
+
+                <div style="position:absolute; top:20px; left:20px; font-weight:bold; font-size:16px;">[Debug Mode] Trục Tọa Độ Ảo (Oxy)</div>
+                <div id="l1-input-box">
+                    <p>Nhập tham số can thiệp:</p>
+                    <input type="text" id="dev-math-input" placeholder="VD: tan(AEO)=3">
+                    <button class="btn" style="margin-top:10px; width:100%; font-size:14px; background:#00ff00; color:#000;" onclick="checkDevInput()">Execute</button>
+                </div>
             </div>
-            <div class="scale-container">
+            <div class="scale-container" id="l1-container">
                 <div class="scale-base"></div>
+                <div class="fulcrum" id="l1-fulcrum"></div>
                 <div class="scale-beam" id="scale-beam">
                     <div class="scale-pan pan-left">
-                        <div class="weight weight-100" onclick="triggerResult(false, 'Quả tạ 100kg quá nặng để nhấc!', 'Level 1: Cân công lý', 'Bấm vào quả tạ 100kg')">100kg</div>
+                        <div class="weight weight-100" onclick="triggerResult(false, 'Nặng quá không nhúc nhích!', 'Level 1', 'Bấm cục 100kg')">100kg</div>
                     </div>
-                    <div class="scale-pan pan-right" id="pan-right-target">
-                        <div class="weight weight-1" onclick="triggerResult(false, '1kg không đủ sức làm gì cả!', 'Level 1: Cân công lý', 'Bấm vào quả tạ 1kg')">1kg</div>
+                    <div class="scale-pan pan-right">
+                        <div class="weight weight-1">1kg</div>
                     </div>
                 </div>
             </div>
         `;
 
-        const timeText = document.getElementById('drag-time-text');
-        const beam = document.getElementById('scale-beam');
-        const rightPan = document.getElementById('pan-right-target');
+        const pullZone = document.getElementById('l1-pull-zone');
+        const devOverlay = document.getElementById('l1-dev-overlay');
+        const fulcrum = document.getElementById('l1-fulcrum');
+        const inputBox = document.getElementById('l1-input-box');
+        
+        let isDevMode = false;
+        let isDraggingZone = false;
+        let pStartX = 0;
 
-        makeDraggable(timeText, null, () => {
-            if (checkCollision(timeText, rightPan)) {
-                // Thả trúng đĩa cân bên phải
-                timeText.style.display = 'none';
-                beam.style.transform = 'rotate(0deg)'; // Cân thăng bằng
-                
-                // Tạo một cục chữ "5 giây" nằm trên đĩa cân
-                const placedWeight = document.createElement('div');
-                placedWeight.className = 'weight';
-                placedWeight.style.width = '70px';
-                placedWeight.style.height = '40px';
-                placedWeight.style.right = '5px';
-                placedWeight.style.background = '#ff4757';
-                placedWeight.style.color = '#fff';
-                placedWeight.innerText = '5 GIÂY';
-                rightPan.appendChild(placedWeight);
-
-                setTimeout(() => {
-                    triggerResult(true, 'Không làm khó được vợ', 'Level 1: Cân công lý', 'Hỏi chồng nè vợ ơi');
-                }, 700);
+        pullZone.addEventListener('pointerdown', (e) => { 
+            isDraggingZone = true;
+            pStartX = e.clientX; 
+            try { pullZone.setPointerCapture(e.pointerId); } catch(err) {}
+        });
+        
+        pullZone.addEventListener('pointermove', (e) => {
+            if (!isDraggingZone) return;
+            if (pStartX > 0 && e.clientX > pStartX + 40) {
+                devOverlay.style.display = 'block';
+                isDevMode = true;
+                isDraggingZone = false;
+                pullZone.style.display = 'none';
+                try { pullZone.releasePointerCapture(e.pointerId); } catch(err) {}
             }
         });
+        
+        pullZone.addEventListener('pointerup', (e) => { 
+            isDraggingZone = false; 
+            pStartX = 0;
+            try { pullZone.releasePointerCapture(e.pointerId); } catch(err) {}
+        });
+
+        fulcrum.addEventListener('pointerdown', (e) => {
+            if (isDevMode) {
+                inputBox.style.display = 'block';
+                e.stopPropagation();
+            } else {
+                triggerResult(false, 'Hình như thiếu cái gì đó', 'Level 1', 'Bấm điểm tựa thường');
+            }
+        });
+
+        window.checkDevInput = () => {
+            const val = document.getElementById('dev-math-input').value.replace(/\s+/g, '').toLowerCase();
+            if (val.includes('tan(aeo)') && val.includes('3')) {
+                devOverlay.style.display = 'none';
+                const container = document.getElementById('l1-container');
+                const beam = document.getElementById('scale-beam');
+                
+                container.style.transform = 'skewX(-20deg) scaleY(1.1)';
+                beam.style.transform = 'rotate(0deg)';
+                
+                setTimeout(() => {
+                    triggerResult(true, 'Giỏi toán quá dợ, chắc mặc dù hong biết tại sao =>', 'Level 1', 'Nhập đúng tan(AEO)=3');
+                }, 1000);
+            } else {
+                triggerResult(false, 'Lỗi cú pháp (Syntax Error). Tỷ lệ lượng giác không chính xác!', 'Level 1', 'Nhập sai công thức');
+            }
+        };
     }
 
     // ==========================================
-    // --- LEVEL 2: BÀI TOÁN ĐƠN GIẢN (LOGIC MỚI) ---
+    // --- LEVEL 2: BÀI TOÁN ĐƠN GIẢN ---
     // ==========================================
     function renderLevel2() {
         gameArea.innerHTML = `
-            <div class="question-text">Tìm x cho chồng i.</div>
-            
-            <div class="erasable-eq">
-                <span>x² + 5x + 6</span>
-                <div class="equal-sign-container" id="equal-box">
-                    <span class="equal-sign" id="equal-sign">=</span>
-                </div>
-                <span>0</span>
-            </div>
-            
-            <div class="erase-hint">Khó quá ta</div>
+            <div class="question-text">Tính: (có vẻ phải ngăn chồng tính được)</div>
+            <div class="math-eq-box" id="l2-equation">x² + 5x + 6 = 0</div>
+            <div style="margin-top: 20px; color:#555;">Tìm x. (Gợi ý: Quẹt để bôi đen)</div>
 
-            <div style="margin-top: 40px;">
-                <div class="btn" style="margin: 8px;" onclick="triggerResult(false, 'Tính ra -2 là chuẩn toán học nhưng sai chuẩn troll!', 'Level 2: Phương trình', 'Bấm đáp án -2')">x = -2</div>
-                <div class="btn" style="margin: 8px;" onclick="triggerResult(false, 'Tính ra -3 cũng bị lừa nốt!', 'Level 2: Phương trình', 'Bấm đáp án -3')">x = -3</div>
-                <div class="btn" style="margin: 8px;" onclick="triggerResult(false, 'Số 0 không giải quyết được gì!', 'Level 2: Phương trình', 'Bấm đáp án 0')">x = 0</div>
+            <div id="l2-scratchpad" class="modal-overlay">
+                <div class="modal-box" style="background: #fffae6;">
+                    <h3>Bảng Nháp Toán Học</h3>
+                    <p style="font-size:14px; margin-bottom:10px;">Nhập điều kiện của x</p>
+                    <textarea class="scratchpad-textarea" id="l2-scratch-input" placeholder="VD: x>0..."></textarea>
+                    <button class="btn" onclick="applyL2Math()">Xét điều kiện</button>
+                    <button class="btn" onclick="hideModal('l2-scratchpad')" style="background:#ccc;">Đóng</button>
+                </div>
+            </div>
+
+            <div id="crash-screen">
+                <h1 style="font-size:30px; margin-bottom:20px;">FATAL ERROR: MATH_OVERFLOW</h1>
+                <p>AI_MEMORY_CORRUPT: Invalid constraint forced.</p>
+                <p>Logic sequence broken at address 0xFF0012A.</p>
+                <br>
+                <p>Rebooting system... YOU WIN.</p>
             </div>
         `;
 
-        const equalBox = document.getElementById('equal-box');
-        const equalSign = document.getElementById('equal-sign');
-        let rubCount = 0;
-        let lastX = 0;
+        const eqBox = document.getElementById('l2-equation');
+        let startX = 0;
 
-        const handleRub = (e) => {
-            let currentX = e.clientX || (e.touches && e.touches[0].clientX);
-            if (Math.abs(currentX - lastX) > 8) {
-                rubCount++;
-                lastX = currentX;
-                let opacity = Math.max(0, 1 - (rubCount / 18));
-                equalSign.style.opacity = opacity;
+        eqBox.addEventListener('pointerdown', (e) => { startX = e.clientX; try{eqBox.setPointerCapture(e.pointerId);}catch(e){} });
+        eqBox.addEventListener('pointermove', (e) => {
+            if (startX > 0 && Math.abs(e.clientX - startX) > 50) {
+                eqBox.classList.add('highlighted');
+                setTimeout(() => { showModal('l2-scratchpad'); }, 300);
+                startX = 0;
+            }
+        });
+        eqBox.addEventListener('pointerup', () => { startX = 0; });
+        
+        eqBox.onclick = () => {
+            if(!eqBox.classList.contains('highlighted')) {
+                triggerResult(false, 'Bấm vào đề bài không tự giải được đâu, phải lấy nháp ra!', 'Level 2', 'Bấm trực tiếp đề bài');
+            }
+        }
 
-                if (rubCount >= 18) {
-                    equalBox.removeEventListener('pointermove', handleRub);
-                    equalSign.style.display = 'none';
+        window.applyL2Math = () => {
+            const val = document.getElementById('l2-scratch-input').value.replace(/\s+/g, '').toLowerCase();
+            hideModal('l2-scratchpad');
+            
+            if (val.includes('x>-2') || val.includes('m>3')) {
+                eqBox.classList.remove('highlighted');
+                eqBox.classList.add('glitch-effect');
+                eqBox.innerText = 'loading.....';
+                
+                setTimeout(() => {
+                    document.getElementById('crash-screen').style.display = 'flex';
                     setTimeout(() => {
-                        triggerResult(true, 'Không còn dấu "=" thì làm gì còn bài toán nào nữa! Vợ đỉnh quá!', 'Level 2: Phương trình', 'Hỏi chồng đi mòo');
-                    }, 400);
-                }
+                        triggerResult(true, 'Chồng đã hết giải được rồi vì quy tắc vợ đặt ra, đúng là nóc nhà của tui!', 'Level 2', 'Nhập điều kiện x>-2 gây crash game');
+                    }, 2000);
+                }, 1000);
+            } else {
+                triggerResult(false, 'Điều kiện biện quá bình thường, chồng đã đã giải ra x = -2 và x = -3. Vợ thua rồi!', 'Level 2', 'Nhập sai điều kiện');
             }
         };
-
-        equalBox.addEventListener('pointerdown', (e) => {
-            lastX = e.clientX || (e.touches && e.touches[0].clientX);
-            equalBox.addEventListener('pointermove', handleRub);
-        });
-
-        window.addEventListener('pointerup', () => {
-            equalBox.removeEventListener('pointermove', handleRub);
-        });
     }
 
     // ==========================================
-    // --- LEVEL 3: THỬ THÁCH MÙ MÀU (LOGIC MỚI) ---
+    // --- LEVEL 3: THỬ THÁCH MÙ MÀU ---
     // ==========================================
     function renderLevel3() {
         gameArea.innerHTML = `
-            <div class="question-text">Nhấn nút màu Đỏ</div>
+            <div class="question-text">Nhấn nút màu Đỏ.</div>
+            <div id="store-icon" onclick="openPlayStore()">🛒</div>
+            
             <div style="margin-top: 80px; display:flex; flex-direction:column; align-items:center;">
-                <button class="color-btn btn-green" onclick="triggerResult(false, 'Nút này màu xanh lá mà vợ!', 'Level 3: Nút màu đỏ', 'Bấm nút Xanh lá')">Xanh Lá</button>
-                <button class="color-btn btn-yellow" onclick="triggerResult(false, 'Màu vàng chói lọi chứ đâu phải màu đỏ!', 'Level 3: Nút màu đỏ', 'Bấm nút Vàng')">Vàng</button>
-                <button class="color-btn btn-white" id="troll-white-btn">Trắng</button>
+                <button class="color-btn btn-bw1" onclick="triggerResult(false, 'Nút trắng xám mà!', 'Level 3', 'Bấm nút trắng')">Nút Trắng</button>
+                <button class="color-btn btn-bw2" onclick="triggerResult(false, 'Nút này xám đen!', 'Level 3', 'Bấm nút xám')">Nút Xám</button>
+                <button class="color-btn btn-bw3" id="l3-target-btn">
+                    <span id="l3-btn-text">Nút Đen</span>
+                    <div id="paint-drop"></div>
+                </button>
+            </div>
+
+            <div id="gp-modal" class="modal-overlay">
+                <div class="modal-box gp-modal" style="padding:0; width:90%; max-width:320px;">
+                    <div class="gp-header">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/d/d0/Google_Play_Arrow_logo.svg" width="30">
+                        <span style="font-size:18px; font-weight:bold;">Google Play</span>
+                    </div>
+                    <div class="gp-item">
+                        <span>Mã màu Hex #FF0000</span>
+                        <span style="color:#27ae60;">0 ₫</span>
+                    </div>
+                    <div class="gp-payment">
+                        <p style="margin-bottom:10px; font-size:14px; color:#555;">Phương thức thanh toán:</p>
+                        <label style="display:block; margin-bottom:8px;"><input type="radio" name="paymethod" value="momo"> Ví MoMo</label>
+                        <label style="display:block; margin-bottom:8px;"><input type="radio" name="paymethod" value="shopeepay" id="rad-shopee"> Ví ShopeePay</label>
+                        <label style="display:block;"><input type="radio" name="paymethod" value="visa"> Thẻ tín dụng/Ghi nợ</label>
+                    </div>
+                    <button class="gp-pay-btn" onclick="processPayment()">XÁC NHẬN MUA</button>
+                </div>
             </div>
         `;
 
-        const whiteBtn = document.getElementById('troll-white-btn');
-        let angerLevel = 0;
-        const angerPhrases = [
-            "Trắng", 
-            "Đừng bấm nữa!", 
-            "Tức rồi nha 😠", 
-            "ĐÃ BẢO LÀ TRẮNG!", 
-            "TỨC ĐỎ MẶT RỒI 😡"
-        ];
+        let isPainted = false;
+        const targetBtn = document.getElementById('l3-target-btn');
+        const paint = document.getElementById('paint-drop');
 
-        whiteBtn.onclick = () => {
-            angerLevel++;
-            if (angerLevel < 5) {
-                whiteBtn.innerText = angerPhrases[angerLevel];
-                // Chuyển dần từ trắng sang hồng rồi sang đỏ
-                let redVal = 255;
-                let otherVal = Math.max(0, 255 - (angerLevel * 60));
-                whiteBtn.style.backgroundColor = `rgb(${redVal}, ${otherVal}, ${otherVal})`;
-                whiteBtn.style.color = angerLevel >= 3 ? '#fff' : '#000';
-                
-                // Hiệu ứng rung nút
-                whiteBtn.classList.add('shake-anim');
-                setTimeout(() => whiteBtn.classList.remove('shake-anim'), 300);
-            } else if (angerLevel === 5) {
-                // Đã tức đỏ mặt cực độ
-                whiteBtn.style.backgroundColor = '#ff0000';
-                whiteBtn.style.color = '#ffffff';
-                whiteBtn.innerText = 'ĐỎ RỰC RỒI ĐÓ!';
-                whiteBtn.style.transform = 'scale(1.1)';
+        window.openPlayStore = () => { showModal('gp-modal'); };
+
+        window.processPayment = () => {
+            const shopee = document.getElementById('rad-shopee');
+            if (shopee.checked) {
+                hideModal('gp-modal');
+                paint.style.display = 'block';
+                setTimeout(() => { paint.style.top = '150px'; }, 100);
+                setTimeout(() => {
+                    targetBtn.style.background = '#ff0000';
+                    targetBtn.style.color = '#fff';
+                    document.getElementById('l3-btn-text').innerText = 'NÚT ĐỎ';
+                    isPainted = true;
+                    paint.style.display = 'none';
+                }, 600);
             } else {
-                // Lần bấm tiếp theo khi nút đã đỏ hoàn toàn -> THẮNG
-                triggerResult(true, 'Bị vợ chọc tức quá nên nút Trắng biến thành nút Đỏ luôn rồi!', 'Level 3: Nút màu đỏ', 'Hỏi chồng là biết chớ gì');
+                hideModal('gp-modal');
+                triggerResult(false, 'Giao dịch thất bại! Bạn chỉ quen chuyển khoản qua ShopeePay thôi mà!', 'Level 3', 'Thanh toán bằng thẻ khác');
+            }
+        };
+
+        targetBtn.onclick = () => {
+            if (isPainted) {
+                triggerResult(true, 'Mua màu Hex #FF0000 bằng ShopeePay thành công! Quá thông minh!', 'Level 3', 'Bấm nút sau khi đã sơn đỏ');
+            } else {
+                triggerResult(false, 'Nút này màu Đen. Mù màu hả trời?', 'Level 3', 'Bấm nút đen chưa sơn');
             }
         };
     }
 
     // ==========================================
-    // --- LEVEL 4: GIẤC NGỦ TRƯA (LOGIC MỚI) ---
+    // --- LEVEL 4: GIẤC NGỦ TRƯA ---
     // ==========================================
     function renderLevel4() {
         gameArea.innerHTML = `
-            <div id="room-l4">
-                <div class="question-text" style="color: #fff; z-index: 10;">Chồng lại buồn ngủ nữa rồi, làm sao đây vợ ơi.</div>
+            <div id="l4-room">
+                <div class="question-text" style="color:#fff;">Giúp chồng ngủ</div>
                 
-                <div class="window-box">
-                    <div class="celestial-body moon" id="moon-obj"></div>
-                    <div class="celestial-body sun-l4" id="sun-obj"></div>
-                </div>
-
-                <div class="clock-box">
-                    <div class="clock-hand" id="clock-hand"></div>
-                    <div class="clock-center"></div>
-                    <span style="position: absolute; top: 5px; font-weight: bold; font-size: 12px;">12</span>
-                    <span style="position: absolute; bottom: 5px; font-weight: bold; font-size: 12px;">6</span>
-                    <span style="position: absolute; left: 8px; font-weight: bold; font-size: 12px;">9</span>
-                    <span style="position: absolute; right: 8px; font-weight: bold; font-size: 12px;">3</span>
-                </div>
-
-                <div class="bed-l4">
-                    <div class="character-head" id="char-head">
-                        <div class="eyes-tired" id="char-eyes">😴</div>
-                        <div style="font-size: 14px; margin-top: 5px; font-weight: bold;">Chồng buồn ngủ quá...</div>
+                <div class="bunk-bed">
+                    <div class="bed-tier" style="bottom: 120px;"></div>
+                    <div class="bed-tier">
+                        <div class="military-char" id="m-char">
+                            <div class="zzz" id="m-zzz">Zzz</div>
+                            <div class="m-head"><div class="m-eyes" id="m-eyes">O O</div></div>
+                            <div class="m-body">
+                                <div class="m-arm" id="m-arm"></div>
+                            </div>
+                        </div>
+                        <div id="blanket">Vuốt để gấp</div>
                     </div>
-                    <div class="character-suit" id="char-suit"></div>
                 </div>
             </div>
         `;
 
-        const moon = document.getElementById('moon-obj');
-        const sun = document.getElementById('sun-obj');
-        const room = document.getElementById('room-l4');
-        const clockHand = document.getElementById('clock-hand');
-        const charEyes = document.getElementById('char-eyes');
-        const charHead = document.getElementById('char-head');
-        const charSuit = document.getElementById('char-suit');
+        const blanket = document.getElementById('blanket');
+        const char = document.getElementById('m-char');
+        const arm = document.getElementById('m-arm');
+        const eyes = document.getElementById('m-eyes');
+        const zzz = document.getElementById('m-zzz');
 
-        let isSunRisen = false;
-        let isClockSeven = false;
+        let foldCount = 0;
+        let lastY = 0;
 
-        // Kéo Mặt Trăng để Mặt Trời mọc
-        makeDraggable(moon, (e, dx, dy) => {
-            if (dy < -40 || dx > 50) {
-                moon.style.display = 'none';
-                sun.style.top = '50px';
-                sun.style.transition = 'top 0.5s ease';
-                room.style.background = '#87ceeb';
-                isSunRisen = true;
-                checkWinCondition();
+        blanket.addEventListener('pointerdown', (e) => { lastY = e.clientY; try{blanket.setPointerCapture(e.pointerId);}catch(e){} });
+        blanket.addEventListener('pointermove', (e) => {
+            if (lastY > 0 && Math.abs(e.clientY - lastY) > 30) {
+                foldCount++;
+                lastY = e.clientY;
+                
+                let progress = Math.min(foldCount / 8, 1);
+                let br1 = 40 - (40 * progress); let br2 = 60 - (60 * progress);
+                let br3 = 70 - (70 * progress); let br4 = 30 - (30 * progress);
+                
+                blanket.style.borderRadius = `${br1}% ${br2}% ${br3}% ${br4}%`;
+                blanket.style.width = (120 - (60 * progress)) + 'px';
+                blanket.style.height = (80 - (40 * progress)) + 'px';
+                blanket.innerText = progress > 0.5 ? 'Gấp...' : 'Vuốt...';
+
+                if (foldCount >= 8) {
+                    blanket.innerText = 'CỤC GẠCH';
+                    blanket.style.borderRadius = '0';
+                    blanket.style.border = '4px solid #145a32';
+                    triggerMilitaryRoutine();
+                }
             }
         });
+        window.addEventListener('pointerup', () => { lastY = 0; });
 
-        // Xoay kim đồng hồ
-        let isClockDragging = false;
-        clockHand.addEventListener('pointerdown', () => { isClockDragging = true; });
-        window.addEventListener('pointerup', () => { isClockDragging = false; });
-        
-        window.addEventListener('pointermove', (e) => {
-            if (!isClockDragging) return;
-            const clock = document.querySelector('.clock-box').getBoundingClientRect();
-            const centerX = clock.left + clock.width / 2;
-            const centerY = clock.top + clock.height / 2;
-            const angleRad = Math.atan2(e.clientY - centerY, e.clientX - centerX);
-            let angleDeg = angleRad * (180 / Math.PI) + 90;
-            if (angleDeg < 0) angleDeg += 360;
-
-            clockHand.style.transform = `rotate(${angleDeg}deg)`;
-
-            // Góc ~ 210 độ (tương đương hướng 7 giờ sáng)
-            if (angleDeg >= 195 && angleDeg <= 230) {
-                isClockSeven = true;
-                checkWinCondition();
-            }
-        });
-
-        function checkWinCondition() {
-            if (isSunRisen && isClockSeven) {
-                charEyes.innerText = '😳';
-                charHead.style.transform = 'translateY(-30px)';
-                charSuit.style.display = 'block';
-                setTimeout(() => {
-                    triggerResult(true, 'Trời sáng luôn rồi dậy call với vợ luôn chứ ngủ gì nữa', 'Level 4: Làm sao để ngủ', 'Chồng biết cách nè');
-                }, 600);
-            }
+        function triggerMilitaryRoutine() {
+            char.style.transform = 'translateY(-10px)';
+            setTimeout(() => { arm.style.transform = 'rotate(-130deg)'; }, 500);
+            setTimeout(() => { 
+                arm.style.transform = 'rotate(0deg)'; 
+                char.style.transform = 'translateY(15px) rotate(90deg) scale(0.8)';
+                eyes.innerText = '- -';
+                zzz.style.display = 'block';
+            }, 1500);
+            setTimeout(() => {
+                triggerResult(true, 'Gấp chăn lại nhưng vẫn ngủ dưới đất tại sợ làm méo chăn =))', 'Level 4', 'Vuốt gấp chăn thành cục gạch');
+            }, 2500);
         }
     }
 
     // ==========================================
-    // --- LEVEL 5: CẤM BẤM NÚT (LOGIC MỚI) ---
+    // --- LEVEL 5: CẤM BẤM NÚT ---
     // ==========================================
     function renderLevel5() {
         gameArea.innerHTML = `
             <div id="l5-timer">10</div>
-            <div class="big-red-btn" id="l5-btn" style="top: 55%; left: 50%; transform: translate(-50%, -50%);">CẤM BẤM</div>
+            <div class="big-red-btn" id="l5-btn" style="top: 45%; left: 50%; transform: translate(-50%, -50%);">
+                CẤM BẤM
+            </div>
+            
+            <div class="paper-tray" onclick="openForm()">Khay Giấy</div>
+
+            <div id="form-overlay">
+                <div class="form-title">ĐƠN ĐĂNG KÝ DỰ THI ĐGNL cho chồng<br>ĐHQG-HCM</div>
+                <p style="font-size:12px; margin-bottom:5px;">Họ tên: Trần Tấn Đạt...</p>
+                <p style="font-size:12px; margin-bottom:5px; color:#e84118;">Quẹt tay để ký tên & điền thông tin</p>
+                <div class="form-lines" id="form-lines"></div>
+            </div>
+
+            <div id="mini-form">ĐƠN ĐGNL ĐÃ KÝ</div>
         `;
 
         let timeLeft = 10;
-        let isInfinite = false;
+        let isButtonBlocked = false;
         const timerEl = document.getElementById('l5-timer');
         const btn = document.getElementById('l5-btn');
+        const overlay = document.getElementById('form-overlay');
+        const drawArea = document.getElementById('form-lines');
+        const miniForm = document.getElementById('mini-form');
 
         levelTimer = setInterval(() => {
-            if (!isInfinite) {
-                timeLeft--;
-                timerEl.innerText = timeLeft;
-                if (timeLeft <= 0) {
-                    clearInterval(levelTimer);
-                    triggerResult(false, 'Hết giờ rồi! Đã bảo là không được đứng nhìn mà!', 'Level 5: Cấm bấm nút', 'Đợi hết thời gian');
+            timeLeft--;
+            timerEl.innerText = timeLeft;
+            if (timeLeft <= 0) {
+                clearInterval(levelTimer);
+                if (isButtonBlocked) {
+                    triggerResult(true, 'Nút đỏ đã vào diện Hành chính chờ duyệt hồ sơ! Bạn đã đăng kí thành công cho chồng', 'Level 5', 'Dán đơn ĐGNL lên nút chặn giờ');
+                } else {
+                    triggerResult(false, 'Trễ mất lịch thi của chồng rồi =(())', 'Level 5', 'Chờ hết giờ mà không làm gì');
                 }
             }
         }, 1000);
 
-        // Chạm vào số 10 để xoay ngang thành vô cực (∞)
-        timerEl.onclick = () => {
-            isInfinite = true;
-            clearInterval(levelTimer);
-            timerEl.style.transform = 'rotate(90deg) scale(1.3)';
-            timerEl.innerText = '8'; // Số 8 xoay ngang thành biểu tượng vô cực ∞
-            timerEl.style.color = '#4cd137';
-        };
-
-        // Bấm nút
         btn.onclick = () => {
-            if (isInfinite) {
-                triggerResult(true, 'Chồng sẽ yêu vợ chừng ấy thời gian thiệt đó nhaa', 'Level 5: Cấm bấm nút', 'Đó là thời gian mà chồng sẽ yêu và thương vợ');
+            if (isButtonBlocked) {
+                // Không làm gì, đã bị chặn
             } else {
                 clearInterval(levelTimer);
-                triggerResult(false, 'Đã bảo cấm bấm khi đồng hồ đang đếm ngược rồi mà!', 'Level 5: Cấm bấm nút', 'Bấm nút khi chưa khoá thời gian');
+                triggerResult(false, 'Đã bảo cấm bấm rồi mà! Vợ lì quá!', 'Level 5', 'Cố tình bấm nút');
             }
         };
+
+        window.openForm = () => { overlay.style.display = 'flex'; };
+
+        let isDrawing = false;
+        let inkCount = 0;
+        drawArea.addEventListener('pointerdown', (e) => { isDrawing = true; try{drawArea.setPointerCapture(e.pointerId);}catch(err){} });
+        drawArea.addEventListener('pointermove', (e) => {
+            if (!isDrawing) return;
+            const rect = drawArea.getBoundingClientRect();
+            const dot = document.createElement('div');
+            dot.className = 'ink-trail';
+            dot.style.left = (e.clientX - rect.left - 5) + 'px';
+            dot.style.top = (e.clientY - rect.top - 5) + 'px';
+            drawArea.appendChild(dot);
+            inkCount++;
+            
+            if (inkCount > 40) {
+                isDrawing = false;
+                overlay.style.display = 'none';
+                miniForm.style.display = 'block';
+                miniForm.style.left = '180px';
+                miniForm.style.top = '300px';
+            }
+        });
+        drawArea.addEventListener('pointerup', () => { isDrawing = false; });
+
+        makeDraggable(miniForm, null, () => {
+            if (checkCollision(miniForm, btn)) {
+                miniForm.style.display = 'none';
+                isButtonBlocked = true;
+                btn.style.background = '#7f8c8d';
+                btn.style.borderColor = '#34495e';
+                btn.style.fontSize = '14px';
+                btn.innerHTML = 'HÀNH CHÍNH:<br>Chờ xét duyệt<br>Hồ sơ ĐGNL';
+                btn.style.boxShadow = '0 10px 0 #34495e';
+            }
+        });
     }
 
     // Khởi động Game
     window.onload = () => {
-        console.log("Game Loaded - Session ID:", SESSION_ID);
-        sendTrackingData("Khởi động Game", "Bắt đầu chơi", "Game sẵn sàng (Bộ logic mới)");
+        sendTrackingData("Khởi động Game", "Bắt đầu", "Game sẵn sàng (Bộ logic Hại Não Fix Crash Screen)");
         loadLevel(currentLevel);
     };
 
