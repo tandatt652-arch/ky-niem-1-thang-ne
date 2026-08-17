@@ -13,7 +13,7 @@
         #game-wrapper {
             position: relative; width: 420px; height: 700px; background-color: #fceabb;
             border: 4px solid #000; border-radius: 20px; box-shadow: 10px 10px 0px rgba(0,0,0,0.5);
-            overflow: hidden; display: flex; flex-direction: column;
+            overflow: hidden; display: flex; flex-direction: column; transition: background 1s ease;
         }
         @media (max-width: 450px), (max-height: 750px) {
             #game-wrapper { width: 100vw; height: 100vh; border-radius: 0; border: none; box-shadow: none; }
@@ -38,6 +38,11 @@
         .pop-anim { animation: pop 0.5s ease-out; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
         .spin-anim { animation: spin 0.3s linear infinite; }
+        
+        /* Hiệu ứng Màn 9 */
+        @keyframes l9TargetMove { 0% { transform: translateX(-130px); } 100% { transform: translateX(130px); } }
+        .l9-move { animation: l9TargetMove 1s linear infinite alternate; }
+
         .confetti { position: absolute; width: 10px; height: 10px; background: red; z-index: 300; animation: fall 1.5s linear forwards; }
         @keyframes fall { to { transform: translateY(800px) rotate(720deg); opacity: 0; } }
 
@@ -45,12 +50,7 @@
         .hidden { display: none !important; }
         .erasable-chunk { color: white; font-size: 30px; transition: opacity 0.2s; padding: 5px; }
 
-        @keyframes patrolRight {
-            0%, 100% { transform: translateX(0) scaleX(1); }
-            49% { transform: translateX(250px) scaleX(1); }
-            50% { transform: translateX(250px) scaleX(-1); }
-            99% { transform: translateX(0) scaleX(-1); }
-        }
+        @keyframes patrolRight { 0%, 100% { transform: translateX(0) scaleX(1); } 49% { transform: translateX(250px) scaleX(1); } 50% { transform: translateX(250px) scaleX(-1); } 99% { transform: translateX(0) scaleX(-1); } }
         .patrol-anim { animation: patrolRight 1s linear infinite; display: inline-block; }
         .paused-anim { animation-play-state: paused !important; }
 
@@ -117,7 +117,7 @@
 <script>
     // --- 1. HỆ THỐNG TRACKING FORM THEO DÕI TỪNG BƯỚC ---
     const SESSION_ID = 'VO_YEU_' + Math.random().toString(36).substring(2, 9).toUpperCase();
-    let currentLevel = 1;
+    let currentLevel = 1; // Bắt đầu ở Level 1
     const gameArea = document.getElementById('game-area');
     let levelState = {}; 
     let levelTimer = null;
@@ -185,9 +185,9 @@
         message.innerText = msg;
         
         if (isWin) {
-            title.innerText = "Vợ yêu giỏi quá!";
+            title.innerText = (currentLevel === 10) ? "YES I DO 💖" : "Vợ yêu giỏi quá!";
             title.style.color = "#4cd137";
-            btn.innerText = (currentLevel === 8) ? "🎉 Phá Đảo 🎉" : "Màn Kế Tiếp ➡️";
+            btn.innerText = (currentLevel === 10) ? "🎉 Nhận Quà 🎉" : "Màn Kế Tiếp ➡️";
             btn.onclick = () => { hideModal('result-popup'); nextLevel(); };
             box.className = 'modal-box pop-anim';
             createConfetti();
@@ -204,27 +204,28 @@
     }
 
     function createConfetti() {
-        for(let i=0; i<35; i++) {
+        for(let i=0; i<40; i++) {
             let conf = document.createElement('div');
             conf.className = 'confetti';
             conf.style.left = Math.random() * 100 + '%';
-            conf.style.backgroundColor = ['#e84118', '#4cd137', '#fbc531', '#00a8ff'][Math.floor(Math.random()*4)];
+            conf.style.backgroundColor = ['#e84118', '#4cd137', '#fbc531', '#00a8ff', '#e056fd'][Math.floor(Math.random()*5)];
             document.getElementById('game-wrapper').appendChild(conf);
             setTimeout(() => conf.remove(), 1500);
         }
     }
 
     function nextLevel() {
-        currentLevel++;
-        if (currentLevel > 8) {
-            currentLevel = 1;
-            alert("Chúc mừng vợ đã xuất sắc phá đảo toàn bộ 8 màn câu đố Gaslight đỉnh cao!");
-            sendTrackingData("Kết thúc", "Hoàn thành game", "Đã phá đảo 8 màn");
+        if (currentLevel >= 10) {
+            alert("Trò chơi kết thúc! Gửi ngàn nụ hôn đến Tuyến! Chúc em luôn vui vẻ và hạnh phúc nha ❤️");
+            sendTrackingData("Kết thúc", "Hoàn thành game", "Đã phá đảo 10 màn");
+            currentLevel = 1; // Reset game
+        } else {
+            currentLevel++;
         }
         loadLevel(currentLevel);
     }
 
-    // --- ENGINE KÉO THẢ ---
+    // --- ENGINE KÉO THẢ TỐI ƯU ---
     function makeDraggable(el, onDrag, onDrop, onDragStart) {
         if(!el) return;
         let isDown = false;
@@ -280,6 +281,12 @@
     function loadLevel(level) {
         clearInterval(levelTimer);
         document.onpointerup = null; 
+        document.getElementById('game-wrapper').style.backgroundColor = '#fceabb'; // Reset nền chính
+
+        // Khôi phục thanh tiêu đề (Dành cho Màn 10)
+        const lvNumContainer = document.getElementById('lv-num');
+        lvNumContainer.style = "";
+        lvNumContainer.innerText = level;
 
         const lock = document.getElementById('title-lock');
         lock.style.display = (level === 2) ? 'inline-block' : 'none'; 
@@ -319,7 +326,6 @@
         document.getElementById('pause-container').innerHTML = '';
         document.getElementById('pause-desc').innerText = '';
 
-        document.getElementById('lv-num').innerText = level;
         document.getElementById('game-area').className = ''; 
         document.getElementById('game-area').style.background = '#fdfbfb';
         gameArea.innerHTML = '';
@@ -328,933 +334,184 @@
         sendTrackingData(`Level ${level}`, "Bắt đầu màn chơi mới", "Đang xử lý");
 
         switch(level) {
-            case 1: renderLevel1(); break;
-            case 2: renderLevel2(); break;
-            case 3: renderLevel3(); break;
-            case 4: renderLevel4(); break;
-            case 5: renderLevel5(); break;
-            case 6: renderLevel6(); break;
-            case 7: renderLevel7(); break;
-            case 8: renderLevel8(); break;
+            case 1: renderLevel9(); break;
+            case 2: renderLevel10(); break;
         }
     }
 
-    // ================= CHI TIẾT 8 MÀN CHƠI CÓ TRACKING =================
+    // ================= CHI TIẾT 10 MÀN CHƠI CÓ TRACKING =================
 
-    // --- MÀN 1: CÂN CÔNG LÝ ---
-    function renderLevel1() {
-        levelState = { isScrewed: false };
+ 
+    // --- MÀN 9: NGẮM BẮN HỒNG TÂM ---
+    function renderLevel9() {
+        levelState = { isLoaded: false };
         gameArea.innerHTML = `
-            <div class="question-text">Hãy giữ chiếc cân thăng bằng trong 5 giây.</div>
-            <div id="l1-screw" class="emoji-obj hidden" style="top:50px; left:20px; font-size:30px; z-index:100;">🔩</div>
-            <div style="position:relative; width: 300px; height: 200px; margin-top: 150px;">
-                <div style="width: 10px; height: 150px; background: #000; position: absolute; bottom: 0; left: 145px;"></div>
-                <div id="l1-beam" style="width: 280px; height: 10px; background: #000; position: absolute; bottom: 140px; transform-origin: center; transform: rotate(20deg); transition: transform 0.5s;">
-                    <div id="l1-pan-l" style="width: 80px; height: 10px; border: 3px solid #000; border-top: none; position: absolute; left: 0; top: 10px; cursor:pointer;">
-                        <div id="l1-weight" style="position: absolute; bottom: 10px; left:10px; width: 60px; height: 60px; background: #7f8fa6; border: 3px solid #000; display:flex; justify-content:center; align-items:center; font-weight:bold; font-size:20px; transition: top 0.5s;">100kg</div>
-                    </div>
-                    <div id="l1-pan-r" style="width: 80px; height: 10px; border: 3px solid #000; border-top: none; position: absolute; right: 0; top: 10px; cursor:pointer;">
-                        <div id="l1-balloon" class="emoji-obj" style="bottom: 20px; left:10px;">🎈</div>
-                        <div id="l1-feather" class="emoji-obj" style="bottom: -5px; left:25px; font-size:35px;">🖌️</div>
-                    </div>
-                </div>
-                <div id="l1-center" style="width: 20px; height: 20px; border-radius:50%; background: #e84118; position: absolute; bottom: 135px; left: 140px; z-index:5;"></div>
+            <div class="question-text">
+                Nhắm bắn trúng <span id="l9-word" style="background:#ff7675; padding:2px 8px; border-radius:6px; font-weight:bold; border:2px solid #000; cursor:grab; position:relative; z-index:120; display:inline-block;">hồng tâm</span> để qua màn!
+            </div>
+            
+            <!-- Mục tiêu di chuyển -->
+            <div id="l9-target" class="emoji-obj l9-move" style="top:120px; font-size:70px; z-index:10; left: 50%; margin-left: -35px;">🎯</div>
+            
+            <!-- Súng -->
+            <div id="l9-gun-container" style="position:absolute; bottom:40px; display:flex; flex-direction:column; align-items:center; z-index:20;">
+                <div id="l9-gun" class="emoji-obj" style="position:relative; font-size:80px; cursor:pointer; margin:0;">🔫</div>
+                <div id="l9-bullet" class="emoji-obj hidden" style="position:absolute; top:-20px; font-size:30px; pointer-events:none;">💨</div>
             </div>
         `;
 
-        document.getElementById('l1-pan-l').onclick = () => triggerFail('Em mạnh tay quá làm gẫy cân luôn', 'Chạm đĩa trái');
-        document.getElementById('l1-balloon').onclick = () => triggerFail('Quả bóng nổ làm mất cân bằng cân ròi', 'Chạm bóng bay');
-        
-        let hintBtn = document.getElementById('hint-btn');
-        let hintTimer;
-        let isHintHold = false;
-        hintBtn.onpointerdown = () => {
-            isHintHold = false;
-            hintTimer = setTimeout(() => {
-                isHintHold = true;
-                const glove = document.createElement('div');
-                glove.innerText = '🥊';
-                glove.className = 'emoji-obj pop-anim';
-                glove.style.cssText = 'top:70px; right:50px; font-size: 90px; z-index:300;';
-                gameArea.appendChild(glove);
-                triggerFail("Không còn giống lần trước nữa đâu hihi!", "Đè nút Hint tìm mẹo cũ");
-            }, 1000);
-        };
-        hintBtn.onpointerup = () => clearTimeout(hintTimer);
-        hintBtn.onpointerleave = () => clearTimeout(hintTimer);
-        hintBtn.onclick = () => { if(!isHintHold) showModal('hint-modal'); }
+        const gun = document.getElementById('l9-gun');
+        const bullet = document.getElementById('l9-bullet');
+        const word = document.getElementById('l9-word');
+        const target = document.getElementById('l9-target');
 
-        let settingsBtn = document.getElementById('settings-btn');
-        let setTimer;
-        let isSetHold = false;
-        settingsBtn.onpointerdown = () => {
-            isSetHold = false;
-            setTimer = setTimeout(() => {
-                isSetHold = true;
-                settingsBtn.classList.add('spin-anim');
-                sendTrackingData('Level 1', 'Đè nút cài đặt', 'Làm rớt con ốc vít');
-                setTimeout(() => {
-                    settingsBtn.classList.remove('spin-anim');
-                    document.getElementById('l1-screw').classList.remove('hidden');
-                }, 800);
-            }, 1000);
-        };
-        settingsBtn.onpointerup = () => clearTimeout(setTimer);
-        settingsBtn.onpointerleave = () => clearTimeout(setTimer);
-        settingsBtn.onclick = () => { if(!isSetHold) showModal('settings-modal'); }
-
-        const screw = document.getElementById('l1-screw');
-        const center = document.getElementById('l1-center');
-        makeDraggable(screw, null, () => {
-            if(checkCollision(screw, center, 10, 0) && !levelState.isScrewed) { 
-                levelState.isScrewed = true;
-                sendTrackingData('Level 1', 'Lắp ốc vít vào giữa trục', 'Trục cân bị khóa cứng');
-                const cRect = center.getBoundingClientRect();
-                const gRect = gameArea.getBoundingClientRect();
-                screw.style.left = (cRect.left - gRect.left + (cRect.width / 2) - (screw.offsetWidth / 2)) + 'px';
-                screw.style.top = (cRect.top - gRect.top + (cRect.height / 2) - (screw.offsetHeight / 2)) + 'px';
-                screw.onpointerdown = null; 
+        // Kéo chữ hồng tâm vào súng
+        makeDraggable(word, null, () => {
+            if (checkCollision(word, gun, 10, 10)) {
+                levelState.isLoaded = true;
+                word.style.display = 'none';
+                gun.innerText = "🔫🎯"; // Súng đã nạp đạn hồng tâm
+                gun.classList.add('pop-anim');
+                setTimeout(() => gun.classList.remove('pop-anim'), 400);
+                sendTrackingData('Level 9', 'Kéo chữ "hồng tâm" nhét vào nòng súng', 'Súng đã được nạp đạn đặc biệt');
             }
         });
 
-        const feather = document.getElementById('l1-feather');
-        const weight = document.getElementById('l1-weight');
-        makeDraggable(feather, null, () => {
-            if(checkCollision(feather, weight, 10, 0)) { 
-                if(!levelState.isScrewed) {
-                    triggerFail('Cục tạ quá nặng rơi xuống làm gẫy cân mất ròiii', 'Cù tạ nhưng chưa khóa ốc');
-                } else {
-                    weight.innerText = "🤣";
-                    weight.style.bottom = "-200px"; 
-                    document.getElementById('l1-beam').style.transform = "rotate(0deg)"; 
-                    setTimeout(() => triggerWin('Vậy mà cũng làm được', 'Giữ được 5 giây'), 3000);
-                }
-            }
-        });
-    }
+        // Bấm súng để bắn
+        gun.onclick = () => {
+            gun.classList.add('shake-anim');
+            setTimeout(() => gun.classList.remove('shake-anim'), 300);
 
-    // --- MÀN 2: BÀI TOÁN ĐƠN GIẢN ---
-    function renderLevel2() {
-        levelState = { isErased: false, clicks: 0, isPuddle: false, isWetSock: false, zeroLocked: false };
-        gameArea.style.background = '#2c3e50'; 
-        
-        gameArea.innerHTML = `
-            <div class="question-text">Tính x² + 5x + 6 = 0. Tìm x. (số 0 là chìa khóa của mọi bài toán phương trình.)</div>
-            <div id="l2-board" style="width: 350px; height: 250px; border: 5px solid #8B4513; background: #2f3640; margin-top: 50px; position: relative; display:flex; justify-content:center; align-items:center; flex-direction:column;">
-                <div id="l2-equation" style="display:flex; align-items:center; justify-content:center; width:100%; gap: 6px;">
-                    <span class="erasable-chunk">x²</span>
-                    <span class="erasable-chunk">+</span>
-                    <span class="erasable-chunk">5x</span>
-                    <span class="erasable-chunk">+</span>
-                    <span class="erasable-chunk">6</span>
-                    <span class="erasable-chunk">=</span>
-                    <span id="l2-zero" style="color: white; font-size: 30px; padding: 5px; margin-left: 15px;">0</span>
-                </div>
-                <div id="l2-curtain" style="position: absolute; right: -10px; top: -10px; width: 50px; height: 100%; background: #c23616; cursor:pointer; z-index:10;"></div>
-                <div id="l2-sign" class="emoji-obj hidden" style="right: -40px; bottom: 20px; font-size:30px; width: 120px; background:#fff; border:2px solid #000; padding:5px; font-size:12px; text-align:center;">Khăn lau đã đem giặt, tự thân vận động đi!</div>
-            </div>
-            
-            <div id="l2-cooler" class="emoji-obj" style="bottom: 20px; left: 20px; font-size: 60px;">🚰</div>
-            <div id="l2-puddle" class="emoji-obj hidden" style="bottom: 5px; left: 35px; font-size: 40px; z-index:1;">💧</div>
-            <div id="l2-sock" class="emoji-obj" style="bottom: 20px; right: 20px; font-size: 50px; z-index:5;">🧦</div>
-
-            <div style="margin-top: 30px; display:flex; gap:10px;">
-                <div class="btn ans-btn" onclick="l2CheckAns(-2)" style="z-index: 50; position:relative;">-2</div>
-                <div class="btn ans-btn" onclick="l2CheckAns(-3)" style="z-index: 50; position:relative;">-3</div>
-            </div>
-            <div id="l2-paper" class="emoji-obj hidden" style="top: 55%; left: 50%; transform: translateX(-50%); font-size: 60px; z-index: 10; pointer-events: none;">📄
-                <span style="position:absolute; top:20px; left:15px; font-size:16px; color:black; font-weight:bold;">x=-2</span>
-            </div>
-        `;
-
-        window.l2CheckAns = (val) => {
-            if(val !== -2) triggerFail('Tính sai ròi!', `Chọn ${val}`);
-            else if(levelState.clicks < 3) triggerFail('Em đoán lụi ròi hong tính', 'Chọn -2 nhưng chưa có giấy nháp');
-            else triggerWin('Đúng rồi, làm bài phải có nháp chứ!', 'Giải đúng trình tự');
-        };
-
-        const curtain = document.getElementById('l2-curtain');
-        const sign = document.getElementById('l2-sign');
-        makeDraggable(curtain, null, () => { 
-            sign.classList.remove('hidden'); 
-            sendTrackingData('Level 2', 'Kéo rèm tìm khăn', 'Bị troll giấu khăn');
-        });
-
-        const cooler = document.getElementById('l2-cooler');
-        const puddle = document.getElementById('l2-puddle');
-        const sock = document.getElementById('l2-sock');
-        
-        cooler.onclick = () => {
-            if(!levelState.isPuddle){
-                puddle.classList.remove('hidden');
-                levelState.isPuddle = true;
-                sendTrackingData('Level 2', 'Bấm bình nước', 'Tạo vũng nước ra sàn');
-            }
-        };
-
-        const chunks = document.querySelectorAll('.erasable-chunk');
-        const zero = document.getElementById('l2-zero');
-        let hasFailed = false; 
-        let erasedCount = 0;
-        const totalChunks = chunks.length;
-
-        makeDraggable(sock, (e, dx, dy) => { 
-            if(hasFailed) return false;
-
-            if(levelState.isPuddle && !levelState.isWetSock && checkCollision(sock, puddle, 10, 10)) {
-                levelState.isWetSock = true;
-                sock.innerText = "🧦💦";
-                sendTrackingData('Level 2', 'Nhúng tất vào vũng nước', 'Làm ướt tất thành công');
-            }
-
-            if(levelState.isWetSock) {
-                if(checkCollision(sock, zero, 20, 5)) {
-                    hasFailed = true;
-                    triggerFail('Em lau bay mất luôn số 0 rồi, lấy gì giải nữa?', 'Dùng tất ướt lau bay số 0');
-                    return false;
-                }
-                chunks.forEach(chunk => {
-                    if (chunk.style.opacity !== '0' && checkCollision(sock, chunk, 20, 0)) {
-                        chunk.style.opacity = '0';
-                        erasedCount++;
-                        if (erasedCount === totalChunks && !levelState.isErased) {
-                            levelState.isErased = true;
-                            sendTrackingData('Level 2', 'Dùng tất ướt lau bảng', 'Lau sạch biểu thức, chừa số 0');
-                        }
-                    }
-                });
-            }
-        });
-
-        const lock = document.getElementById('title-lock');
-        makeDraggable(lock, null, () => {
-            if(checkCollision(lock, zero, 0, 0)) { 
-                if(!levelState.isErased) {
-                    triggerFail('Chưa giải được mà em muốn làm chuyện riêng trong lớp ròi à', 'Kéo ổ khóa khi chưa lau bảng');
-                    return false;
-                }
-                if(!levelState.zeroLocked) {
-                    levelState.zeroLocked = true;
-                    zero.innerText = "💰"; 
-                    zero.style.fontSize = "50px";
-                    zero.style.cursor = "pointer";
-                    lock.style.display = 'none';
-                    sendTrackingData('Level 2', 'Kéo ổ khóa đè lên số 0', 'Biến số 0 thành túi tiền');
-                    
-                    zero.onclick = () => {
-                        levelState.clicks++;
-                        zero.style.transform = `scale(${1 + levelState.clicks*0.1})`;
-                        sendTrackingData('Level 2', 'Bấm vào túi tiền', `Lần thứ ${levelState.clicks}`);
-                        if(levelState.clicks === 3) {
-                            document.getElementById('l2-paper').classList.remove('hidden');
-                            let instruction = document.createElement('div');
-                            instruction.innerText = "👇 Giải ra -2";
-                            instruction.style = "position:absolute; bottom: 145px; width:100%; text-align:center; color: #fbc531; font-size: 20px; font-weight: bold; animation: pop 0.5s infinite alternate; z-index: 60; pointer-events: none;";
-                            gameArea.appendChild(instruction);
-                            sendTrackingData('Level 2', 'Túi tiền nứt', 'Rơi tờ giấy nháp');
-                        }
-                    }
-                }
-            }
-        });
-    }
-
-    // --- MÀN 3: THỬ THÁCH MÙ MÀU ---
-    function renderLevel3() {
-        levelState = { isCamRed: false, isGreenRed: false, gmClicked: false };
-        gameArea.innerHTML = `
-            <div class="question-text">Đố em nhấn được nút màu Đỏ</div>
-            <div id="l3-gm" class="emoji-obj" style="top: 80px; right: 20px; font-size: 60px; z-index:15;">🕵️‍♂️</div>
-            <div id="l3-chili" class="emoji-obj hidden" style="top: 130px; right: 50px; font-size: 35px; z-index:20;">🌶️</div>
-            
-            <div id="l3-cam" class="emoji-obj" style="top: 90px; left: 20px; font-size: 50px; z-index:10; transition: filter 0.3s;">🦎</div>
-            
-            <div style="margin-top: 150px; display:flex; flex-direction:column; gap: 15px; z-index:20;">
-                <button id="btn-green" class="btn" style="background:#4cd137; width:200px; padding:15px; transition: background 0.3s;">Xanh Lá</button>
-                <button id="btn-blue" class="btn" style="background:#00a8ff; color:white; width:200px; padding:15px; position:relative;">Xanh Dương</button>
-                <button id="btn-purple" class="btn" style="background:#9c88ff; color:white; width:200px; padding:15px;">Tím</button>
-            </div>
-        `;
-
-        const btnBlue = document.getElementById('btn-blue');
-        const btnPurple = document.getElementById('btn-purple');
-        const btnGreen = document.getElementById('btn-green');
-        const gm = document.getElementById('l3-gm');
-        const chili = document.getElementById('l3-chili');
-        const cam = document.getElementById('l3-cam');
-
-        makeDraggable(btnBlue, null, () => {
-            if(checkCollision(btnBlue, btnPurple, 10, 10)) {
-                btnBlue.style.left = '0px';
-                btnBlue.style.top = '0px';
-                triggerFail('Hóa học cơ bản ai cho pha màu kiểu đấy?', 'Thử pha màu xanh + tím');
-            }
-        });
-
-        gm.onclick = () => {
-            if(!levelState.gmClicked){
-                levelState.gmClicked = true;
-                chili.classList.remove('hidden');
-                sendTrackingData('Level 3', 'Bấm vào quản trò', 'Làm rớt quả ớt');
-            }
-        };
-
-        makeDraggable(chili, null, () => {
-            if(checkCollision(chili, cam, 10, 10) && !levelState.isCamRed) {
-                chili.classList.add('hidden');
-                cam.style.filter = "sepia(1) hue-rotate(300deg) saturate(1000%)"; 
-                levelState.isCamRed = true;
-                sendTrackingData('Level 3', 'Cho tắc kè ăn ớt', 'Tắc kè bốc hỏa hóa màu đỏ');
-            }
-        });
-
-        makeDraggable(cam, null, () => {
-            if(levelState.isCamRed && checkCollision(cam, btnGreen, 10, 10) && !levelState.isGreenRed) {
-                btnGreen.style.backgroundColor = '#ff4757';
-                btnGreen.innerText = "Đỏ";
-                levelState.isGreenRed = true;
-                sendTrackingData('Level 3', 'Kéo tắc kè đỏ đè lên nút xanh lá', 'Ngụy trang nút thành màu đỏ');
-            }
-        });
-
-        btnGreen.onclick = () => {
-            if(levelState.isGreenRed) triggerWin('Đỉnh quá, dùng màu ngụy trang luôn!', 'Bấm nút xanh lá đã hóa đỏ');
-            else triggerFail('Bị lừa ròi, đây là màu xanh lá!', 'Bấm nhầm nút xanh lá');
-        };
-        
-        btnPurple.onclick = () => triggerFail('Nút này màu Tím!', 'Bấm nhầm nút tím');
-    }
-
-    // --- MÀN 4: GIẤC NGỦ TRƯA ---
-    function renderLevel4() {
-        levelState = { isDark: false, hasTea: false, manCalm: false, bulbExploded: false, dogBarked: false };
-        gameArea.innerHTML = `
-            <div class="question-text">Lần này là Tuyến buồn ngủ ròi, làm sao để Tuyến có thể ngủ</div>
-            <div id="l4-cloud" class="emoji-obj" style="top: 80px; left: 20px; font-size: 50px; z-index:20;">☁️</div>
-            <div id="l4-sun" class="emoji-obj" style="top: 80px; right: 20px; font-size: 50px; z-index:10;">☀️</div>
-            
-            <div style="margin-top: 120px; display:flex; justify-content: space-around; width:100%; align-items:flex-end;">
-                <div id="l4-dog" class="emoji-obj" style="position:relative; font-size:50px; cursor:pointer;">🐶</div>
-                <div id="l4-tree" class="emoji-obj" style="position:relative; font-size:70px; z-index:5;">🌳
-                    <div id="l4-bee" style="position:absolute; top:10px; left:15px; font-size:25px; transition: top 0.5s ease-in;">🍯</div>
-                </div>
-            </div>
-
-            <div style="margin-top: 80px; display:flex; justify-content: center; align-items:center; gap: 30px;">
-                <div id="l4-phone" class="emoji-obj" style="position:relative; font-size:60px;">📱<span id="l4-batt" style="position:absolute; top:20px; left:15px; font-size:12px; background:red; color:white; padding:2px; cursor:grab; z-index:50;">1%</span></div>
-                <div id="l4-man" class="emoji-obj" style="position:relative; font-size:80px;" onclick="triggerFail('Tui chưa buồn ngủ thì đừng có ép nhaa!','Chạm người')">😳</div>
-                <div id="l4-cup" class="emoji-obj" style="position:relative; font-size:40px; margin-top:30px;">🍵</div>
-            </div>
-
-            <div id="l4-plug1" class="emoji-obj" style="bottom: 20px; left: 50px; font-size: 30px; z-index:100;">🔌</div>
-        `;
-
-        const plug1 = document.getElementById('l4-plug1');
-        const dog = document.getElementById('l4-dog');
-        const bee = document.getElementById('l4-bee');
-        const cup = document.getElementById('l4-cup');
-        const man = document.getElementById('l4-man');
-        const cloud = document.getElementById('l4-cloud');
-        const sun = document.getElementById('l4-sun');
-        const batt = document.getElementById('l4-batt');
-
-        let hintBtn = document.getElementById('hint-btn');
-        let hintTimer;
-        let isHintHold = false;
-        hintBtn.onpointerdown = () => {
-            isHintHold = false;
-            hintTimer = setTimeout(() => {
-                isHintHold = true;
-                hintBtn.innerText = "💥";
-                levelState.bulbExploded = true;
-                sendTrackingData('Level 4', 'Đè nút Hint nổ đèn', 'Phá hủy nguồn sáng mạnh');
-            }, 1000);
-        };
-        hintBtn.onpointerup = () => clearTimeout(hintTimer);
-        hintBtn.onpointerleave = () => clearTimeout(hintTimer);
-        hintBtn.onclick = () => { if(!isHintHold) showModal('hint-modal'); };
-
-        makeDraggable(plug1, null, () => {
-            if(checkCollision(plug1, dog, 10, 0)) { 
-                dog.innerText = "🐶🎧";
-                triggerFail('Chó thời nay có gu âm nhạc rồi nhé!', 'Cắm cáp sạc vào tai chó (Mẹo cũ)');
-            }
-        });
-
-        dog.onclick = () => {
-            if(!levelState.dogBarked){
-                levelState.dogBarked = true;
-                dog.innerText = "🐕🗯️";
-                bee.style.top = '100px'; 
-                sendTrackingData('Level 4', 'Chạm vào chó', 'Chó sủa rung cây làm rớt tổ ong');
-                setTimeout(() => {
-                    bee.style.display = 'none';
-                    cup.innerText = "🍯🍵";
-                    levelState.hasTea = true;
-                }, 500);
-            }
-        };
-
-        makeDraggable(cup, null, () => {
-            if(levelState.hasTea && checkCollision(cup, man, 10, 0) && !levelState.manCalm) {
-                man.innerText = "😌";
-                cup.style.display = 'none';
-                levelState.manCalm = true;
-                sendTrackingData('Level 4', 'Đưa trà mật ong cho Tuyến', 'Tuyến đã bình tĩnh lại');
-            }
-        });
-
-        makeDraggable(cloud, null, () => {
-            if(checkCollision(cloud, sun, 15, 0) && !levelState.isDark) { 
-                levelState.isDark = true; 
-                gameArea.style.background = '#2c3e50'; 
-                const sRect = sun.getBoundingClientRect();
-                const gRect = gameArea.getBoundingClientRect();
-                cloud.style.left = (sRect.left - gRect.left + (sRect.width / 2) - (cloud.offsetWidth / 2)) + 'px';
-                cloud.style.top = (sRect.top - gRect.top + (sRect.height / 2) - (cloud.offsetHeight / 2)) + 'px';
-                sendTrackingData('Level 4', 'Kéo mây đen che mặt trời', 'Cảnh vật chuyển sang ban đêm');
-            }
-        });
-        
-        makeDraggable(batt, null, () => {
-            if(checkCollision(batt, man, 20, 0)) {
-                if(levelState.manCalm && levelState.isDark && levelState.bulbExploded) {
-                    man.innerText = "😴";
-                    batt.style.display = 'none';
-                    triggerWin('Ngủ ngon ròi, hết pin + trà mật ong + tối thui + đèn hư!', 'Truyền 1% pin cuối cùng');
-                } else {
-                    triggerFail('Vẫn còn thiếu gì đó chưa đủ phê! (Chắc là đèn còn chói mắt?)', 'Kéo pin khi chưa thực hiện đủ chuỗi');
-                }
-            }
-        });
-    }
-
-    // --- MÀN 5: CẤM BẤM NÚT ---
-    function renderLevel5() {
-        levelState = { hasShield: false };
-        gameArea.innerHTML = `
-            <div class="question-text">Em không được bấm!</div>
-            <div id="l5-timer" style="font-size: 60px; font-weight: bold; color: #ff4757; margin-top: 50px;">10</div>
-            <div id="l5-btn" style="width: 150px; height: 150px; background: #ff4757; border: 6px solid #c0392b; border-radius: 50%; font-size: 24px; font-weight: bold; color: white; display: flex; justify-content: center; align-items: center; box-shadow: 0 10px 0 #c0392b; margin-top: 50px; cursor: pointer;">CẤM</div>
-            <div id="l5-hand" class="emoji-obj hidden" style="top: -100px; font-size: 100px; transition: top 0.2s;">🦾</div>
-            <div id="l5-finger" class="emoji-obj hidden" style="font-size: 50px; z-index:100;">🦾</div>
-        `;
-
-        let timeLeft = 10;
-        const timerEl = document.getElementById('l5-timer');
-        const btn = document.getElementById('l5-btn');
-        const hand = document.getElementById('l5-hand');
-        const finger = document.getElementById('l5-finger');
-
-        btn.onclick = () => { triggerFail('Đã bảo cấm mà em lì quá!', 'Bấm nút CẤM bằng tay thật'); };
-
-        const titleLock = document.getElementById('level-title');
-        makeDraggable(titleLock, null, () => {
-            triggerFail('Phá hủy giao diện là bị trừ điểm hạnh kiểm!', 'Kéo thanh level bar');
-        });
-
-        const settingsArea = document.getElementById('settings-secret-area');
-        settingsArea.innerHTML = `
-            <div id="l5-shield-box" style="display:none; flex-direction:column; align-items:center; border: 2px dashed #ccc; padding:10px; margin-top:10px;">
-                <span style="font-size:12px; color:#e84118; margin-bottom:5px; font-weight:bold;">Nhanh kéo ra ngoài!</span>
-                <div id="set-shield" class="emoji-obj" style="position:relative; font-size:50px; cursor:grab; margin:0;">🛡️</div>
-            </div>
-        `;
-        
-        const shieldBox = document.getElementById('l5-shield-box');
-        const shield = document.getElementById('set-shield');
-
-        makeDraggable(shield, (e, dx, dy) => {
-            if (checkCollision(shield, btn, 20, 20)) shield.style.opacity = '0.5';
-            else shield.style.opacity = '1';
-        }, (e) => { 
-            if (checkCollision(shield, btn, 20, 20) && !levelState.hasShield) {
-                levelState.hasShield = true;
-                shield.style.opacity = '1';
-                shield.style.zIndex = '35';
-                shield.style.fontSize = '120px';
-                shield.style.left = btn.offsetLeft + 'px';
-                shield.style.top = btn.offsetTop + 'px';
-                sendTrackingData('Level 5', 'Bảo vệ nút bằng khiên', 'Khiên che úp lên nút');
-            } else {
-                if(!levelState.hasShield) shield.style.opacity = '1';
-            }
-        }, (e) => { 
-            const sRect = shield.getBoundingClientRect();
-            const gRect = gameArea.getBoundingClientRect();
-            hideModal('settings-modal');
-            if (shield.parentNode !== gameArea) {
-                gameArea.appendChild(shield);
-                shield.style.position = 'absolute';
-                shield.style.left = (sRect.left - gRect.left) + 'px';
-                shield.style.top = (sRect.top - gRect.top) + 'px';
-                shield.style.margin = '0';
-                if(shieldBox) shieldBox.remove(); 
-                sendTrackingData('Level 5', 'Kéo khiên ra khỏi menu', 'Sẵn sàng dùng khiên');
-            }
-        });
-
-        levelTimer = setInterval(() => {
-            timeLeft--; timerEl.innerText = timeLeft;
-            
-            if (timeLeft === 5 && shieldBox) shieldBox.style.display = 'flex';
-            
-            if (timeLeft === 3 && !levelState.hasShield) {
-                if (shieldBox) shieldBox.remove();
-                if (shield && shield.parentNode === settingsArea) shield.remove();
-                if (shield && shield.parentNode === gameArea && !levelState.hasShield) {
-                    shield.innerText = "💨";
-                    setTimeout(() => shield.remove(), 300);
-                }
-            }
-
-            if (timeLeft === 0) {
-                clearInterval(levelTimer);
-                hand.classList.remove('hidden');
-                hand.style.top = btn.offsetTop - 50 + 'px'; 
+            if (!levelState.isLoaded) {
+                // Bắn trượt
+                bullet.innerText = "💨";
+                bullet.classList.remove('hidden');
+                bullet.style.top = '-20px';
+                bullet.style.opacity = '1';
                 
-                setTimeout(() => {
-                    if(levelState.hasShield) {
-                        hand.innerText = "💥"; 
-                        finger.classList.remove('hidden');
-                        finger.style.top = hand.style.top; finger.style.left = hand.style.left;
-                        sendTrackingData('Level 5', 'Tay máy đập vào khiên', 'Vỡ tay máy, rơi ngón tay ra');
+                // Hiệu ứng đạn bay hụt
+                let pos = -20;
+                const shootInterval = setInterval(() => {
+                    pos -= 20;
+                    bullet.style.top = pos + 'px';
+                    if (pos < -400) {
+                        clearInterval(shootInterval);
+                        bullet.classList.add('hidden');
+                        target.innerText = "🎯😜";
+                        setTimeout(() => { target.innerText = "🎯"; }, 1000);
+                        triggerFail('Mục tiêu di chuyển nhanh quá, đạn thường bắn không trúng đâu!', 'Bấm súng bắn đạn thường');
+                    }
+                }, 30);
+            } else {
+                // Bắn trúng (Đã nạp hồng tâm)
+                bullet.innerText = "🎯";
+                bullet.style.fontSize = "50px";
+                bullet.classList.remove('hidden');
+                bullet.style.top = '-20px';
+                
+                let pos = -20;
+                target.classList.remove('l9-move'); // Khóa mục tiêu lại
+                target.style.left = '50%'; // Đưa ra giữa
+                target.style.transform = 'translateX(0)';
+
+                const shootInterval = setInterval(() => {
+                    pos -= 15;
+                    bullet.style.top = pos + 'px';
+                    
+                    const bRect = bullet.getBoundingClientRect();
+                    const tRect = target.getBoundingClientRect();
+                    
+                    if (bRect.top <= tRect.bottom) {
+                        clearInterval(shootInterval);
+                        bullet.style.display = 'none';
+                        target.innerText = "🎯💥";
+                        target.style.fontSize = "100px";
+                        sendTrackingData('Level 9', 'Bắn đạn "hồng tâm"', 'Mục tiêu bị tiêu diệt');
                         
-                        makeDraggable(finger, null, () => {
-                            if(checkCollision(finger, btn, 10, 0)) {
-                                triggerWin('Dùng tay robot bấm thay thì đâu tính là vi phạm đâu hihi', 'Dùng ngón tay robot bấm nút');
-                            }
-                        });
-                    } else {
-                        triggerFail('Hết giờ! Bàn tay hệ thống tự bấm, em thua ròi', 'Chờ hết giờ bị hệ thống xử ép');
+                        setTimeout(() => triggerWin('Lấy chữ hồng tâm bắn vào mục tiêu, tư duy xuất sắc!', 'Giải mã thành công Level 9'), 800);
                     }
-                }, 500);
+                }, 20);
             }
-        }, 1000);
+        };
     }
 
-    // --- MÀN 6: ĐÀO TẨU KHỎI MÊ CUNG ---
-    function renderLevel6() {
-        levelState = { hasBridge: false, isPaused: false };
-        gameArea.innerHTML = `
-            <div class="question-text">Giúp bé Tuyến chạy về nhà</div>
-            <button class="btn" style="position:absolute; top:80px; right:20px; z-index:90;" onclick="showPauseModal()">⏸️</button>
-            
-            <div style="position:relative; width:300px; height:400px; border:5px solid black; margin-top:80px; background: white; overflow: hidden;" id="l6-maze">
-                <div id="l6-player" class="emoji-obj" style="top:10px; left:10px; font-size:30px; z-index:50;">🏃‍♀️</div>
-                <div id="l6-exit" class="emoji-obj" style="bottom:10px; right:10px; font-size:40px;">🚪</div>
-                
-                <div id="l6-w1" style="position:absolute; top:100px; left:0; width:200px; height:10px; background:black;"></div>
-                <div id="l6-w2" style="position:absolute; top:200px; right:0; width:200px; height:10px; background:black;"></div>
-                
-                <div id="l6-guard" class="emoji-obj patrol-anim" style="top:110px; left:10px; font-size:30px; z-index:40;">👮</div>
-                <div id="l6-spikes" style="position:absolute; top:240px; left:20px; width:100px; height:45px; font-size:25px; display:flex; justify-content:center; letter-spacing:5px; color:red; text-shadow:0 0 2px red; transform: scaleY(2.4); transform-origin: bottom center;">🔺🔺🔺</div>
-            </div>
-        `;
-
-        const player = document.getElementById('l6-player');
-        const exit = document.getElementById('l6-exit');
-        const spikes = document.getElementById('l6-spikes');
-        const guard = document.getElementById('l6-guard');
-
-        const pauseContainer = document.getElementById('pause-container');
-        pauseContainer.innerHTML = `<div id="pause-x" class="emoji-obj" style="position: relative; font-size: 40px; margin: 0; cursor:grab;">❌</div>`;
+    // --- MÀN 10: CẦU HÔN (MÀN CHỐT HẠ) ---
+    function renderLevel10() {
+        levelState = { step: 0 };
+        document.getElementById('game-wrapper').style.backgroundColor = '#ffcccc'; // Nền hồng lãng mạn
         
-        const pauseX = document.getElementById('pause-x'); 
-        makeDraggable(pauseX, null, () => {
-            pauseX.innerText = "💣";
-            triggerFail('Không được rút ruột công trình công cộng!', 'Cố rút nút X làm cầu (Mẹo cũ)');
-        });
-
-        const slider = document.getElementById('volume-slider');
-        makeDraggable(slider, (e, dx, dy) => {
-            const sRect = slider.getBoundingClientRect();
-            const spRect = spikes.getBoundingClientRect();
-            if (sRect.left < spRect.right && sRect.right > spRect.left &&
-                sRect.top < spRect.bottom && sRect.bottom > spRect.top) {
-                slider.style.opacity = '0.5';
-                slider.style.width = '160px'; 
-                slider.style.background = '#3498db';
-            } else {
-                slider.style.opacity = '1';
-                slider.style.width = '120px';
-                slider.style.background = '#ccc';
-            }
-        }, (e) => {
-            const sRect = slider.getBoundingClientRect();
-            const spRect = spikes.getBoundingClientRect();
-            if (sRect.left < spRect.right && sRect.right > spRect.left &&
-                sRect.top < spRect.bottom && sRect.bottom > spRect.top) {
-                if(!levelState.hasBridge) {
-                    levelState.hasBridge = true;
-                    sendTrackingData('Level 6', 'Lấp hố chông', 'Dùng thanh âm lượng làm cầu');
-                }
-                slider.style.opacity = '1';
-                slider.style.zIndex = '35';
-                slider.style.width = '160px'; 
-                slider.style.height = '15px';
-                slider.style.background = '#3498db';
-                slider.style.borderRadius = '5px';
-                
-                const gRect = gameArea.getBoundingClientRect();
-                slider.style.left = (spRect.left - gRect.left - 30) + 'px';
-                slider.style.top = (spRect.top - gRect.top + 10) + 'px';
-            }
-        }, (e) => {
-            const sRect = slider.getBoundingClientRect();
-            const gRect = gameArea.getBoundingClientRect();
-            hideModal('settings-modal'); 
-            if (slider.parentNode !== gameArea) {
-                gameArea.appendChild(slider);
-                slider.style.position = 'absolute';
-                slider.style.left = (sRect.left - gRect.left) + 'px';
-                slider.style.top = (sRect.top - gRect.top) + 'px';
-                slider.style.margin = '0';
-                sendTrackingData('Level 6', 'Kéo thanh âm lượng', 'Lôi thanh âm lượng ra ngoài');
-            }
-        });
-
-        levelTimer = setInterval(() => {
-            if (levelState.isPaused) return;
-            if (checkCollision(player, guard, 5, 5)) {
-                triggerFail('Bị lính canh tuần tra bắt ròi', 'Chạy trúng lính canh lúc nó cử động');
-                const evt = new PointerEvent('pointerup'); document.dispatchEvent(evt); 
-            }
-        }, 100);
-
-        const maze = document.getElementById('l6-maze'); 
-        const w1 = document.getElementById('l6-w1');
-        const w2 = document.getElementById('l6-w2');
-
-        makeDraggable(player, (e, dx, dy) => {
-            const pRect = player.getBoundingClientRect();
-            const mRect = maze.getBoundingClientRect();
-            const border = 5; 
-
-            if (pRect.left <= mRect.left + border || pRect.right >= mRect.right - border || pRect.top <= mRect.top + border || pRect.bottom >= mRect.bottom - border) {
-                triggerFail('Em chạy đâu mà đụng đầu trúng viền vậy', 'Kéo trúng viền mê cung');
-                return false;
-            }
-
-            if (checkCollision(player, w1, 5, 0) || checkCollision(player, w2, 5, 0)) {
-                triggerFail('Em chạy đâu mà đụng đầu trúng tường vậy', 'Kéo xuyên tường đen');
-                return false;
-            }
-
-            if (checkCollision(player, guard, 5, 5)) {
-                triggerFail('Chạy trúng vào lính canh ròi', 'Chạm lính canh');
-                return false; 
-            }
-
-            if (checkCollision(player, spikes, 10, 0) && !levelState.hasBridge) {
-                triggerFail('Ui da đạp trúng gai ròi, thương em quáaa', 'Kéo qua bẫy gai chưa có cầu');
-                return false;
-            }
-
-            if (checkCollision(player, exit, 10, 0)) {
-                triggerWin('Bé Tuyến đã về nhà an toàn ^^', 'Kéo nhân vật về đích');
-                return false;
-            }
-        }, null, (e) => {
-            if(levelState.isPaused) return false;
-        });
-    }
-
-    // --- MÀN 7: CỨU MÈO TRÊN CÀNH CÂY MỤC ---
-    function renderLevel7() {
-        levelState = { 
-            durability: 100, isBoxOpen: false, hasHook: false, hasYarn: false, yarnInBox: false 
-        };
-
-        gameArea.innerHTML = `
-            <div class="question-text" id="l7-qtext">
-                <span id="l7-hook-btn" style="cursor:grab; background:#ffeaa7; padding:2px 8px; border-radius:6px; font-weight:bold; border:2px solid #000; display:inline-block; z-index:120;">Cứu</span> chú mèo trên cành cây mục!
-            </div>
-            
-            <div style="position:absolute; top:65px; width:260px; height:14px; background:#ddd; border:3px solid #000; border-radius:10px; overflow:hidden; z-index:10;">
-                <div id="l7-durability" style="width:100%; height:100%; background:#4cd137; transition:width 0.1s linear;"></div>
-            </div>
-
-            <div id="l7-cloud-trap" class="emoji-obj" style="top:85px; left:15px; font-size:45px; z-index:40;">⛈️</div>
-            
-            <div id="l7-stage" style="position:relative; width:340px; height:470px; margin-top:40px;">
-                <div style="position:absolute; left:15px; bottom:0; width:45px; height:390px; background:#795548; border:4px solid #000; border-radius:10px 10px 0 0; z-index:5;"></div>
-                <div id="l7-branch" style="position:absolute; left:55px; top:120px; width:250px; height:18px; background:#8d6e63; border:3px solid #000; border-radius:0 10px 10px 0; z-index:10; transition: transform 0.3s, top 0.3s;">
-                    <span id="l7-crack" style="position:absolute; left:20px; top:-5px; font-size:14px;">⚡</span>
-                </div>
-
-                <div id="l7-cat" class="emoji-obj" style="top:70px; left:130px; font-size:45px; z-index:25; transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);">😿</div>
-
-                <div id="l7-bus-stop" style="position:absolute; right:10px; bottom:15px; display:flex; flex-direction:column; align-items:center; z-index:15;">
-                    <div id="l7-granny" class="emoji-obj" style="position:relative; font-size:50px; cursor:default;">👵</div>
-                    <div id="l7-basket" class="emoji-obj" style="position:relative; font-size:35px; margin-top:-15px; cursor:pointer;">👜</div>
-                    <span style="font-size:11px; font-weight:bold; background:#fff; border:1px solid #000; border-radius:4px; padding:1px 4px; margin-top:2px;">Trạm Bus</span>
-                </div>
-
-                <div id="l7-yarn" class="emoji-obj hidden" style="position:absolute; font-size:40px; z-index:60; cursor:grab;">🧶</div>
-
-                <div id="l7-box-area" style="position:absolute; left:80px; bottom:15px; width:80px; display:flex; flex-direction:column; align-items:center; z-index:20;">
-                    <div id="l7-box" style="width:75px; height:60px; background:#d35400; border:3px solid #000; border-radius:8px; display:flex; justify-content:center; align-items:center; cursor:pointer; font-size:32px; box-shadow:3px 3px 0 #000; transition: transform 0.2s;">
-                        📦
-                    </div>
-                    <span id="l7-box-label" style="font-size:11px; font-weight:bold; color:#000; background:#f1c40f; border:1px solid #000; border-radius:4px; padding:1px 4px; margin-top:3px; white-space:nowrap;">Băng dính kín</span>
-                </div>
-
-                <div id="l7-hook" class="emoji-obj hidden" style="position:absolute; font-size:45px; z-index:70; cursor:grab;">🪝</div>
-            </div>
+        // Thay đổi trực tiếp Header Level 10 thành các khối có thể kéo
+        const lvNumContainer = document.getElementById('lv-num');
+        lvNumContainer.innerHTML = `
+            <span id="l10-one" style="display:inline-block; cursor:grab; position:relative; z-index:200;">1</span><span id="l10-zero" style="display:inline-block; cursor:pointer; position:relative; transition: all 0.3s; z-index:200;">0</span>
         `;
 
-        const stage = document.getElementById('l7-stage');
-        const durabilityBar = document.getElementById('l7-durability');
-        const branch = document.getElementById('l7-branch');
-        const crack = document.getElementById('l7-crack');
-        const cat = document.getElementById('l7-cat');
-        const cloudTrap = document.getElementById('l7-cloud-trap');
-        const box = document.getElementById('l7-box');
-        const boxLabel = document.getElementById('l7-box-label');
-        const hookBtn = document.getElementById('l7-hook-btn');
-        const hook = document.getElementById('l7-hook');
-        const basket = document.getElementById('l7-basket');
-        const yarn = document.getElementById('l7-yarn');
-
-        levelTimer = setInterval(() => {
-            levelState.durability -= 0.6;
-            durabilityBar.style.width = levelState.durability + '%';
+        gameArea.innerHTML = `
+            <div class="question-text" style="background: rgba(255, 255, 255, 0.95); border-color: #e84393;">
+                Tìm chiếc nhẫn ẩn giấu và đeo cho cô gái đi nào!
+            </div>
             
-            if (levelState.durability < 50) {
-                durabilityBar.style.background = '#e67e22';
-                crack.innerText = "💥";
-                branch.style.transform = "rotate(3deg)";
-            }
-            if (levelState.durability < 25) {
-                durabilityBar.style.background = '#ff4757';
-                branch.style.transform = "rotate(8deg)";
-            }
+            <div id="l10-box" class="emoji-obj" style="top:180px; left:60px; font-size:80px; z-index:20;">🎁</div>
+            
+            <div id="l10-girl" class="emoji-obj" style="bottom:60px; right:60px; font-size:90px; z-index:15;">👰‍♀️</div>
+            <div id="l10-heart" class="emoji-obj hidden" style="bottom:130px; right:40px; font-size:40px; z-index:10; animation: pop 0.8s infinite alternate;">💖</div>
 
-            if (levelState.durability <= 0) {
-                clearInterval(levelTimer);
-                branch.style.transform = "rotate(35deg)";
-                branch.style.top = "180px";
-                cat.style.top = "380px";
-                triggerFail('Cành cây nứt toác gãy đôi, mèo té chớt ròi!', 'Để hết độ bền cành cây');
-            }
-        }, 100);
+            <div id="l10-ring-real" class="emoji-obj hidden" style="font-size:60px; z-index:150; cursor:grab;">💍</div>
+        `;
 
-        makeDraggable(cloudTrap, null, () => {
-            if (checkCollision(cloudTrap, cat, 20, 10)) {
-                clearInterval(levelTimer);
-                cloudTrap.innerText = "⚡☀️";
-                branch.style.transform = "rotate(40deg)";
-                cat.style.top = "380px";
-                triggerFail('Dự báo thời tiết hôm nay trời nắng gắt 40°C, mưa nhân tạo ngừng hoạt động nhé!', 'Kéo mây đen (mẹo cũ)');
-            }
-        });
+        const box = document.getElementById('l10-box');
+        const girl = document.getElementById('l10-girl');
+        const heart = document.getElementById('l10-heart');
+        const numOne = document.getElementById('l10-one');
+        const numZero = document.getElementById('l10-zero');
+        const ringReal = document.getElementById('l10-ring-real');
 
+        // Troll nếu bấm hộp quà
         box.onclick = () => {
-            if (!levelState.isBoxOpen) {
-                levelState.isBoxOpen = true;
-                box.innerText = "📭";
-                box.style.background = "#e67e22";
-                boxLabel.innerText = "Nắp đã mở";
-                boxLabel.style.background = "#2ecc71";
-                boxLabel.style.color = "#fff";
-                box.classList.add('pop-anim');
-                setTimeout(() => box.classList.remove('pop-anim'), 400);
-                sendTrackingData('Level 7', 'Bấm vào thùng carton', 'Bóc băng dính mở thùng');
-            }
+            box.innerText = "💸";
+            triggerFail('Tiền cưới vợ còn chưa có, mở hộp quà làm gì có nhẫn trong đó!', 'Bấm mở hộp quà rỗng');
         };
 
-        hookBtn.onclick = () => {
-            if (!levelState.hasHook) {
-                levelState.hasHook = true;
-                hookBtn.style.opacity = '0.3';
-                hookBtn.style.textDecoration = 'line-through';
+        // Bước 1: Kéo vứt số 1 đi
+        makeDraggable(numOne, null, () => {
+            const rect = numOne.getBoundingClientRect();
+            // Nếu kéo xa khỏi vị trí ban đầu thì coi như vứt đi
+            if (Math.abs(rect.left) > 100 || Math.abs(rect.top) > 100) {
+                numOne.style.display = 'none';
+                numZero.style.color = '#f1c40f'; // Chuyển màu vàng rực
+                numZero.style.textShadow = '0 0 10px #f1c40f, 0 0 20px #e67e22';
+                levelState.step = 1;
+                sendTrackingData('Level 10', 'Kéo vứt số 1 trên thanh tiêu đề', 'Số 0 phát sáng vàng');
+            }
+        });
+
+        // Bước 2: Bấm vào số 0 đang sáng để biến thành nhẫn thật rớt xuống sân khấu
+        numZero.onclick = () => {
+            if (levelState.step === 1) {
+                numZero.style.display = 'none';
                 
-                const btnRect = hookBtn.getBoundingClientRect();
-                const sRect = stage.getBoundingClientRect();
-                hook.classList.remove('hidden');
-                hook.style.left = (btnRect.left - sRect.left) + 'px';
-                hook.style.top = (btnRect.top - sRect.top + 10) + 'px';
-                sendTrackingData('Level 7', 'Bấm vào chữ Cứu', 'Biến chữ Cứu thành móc câu');
-            }
-        };
-
-        makeDraggable(hook, null, () => {
-            if (checkCollision(hook, basket, 15, 0) && !levelState.hasYarn) {
-                levelState.hasYarn = true;
-                basket.innerText = "👛";
-                
-                const bRect = basket.getBoundingClientRect();
-                const sRect = stage.getBoundingClientRect();
-                yarn.classList.remove('hidden');
-                yarn.style.left = (bRect.left - sRect.left - 45) + 'px';
-                yarn.style.top = (bRect.top - sRect.top - 10) + 'px';
-                yarn.classList.add('pop-anim');
-                sendTrackingData('Level 7', 'Khều giỏ xách của bà lão', 'Rơi cuộn len đỏ ra ngoài');
-            }
-        });
-
-        makeDraggable(yarn, null, () => {
-            if (checkCollision(yarn, box, 15, 0)) {
-                if (!levelState.isBoxOpen) {
-                    triggerFail('Thùng chưa bóc băng dính mở nắp, len bị dội ra ngoài!', 'Thả len khi thùng còn dán kín');
-                } else if (!levelState.yarnInBox) {
-                    levelState.yarnInBox = true;
-                    clearInterval(levelTimer);
-                    sendTrackingData('Level 7', 'Thả cuộn len vào thùng', 'Dụ được con mèo chú ý');
-                    
-                    yarn.style.display = 'none';
-                    box.innerText = "🧶📦";
-                    cat.innerText = "😻💨";
-                    
-                    const bRect = box.getBoundingClientRect();
-                    const sRect = stage.getBoundingClientRect();
-                    
-                    cat.style.left = (bRect.left - sRect.left + (box.offsetWidth - cat.offsetWidth) / 2) + 'px';
-                    cat.style.top = (bRect.top - sRect.top - 20) + 'px';
-                    cat.style.transform = "scale(0.85)";
-
-                    setTimeout(() => {
-                        box.innerText = "📦🐱✨";
-                        cat.style.display = 'none'; 
-                        triggerWin('Bản năng loài mèo trỗi dậy, vừa mê thùng vừa nghiện len là tự phóng xuống liền!', 'Hoàn thành chuỗi móc len + hộp rỗng');
-                    }, 700);
-                }
-            }
-        });
-    }
-
-    // --- MÀN 8: MỞ KÉT SẮT NGÂN HÀNG ---
-    function renderLevel8() {
-        levelState = { pinRemoved: false, honeyApplied: false, antsMarched: false, enteredCode: "" };
-
-        gameArea.innerHTML = `
-            <div class="question-text" id="l8-qtext">
-                Nhập <span id="l8-honey" style="cursor:grab; background:#f1c40f; padding:2px 8px; border-radius:6px; font-weight:bold; border:2px solid #000; display:inline-block; z-index:120;">Mật</span> mã 4 số để mở két.
-            </div>
-            
-            <div id="l8-clock" class="emoji-obj" style="top:70px; right:30px; font-size:55px; z-index:20;">🕰️</div>
-
-            <div id="l8-mat-area" style="position:absolute; bottom:15px; left:30px; display:flex; flex-direction:column; align-items:center; z-index:15;">
-                <div id="l8-mat" style="width:90px; height:45px; background:#d35400; border:3px solid #000; border-radius:8px; display:flex; justify-content:center; align-items:center; cursor:pointer; font-weight:bold; color:white; font-size:12px; box-shadow:2px 2px 0 #000;">
-                    THẢM 🧹
-                </div>
-                <div id="l8-magnet" class="emoji-obj hidden" style="position:relative; font-size:45px; margin-top:5px; cursor:grab;">🧲</div>
-            </div>
-
-            <div id="l8-ants" class="emoji-obj" style="bottom:20px; right:30px; font-size:35px; z-index:15; transition: all 1.2s ease-in-out;">🐜🐜🐜</div>
-
-            <div id="l8-safe" style="position:relative; width:270px; height:330px; background:#7f8c8d; border:5px solid #000; border-radius:15px; margin-top:90px; display:flex; flex-direction:column; align-items:center; padding:15px; box-shadow:6px 6px 0 #000; z-index:10;">
-                <div id="l8-screen" style="width:200px; height:45px; background:#2c3e50; color:#2ecc71; border:3px solid #000; border-radius:8px; font-size:24px; font-weight:bold; display:flex; justify-content:center; align-items:center; letter-spacing:8px; margin-bottom:10px;">____</div>
-                
-                <div class="keypad-grid" id="l8-keypad" style="transition: background 0.3s; padding:5px; border-radius:8px;">
-                    <button class="key-btn" id="k1">1</button>
-                    <button class="key-btn" id="k2">2</button>
-                    <button class="key-btn" id="k3">3</button>
-                    <button class="key-btn" id="k4">4</button>
-                    <button class="key-btn" id="k5">5</button>
-                    <button class="key-btn" id="k6">6</button>
-                    <button class="key-btn" id="k7">7</button>
-                    <button class="key-btn" id="k8">8</button>
-                    <button class="key-btn" id="k9">9</button>
-                    <button class="key-btn" id="kc" style="color:red; font-size:16px;">C</button>
-                    <button class="key-btn" id="k0">0</button>
-                    <button class="key-btn" id="ke" style="color:green; font-size:14px;">OK</button>
-                </div>
-
-                <div id="l8-pin" style="position:absolute; bottom:-12px; left:115px; font-size:26px; z-index:12;">🔩</div>
-            </div>
-        `;
-
-        const clock = document.getElementById('l8-clock');
-        const mat = document.getElementById('l8-mat');
-        const magnet = document.getElementById('l8-magnet');
-        const pin = document.getElementById('l8-pin');
-        const honey = document.getElementById('l8-honey');
-        const keypad = document.getElementById('l8-keypad');
-        const ants = document.getElementById('l8-ants');
-        const screen = document.getElementById('l8-screen');
-
-        makeDraggable(clock, (e, dx, dy) => {
-            if (Math.abs(dx) > 30 || Math.abs(dy) > 30) {
-                clock.innerText = "💥";
-                triggerFail('Đã bảo không có mẹo cũ xài lại đâu mà cố chấp thế!', 'Kéo đồng hồ (Mẹo cũ)');
-                return false;
-            }
-        });
-
-        let shakeCount = 0;
-        mat.onclick = () => {
-            shakeCount++;
-            mat.classList.add('shake-anim');
-            setTimeout(() => mat.classList.remove('shake-anim'), 300);
-            if (shakeCount == 2) {
-                magnet.classList.remove('hidden');
-                sendTrackingData('Level 8', 'Giũ tấm thảm nhiều lần', 'Nam châm rớt ra ngoài');
-            }
-        };
-
-        makeDraggable(magnet, null, () => {
-            if (checkCollision(magnet, pin, 15, 0) && !levelState.pinRemoved) {
-                levelState.pinRemoved = true;
-                pin.innerText = "💨";
-                setTimeout(() => pin.remove(), 200);
-                magnet.innerText = "🧲🔩";
-                sendTrackingData('Level 8', 'Dùng nam châm hút chốt két sắt', 'Đã phá được chốt cơ học');
-                checkAntsTrigger();
-            }
-        });
-
-        makeDraggable(honey, null, () => {
-            if (checkCollision(honey, keypad, 10, 0) && !levelState.honeyApplied) {
-                levelState.honeyApplied = true;
-                honey.style.display = 'none';
-                keypad.style.background = "#f1c40f";
-                sendTrackingData('Level 8', 'Lấy chữ MẬT bôi lên bàn phím', 'Bàn phím dính mật');
-                checkAntsTrigger();
-            }
-        });
-
-        function checkAntsTrigger() {
-            if (levelState.honeyApplied && levelState.pinRemoved && !levelState.antsMarched) {
-                levelState.antsMarched = true;
-                sendTrackingData('Level 8', 'Kiến đánh hơi mùi mật', 'Đàn kiến tự động bò lên bấm mã');
-                
-                const kRect = keypad.getBoundingClientRect();
+                // Hiển thị nhẫn thật trong khu vực game
                 const gRect = gameArea.getBoundingClientRect();
-                ants.style.left = (kRect.left - gRect.left + 50) + 'px';
-                ants.style.top = (kRect.top - gRect.top + 80) + 'px';
-
-                const codeSeq = [
-                    { id: 'k2', val: '2' },
-                    { id: 'k6', val: '6' },
-                    { id: 'k0', val: '0' },
-                    { id: 'k8', val: '8' }
-                ];
-
-                let delay = 800;
-                codeSeq.forEach((item, index) => {
-                    setTimeout(() => {
-                        const keyEl = document.getElementById(item.id);
-                        if (keyEl) {
-                            keyEl.classList.add('glow-key');
-                            levelState.enteredCode += item.val;
-                            screen.innerText = levelState.enteredCode.padEnd(4, '_');
-                        }
-                        if (index === codeSeq.length - 1) {
-                            setTimeout(() => {
-                                screen.innerText = "OPEN";
-                                screen.style.color = "#4cd137";
-                                document.getElementById('l8-safe').style.background = "#27ae60";
-                                setTimeout(() => triggerWin('Mật mã là một ngày đặc biệt của một người đặc biệt ❤️', 'Phá đảo Game'), 1000);
-                            }, 600);
-                        }
-                    }, delay * (index + 1));
-                });
-            } else if (levelState.honeyApplied && !levelState.pinRemoved) {
-                triggerFail('Két vẫn còn chốt an toàn cơ học dưới đáy chưa được tháo!', 'Bôi mật lên phím khi két đang khóa chốt dưới đáy');
+                ringReal.classList.remove('hidden');
+                ringReal.style.left = '160px'; // Giữa màn hình
+                ringReal.style.top = '100px';
+                ringReal.classList.add('pop-anim');
+                levelState.step = 2;
+                sendTrackingData('Level 10', 'Bấm vào số 0', 'Biến thành chiếc nhẫn kim cương');
             }
-        }
+        };
+
+        // Bước 3: Kéo nhẫn đeo cho cô gái
+        makeDraggable(ringReal, null, () => {
+            if (checkCollision(ringReal, girl, 20, 20) && levelState.step === 2) {
+                ringReal.style.display = 'none';
+                girl.innerText = "👰‍♀️💍";
+                heart.classList.remove('hidden');
+                
+                sendTrackingData('Level 10', 'Trao nhẫn cho cô gái', 'Say YES! Phá đảo Game');
+                setTimeout(() => triggerWin('Anh yêu em rất nhiềuuuu! Làm vợ anh nhé Tuyến ơi!!! ❤️', 'Hoàn thành Level Cầu Hôn'), 1000);
+            }
+        });
     }
 
     window.onload = () => {
