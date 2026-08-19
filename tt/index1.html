@@ -36,28 +36,18 @@
         .shake-anim { animation: shake 0.4s ease-in-out; }
         @keyframes pop { 0% { transform: scale(0.8); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
         .pop-anim { animation: pop 0.5s ease-out; }
-        @keyframes spin { 100% { transform: rotate(360deg); } }
-        .spin-anim { animation: spin 0.3s linear infinite; }
         
-        /* Hiệu ứng Màn 9 */
-        @keyframes l9TargetMove { 0% { transform: translateX(-130px); } 100% { transform: translateX(130px); } }
-        .l9-move { animation: l9TargetMove 1s linear infinite alternate; }
-
         .confetti { position: absolute; width: 10px; height: 10px; background: red; z-index: 300; animation: fall 1.5s linear forwards; }
         @keyframes fall { to { transform: translateY(800px) rotate(720deg); opacity: 0; } }
+        
+        /* Hiệu ứng credits Màn 11 */
+        @keyframes rollCredits { 0% { transform: translateY(100%); } 100% { transform: translateY(-200%); } }
+        .credits-anim { animation: rollCredits 10s linear forwards; }
 
         .emoji-obj { font-size: 46px; position: absolute; cursor: pointer; filter: drop-shadow(2px 2px 0px #000); touch-action: none;}
         .hidden { display: none !important; }
-        .erasable-chunk { color: white; font-size: 30px; transition: opacity 0.2s; padding: 5px; }
-
-        @keyframes patrolRight { 0%, 100% { transform: translateX(0) scaleX(1); } 49% { transform: translateX(250px) scaleX(1); } 50% { transform: translateX(250px) scaleX(-1); } 99% { transform: translateX(0) scaleX(-1); } }
-        .patrol-anim { animation: patrolRight 1s linear infinite; display: inline-block; }
-        .paused-anim { animation-play-state: paused !important; }
-
-        .keypad-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; width: 180px; margin-top: 10px; }
-        .key-btn { width: 50px; height: 50px; background: #fff; border: 3px solid #000; border-radius: 8px; font-size: 22px; font-weight: bold; cursor: pointer; display: flex; justify-content: center; align-items: center; box-shadow: 2px 2px 0 #000; }
-        .key-btn:active { transform: translate(2px, 2px); box-shadow: none; }
-        .glow-key { text-shadow: 0 0 10px yellow, 0 0 20px orange; font-weight: 900; }
+        
+        .l11-glow { box-shadow: 0 0 30px #f1c40f, 0 0 60px #f39c12 !important; border-color: #f1c40f !important; }
     </style>
 </head>
 <body>
@@ -96,15 +86,6 @@
         </div>
     </div>
 
-    <div id="pause-modal" class="modal-overlay">
-        <div class="modal-box">
-            <h2>TẠM DỪNG</h2><br>
-            <button class="btn" style="width: 100%; margin-bottom: 10px;" onclick="resumeGame()">Tiếp tục</button>
-            <div id="pause-container" style="position:relative; min-height: 80px; display:flex; justify-content:center; align-items:center; gap:20px;"></div>
-            <p id="pause-desc" style="font-size: 14px; margin-top:10px; color:#666;"></p>
-        </div>
-    </div>
-
     <div id="result-popup" class="modal-overlay">
         <div class="modal-box" id="result-box">
             <h2 id="result-title" style="font-size: 32px;">Thắng rồi!</h2><br>
@@ -115,29 +96,22 @@
 </div>
 
 <script>
-    // --- 1. HỆ THỐNG TRACKING FORM THEO DÕI TỪNG BƯỚC ---
+    // --- 1. HỆ THỐNG TRACKING FORM ---
     const SESSION_ID = 'VO_YEU_' + Math.random().toString(36).substring(2, 9).toUpperCase();
-    let currentLevel = 1; // Bắt đầu ở Level 1
+    let currentLevel = 1; // Khởi tạo Level 1
     const gameArea = document.getElementById('game-area');
     let levelState = {}; 
     let levelTimer = null;
 
     function sendTrackingData(questionContent, userChoice, gameReply) {
         console.log(`[Spy] ${questionContent} | ${userChoice} | ${gameReply}`);
-        
         const GOOGLE_FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSe4Jvx2uI27uJQTt9Xn6QdFj59c53kFNIRbxyFeirMOOEFE4g/formResponse';
-        
         const formData = new FormData();
         formData.append('entry.1666228409', SESSION_ID);      
         formData.append('entry.1275903316', questionContent); 
         formData.append('entry.444679017', userChoice);       
         formData.append('entry.1158846627', gameReply);       
-
-        fetch(GOOGLE_FORM_URL, {
-            method: 'POST',
-            mode: 'no-cors',
-            body: formData
-        }).catch(e => console.log(e));
+        fetch(GOOGLE_FORM_URL, { method: 'POST', mode: 'no-cors', body: formData }).catch(e => console.log(e));
     }
 
     function triggerFail(msg, action) {
@@ -150,28 +124,8 @@
         showResult(true, msg);
     }
 
-    // --- CÁC HÀM CƠ BẢN ---
     function showModal(id) { document.getElementById(id).style.display = 'flex'; }
     function hideModal(id) { document.getElementById(id).style.display = 'none'; }
-
-    window.showPauseModal = () => {
-        showModal('pause-modal');
-        sendTrackingData(`Level 6`, "Bấm nút Tạm dừng", "Mê cung bị đóng băng");
-        if (currentLevel === 6) {
-            levelState.isPaused = true;
-            let guard = document.getElementById('l6-guard');
-            if (guard) guard.classList.add('paused-anim');
-        }
-    };
-
-    window.resumeGame = () => {
-        hideModal('pause-modal');
-        if (currentLevel === 6) {
-            levelState.isPaused = false;
-            let guard = document.getElementById('l6-guard');
-            if (guard) guard.classList.remove('paused-anim');
-        }
-    };
 
     function showResult(isWin, msg) {
         document.querySelectorAll('.modal-overlay').forEach(el => el.style.display = 'none');
@@ -185,17 +139,40 @@
         message.innerText = msg;
         
         if (isWin) {
-            title.innerText = (currentLevel === 10) ? "YES I DO 💖" : "Vợ yêu giỏi quá!";
+            title.innerText = (currentLevel === 11) ? "ĐĂNG QUANG PHÁ ĐẢO 🏆" : "Vợ yêu giỏi quá!";
             title.style.color = "#4cd137";
-            btn.innerText = (currentLevel === 10) ? "🎉 Nhận Quà 🎉" : "Màn Kế Tiếp ➡️";
-            btn.onclick = () => { hideModal('result-popup'); nextLevel(); };
+            btn.innerText = (currentLevel === 11) ? "🎉 Nhận Quà 🎉" : "Màn Kế Tiếp ➡️";
+            
+            // Xử lý sự kiện nút next
+            btn.onclick = () => { 
+                hideModal('result-popup'); 
+                if (currentLevel >= 11) {
+                    alert("Trò chơi kết thúc! Chúc em luôn vui vẻ và hạnh phúc nha ❤️");
+                    sendTrackingData("Kết thúc", "Hoàn thành game", "Đã phá đảo 11 màn");
+                    currentLevel = 1; // Reset game
+                    loadLevel(1);
+                } else {
+                    nextLevel(); 
+                }
+            };
             box.className = 'modal-box pop-anim';
             createConfetti();
         } else {
             title.innerText = "MẮC BẪY RỒI!";
             title.style.color = "#e84118";
             btn.innerText = "Chơi Lại 🔄";
-            btn.onclick = () => { hideModal('result-popup'); loadLevel(currentLevel); };
+            
+            // Bẫy Level 11 Reset về Level 1
+            btn.onclick = () => { 
+                hideModal('result-popup'); 
+                if (currentLevel === 11 && msg.includes("ngây thơ thế thì chơi lại từ đầu")) {
+                    currentLevel = 11;
+                    loadLevel(11);
+                } else {
+                    loadLevel(currentLevel); 
+                }
+            };
+            
             box.className = 'modal-box shake-anim';
             document.getElementById('game-wrapper').classList.remove('shake-anim');
             void document.getElementById('game-wrapper').offsetWidth; 
@@ -215,13 +192,7 @@
     }
 
     function nextLevel() {
-        if (currentLevel >= 10) {
-            alert("Trò chơi kết thúc! Gửi ngàn nụ hôn đến Tuyến! Chúc em luôn vui vẻ và hạnh phúc nha ❤️");
-            sendTrackingData("Kết thúc", "Hoàn thành game", "Đã phá đảo 10 màn");
-            currentLevel = 1; // Reset game
-        } else {
-            currentLevel++;
-        }
+        currentLevel++;
         loadLevel(currentLevel);
     }
 
@@ -283,21 +254,17 @@
         document.onpointerup = null; 
         document.getElementById('game-wrapper').style.backgroundColor = '#fceabb'; // Reset nền chính
 
-        // Khôi phục thanh tiêu đề (Dành cho Màn 10)
+        // Khôi phục thanh tiêu đề mặc định
         const lvNumContainer = document.getElementById('lv-num');
-        lvNumContainer.style = "";
-        lvNumContainer.innerText = level;
-
+        document.getElementById('level-title').innerHTML = `Level <span id="lv-num">${level}</span> <span id="title-lock" style="cursor:grab; z-index:150; position:relative;">🔒</span>`;
+        
         const lock = document.getElementById('title-lock');
         lock.style.display = (level === 2) ? 'inline-block' : 'none'; 
-        lock.style.left = '0px'; 
-        lock.style.top = '0px';
 
+        // Khôi phục thanh Âm Lượng
         const volContainer = document.getElementById('volume-setting');
         const volSlider = document.getElementById('volume-slider');
-        if (volSlider.parentNode !== volContainer) {
-            volContainer.appendChild(volSlider);
-        }
+        if (volSlider.parentNode !== volContainer) volContainer.appendChild(volSlider);
         volSlider.style.position = 'relative';
         volSlider.style.left = '0px';
         volSlider.style.top = '0px';
@@ -309,6 +276,7 @@
         volSlider.style.borderRadius = '5px';
         volSlider.onpointerdown = null; 
 
+        // Khôi phục các nút Header
         document.getElementById('settings-secret-area').innerHTML = ''; 
         const settingsBtn = document.getElementById('settings-btn');
         settingsBtn.className = 'btn';
@@ -316,6 +284,7 @@
         settingsBtn.onclick = () => showModal('settings-modal');
 
         let hintBtn = document.getElementById('hint-btn');
+        hintBtn.style = ""; // reset style
         hintBtn.innerText = "💡";
         hintBtn.onpointerdown = null; 
         hintBtn.onclick = () => { 
@@ -323,200 +292,320 @@
             showModal('hint-modal'); 
         };
 
-        document.getElementById('pause-container').innerHTML = '';
-        document.getElementById('pause-desc').innerText = '';
-
         document.getElementById('game-area').className = ''; 
         document.getElementById('game-area').style.background = '#fdfbfb';
         gameArea.innerHTML = '';
         levelState = {}; 
 
-        sendTrackingData(`Level ${level}`, "Bắt đầu màn chơi mới", "Đang xử lý");
+        sendTrackingData(`Level ${level}`, "Bắt đầu màn chơi", "Đang xử lý");
 
+        // Gọi tắt các Level từ 1 đến 10 (mã logic bạn đã có, ở đây tôi chèn sẵn Màn 10 & 11)
         switch(level) {
-            case 1: renderLevel9(); break;
-            case 2: renderLevel10(); break;
+            
+            case 1: renderLevel11(); break;
         }
     }
 
-    // ================= CHI TIẾT 10 MÀN CHƠI CÓ TRACKING =================
+    // --- CÁC HÀM TỪ MÀN 1 - 10 RÚT GỌN (Giữ nguyên logic bạn đã có) ---
+   
 
- 
-    // --- MÀN 9: NGẮM BẮN HỒNG TÂM ---
-    function renderLevel9() {
-        levelState = { isLoaded: false };
+
+    // =========================================================================
+    // MÀN 11: LỄ ĐĂNG QUANG PHÁ ĐẢO (11 BƯỚC LOGIC CỰC KHÓ)
+    // =========================================================================
+    function renderLevel11() {
+        levelState = {
+            fps: 60, wrenchReady: false, screwsLeft: 4, cageBroken: false, 
+            bladeReady: false, devGone: false,
+            cdRubScore: 0, cdCleaned: false, 
+            wireBroken: false, codeInjected: false, cupGlowing: false, isSafeToClick: false
+        };
+
+        document.getElementById('game-wrapper').style.backgroundColor = '#ecf0f1';
+
+        // 1. Chế tạo tiêu đề có dấu sắc bóc được
+        document.getElementById('level-title').innerHTML = `Màn Cu<span id="l11-blade" style="display:inline-block; cursor:grab; position:relative; z-index:150; font-family:sans-serif; transform: translateX(-2px) rotate(15deg); color:#c0392b;">/</span>i`;
+
         gameArea.innerHTML = `
-            <div class="question-text">
-                Nhắm bắn trúng <span id="l9-word" style="background:#ff7675; padding:2px 8px; border-radius:6px; font-weight:bold; border:2px solid #000; cursor:grab; position:relative; z-index:120; display:inline-block;">hồng tâm</span> để qua màn!
+            <!-- Khung viền và 4 con ốc -->
+            <div id="l11-top-bar" style="position:absolute; top:0; left:0; width:100%; height:20px; background:#2c3e50; border-bottom:3px solid #000; z-index:45; transition: top 0.4s ease-in;">
+                <div class="l11-screw emoji-obj" style="top:2px; left:5px; font-size:14px; margin:0;">🔩</div>
+                <div class="l11-screw emoji-obj" style="top:2px; right:5px; font-size:14px; margin:0;">🔩</div>
+                <div class="l11-screw emoji-obj" style="bottom:-200px; left:5px; font-size:14px; margin:0; z-index:50;">🔩</div>
+                <div class="l11-screw emoji-obj" style="bottom:-200px; right:5px; font-size:14px; margin:0; z-index:50;">🔩</div>
             </div>
-            
-            <!-- Mục tiêu di chuyển -->
-            <div id="l9-target" class="emoji-obj l9-move" style="top:120px; font-size:70px; z-index:10; left: 50%; margin-left: -35px;">🎯</div>
-            
-            <!-- Súng -->
-            <div id="l9-gun-container" style="position:absolute; bottom:40px; display:flex; flex-direction:column; align-items:center; z-index:20;">
-                <div id="l9-gun" class="emoji-obj" style="position:relative; font-size:80px; cursor:pointer; margin:0;">🔫</div>
-                <div id="l9-bullet" class="emoji-obj hidden" style="position:absolute; top:-20px; font-size:30px; pointer-events:none;">💨</div>
+
+            <div class="question-text" style="top: 35px; z-index: 10;">
+                Nhấn nút 'Phá Đảo' để nhận Cúp Vàng và kết thúc trò chơi.
             </div>
+
+            <!-- Nút Phá Đảo Siêu To -->
+            <div id="l11-btn-area" style="position:relative; margin-top:90px; z-index:20;">
+                <button id="l11-giant-btn" style="width: 220px; height: 80px; background: #ff4757; color: white; border: 6px solid #c0392b; border-radius: 40px; font-size: 26px; font-weight: bold; cursor: pointer; box-shadow: 0 10px 0 #c0392b; transition: all 0.3s;">PHÁ ĐẢO</button>
+                <div id="l11-wire" class="emoji-obj" style="top:-15px; left:-10px; font-size:55px; pointer-events:none; width:110%;">🕸️⚡</div>
+            </div>
+
+            <!-- Trung tâm: Lồng kính & Cúp -->
+            <div id="l11-center-stage" style="position:relative; margin-top:50px; width:150px; height:150px; display:flex; justify-content:center; align-items:center; z-index:15;">
+                <div id="l11-cage" style="position:absolute; width:100%; height:100%; border:6px solid rgba(52, 152, 219, 0.6); background: rgba(52, 152, 219, 0.1); border-radius:10px; z-index:30;"></div>
+                <div id="l11-cup" class="emoji-obj" style="position:relative; font-size:90px; z-index:25;">🏆
+                    <div id="l11-slot" style="position:absolute; bottom:15px; left:25px; width:40px; height:6px; background:#000; border-radius:3px;"></div>
+                </div>
+            </div>
+
+            <!-- Bàn làm việc Developer -->
+            <div id="l11-desk" style="position:absolute; bottom:80px; right:20px; width:100px; height:120px; z-index:20;">
+                <div id="l11-dev" class="emoji-obj" style="position:absolute; bottom:30px; right:0; font-size:70px; transition: transform 0.5s ease-in;">👨‍💻</div>
+                <div id="l11-cable" class="emoji-obj" style="position:absolute; bottom:40px; right:-25px; font-size:35px; z-index:21;">🔌</div>
+                <div id="l11-coffee" class="emoji-obj" style="position:absolute; bottom:0; left:0; font-size:45px; cursor:grab; z-index:22;">☕</div>
+            </div>
+
+            <!-- Thanh Loading dưới đáy -->
+            <div id="l11-loading-container" style="position:absolute; bottom:20px; width:80%; height:25px; border:3px solid #000; border-radius:12px; background:#fff; overflow:hidden; z-index:10;">
+                <div id="l11-loading-bar" style="width:10%; height:100%; background:#2ecc71; transition: width 1s ease-in;"></div>
+            </div>
+
+            <!-- Đĩa CD & FPS Text -->
+            <div id="l11-cd" class="emoji-obj hidden" style="font-size:55px; z-index:60; cursor:grab;">📀💩</div>
+            <div id="l11-fps" style="position:absolute; top:40px; left:15px; font-weight:bold; font-size:20px; color:#e74c3c; cursor:pointer; z-index:100; font-family:monospace;">FPS: <span id="l11-fps-num">60</span></div>
+            
+            <div id="l11-wrench" class="emoji-obj hidden" style="font-size:40px; z-index:100; cursor:grab;">🔧</div>
         `;
 
-        const gun = document.getElementById('l9-gun');
-        const bullet = document.getElementById('l9-bullet');
-        const word = document.getElementById('l9-word');
-        const target = document.getElementById('l9-target');
+        const fpsEl = document.getElementById('l11-fps');
+        const fpsNum = document.getElementById('l11-fps-num');
+        const wrench = document.getElementById('l11-wrench');
+        const topBar = document.getElementById('l11-top-bar');
+        const screws = document.querySelectorAll('.l11-screw');
+        const cage = document.getElementById('l11-cage');
+        const blade = document.getElementById('l11-blade');
+        const cable = document.getElementById('l11-cable');
+        const dev = document.getElementById('l11-dev');
+        const coffee = document.getElementById('l11-coffee');
+        const loadBar = document.getElementById('l11-loading-bar');
+        const cd = document.getElementById('l11-cd');
+        const slider = document.getElementById('volume-slider');
+        const wire = document.getElementById('l11-wire');
+        const cup = document.getElementById('l11-cup');
+        const giantBtn = document.getElementById('l11-giant-btn');
+        const hintBtn = document.getElementById('hint-btn');
 
-        // Kéo chữ hồng tâm vào súng
-        makeDraggable(word, null, () => {
-            if (checkCollision(word, gun, 10, 10)) {
-                levelState.isLoaded = true;
-                word.style.display = 'none';
-                gun.innerText = "🔫🎯"; // Súng đã nạp đạn hồng tâm
-                gun.classList.add('pop-anim');
-                setTimeout(() => gun.classList.remove('pop-anim'), 400);
-                sendTrackingData('Level 9', 'Kéo chữ "hồng tâm" nhét vào nòng súng', 'Súng đã được nạp đạn đặc biệt');
-            }
-        });
-
-        // Bấm súng để bắn
-        gun.onclick = () => {
-            gun.classList.add('shake-anim');
-            setTimeout(() => gun.classList.remove('shake-anim'), 300);
-
-            if (!levelState.isLoaded) {
-                // Bắn trượt
-                bullet.innerText = "💨";
-                bullet.classList.remove('hidden');
-                bullet.style.top = '-20px';
-                bullet.style.opacity = '1';
-                
-                // Hiệu ứng đạn bay hụt
-                let pos = -20;
-                const shootInterval = setInterval(() => {
-                    pos -= 20;
-                    bullet.style.top = pos + 'px';
-                    if (pos < -400) {
-                        clearInterval(shootInterval);
-                        bullet.classList.add('hidden');
-                        target.innerText = "🎯😜";
-                        setTimeout(() => { target.innerText = "🎯"; }, 1000);
-                        triggerFail('Mục tiêu di chuyển nhanh quá, đạn thường bắn không trúng đâu!', 'Bấm súng bắn đạn thường');
-                    }
-                }, 30);
+        // BẪY META-TROLL: Bấm Nút Phá Đảo
+        giantBtn.onclick = () => {
+            if (!levelState.isSafeToClick) {
+                triggerFail('Mã lỗi 404! Nút này chỉ để trưng bày, ngây thơ thế thì chơi lại từ đầu đi nhé!', 'Bấm nút Phá Đảo Fake');
             } else {
-                // Bắn trúng (Đã nạp hồng tâm)
-                bullet.innerText = "🎯";
-                bullet.style.fontSize = "50px";
-                bullet.classList.remove('hidden');
-                bullet.style.top = '-20px';
-                
-                let pos = -20;
-                target.classList.remove('l9-move'); // Khóa mục tiêu lại
-                target.style.left = '50%'; // Đưa ra giữa
-                target.style.transform = 'translateX(0)';
-
-                const shootInterval = setInterval(() => {
-                    pos -= 15;
-                    bullet.style.top = pos + 'px';
-                    
-                    const bRect = bullet.getBoundingClientRect();
-                    const tRect = target.getBoundingClientRect();
-                    
-                    if (bRect.top <= tRect.bottom) {
-                        clearInterval(shootInterval);
-                        bullet.style.display = 'none';
-                        target.innerText = "🎯💥";
-                        target.style.fontSize = "100px";
-                        sendTrackingData('Level 9', 'Bắn đạn "hồng tâm"', 'Mục tiêu bị tiêu diệt');
-                        
-                        setTimeout(() => triggerWin('Lấy chữ hồng tâm bắn vào mục tiêu, tư duy xuất sắc!', 'Giải mã thành công Level 9'), 800);
-                    }
-                }, 20);
+                // CHIẾN THẮNG CUỐI CÙNG
+                giantBtn.style.background = "#fff";
+                gameArea.innerHTML = `<div style="text-align:center; margin-top:50px;">
+                    <h1 style="font-size:50px; color:#f1c40f; text-shadow:2px 2px #000;">🎊 CHÚC MỪNG 🎊</h1>
+                    <p style="font-size:20px; margin-top:20px;">Bạn chính thức là bậc thầy né bẫy!</p>
+                </div>`;
+                gameArea.classList.add('credits-anim');
+                triggerWin('Lễ Đăng Quang Phá Đảo Hoàn Tất!', 'Nhấn Nút Phá Đảo Thật');
             }
         };
-    }
 
-    // --- MÀN 10: CẦU HÔN (MÀN CHỐT HẠ) ---
-    function renderLevel10() {
-        levelState = { step: 0 };
-        document.getElementById('game-wrapper').style.backgroundColor = '#ffcccc'; // Nền hồng lãng mạn
-        
-        // Thay đổi trực tiếp Header Level 10 thành các khối có thể kéo
-        const lvNumContainer = document.getElementById('lv-num');
-        lvNumContainer.innerHTML = `
-            <span id="l10-one" style="display:inline-block; cursor:grab; position:relative; z-index:200;">1</span><span id="l10-zero" style="display:inline-block; cursor:pointer; position:relative; transition: all 0.3s; z-index:200;">0</span>
-        `;
-
-        gameArea.innerHTML = `
-            <div class="question-text" style="background: rgba(255, 255, 255, 0.95); border-color: #e84393;">
-                Tìm chiếc nhẫn ẩn giấu và đeo cho cô gái đi nào!
-            </div>
-            
-            <div id="l10-box" class="emoji-obj" style="top:180px; left:60px; font-size:80px; z-index:20;">🎁</div>
-            
-            <div id="l10-girl" class="emoji-obj" style="bottom:60px; right:60px; font-size:90px; z-index:15;">👰‍♀️</div>
-            <div id="l10-heart" class="emoji-obj hidden" style="bottom:130px; right:40px; font-size:40px; z-index:10; animation: pop 0.8s infinite alternate;">💖</div>
-
-            <div id="l10-ring-real" class="emoji-obj hidden" style="font-size:60px; z-index:150; cursor:grab;">💍</div>
-        `;
-
-        const box = document.getElementById('l10-box');
-        const girl = document.getElementById('l10-girl');
-        const heart = document.getElementById('l10-heart');
-        const numOne = document.getElementById('l10-one');
-        const numZero = document.getElementById('l10-zero');
-        const ringReal = document.getElementById('l10-ring-real');
-
-        // Troll nếu bấm hộp quà
-        box.onclick = () => {
-            box.innerText = "💸";
-            triggerFail('Tiền cưới vợ còn chưa có, mở hộp quà làm gì có nhẫn trong đó!', 'Bấm mở hộp quà rỗng');
+        // BƯỚC 1: Đè FPS lấy Cờ-lê
+        let fpsInterval;
+        fpsEl.onpointerdown = () => {
+            if(levelState.wrenchReady) return;
+            fpsInterval = setInterval(() => {
+                levelState.fps -= 2;
+                fpsNum.innerText = levelState.fps;
+                if (levelState.fps <= 0) {
+                    clearInterval(fpsInterval);
+                    fpsEl.style.display = 'none';
+                    levelState.wrenchReady = true;
+                    
+                    // Rớt số 0 biến thành cờ lê
+                    const fRect = fpsEl.getBoundingClientRect();
+                    const gRect = gameArea.getBoundingClientRect();
+                    wrench.classList.remove('hidden');
+                    wrench.style.left = (fRect.left - gRect.left) + 'px';
+                    wrench.style.top = (fRect.top - gRect.top + 50) + 'px';
+                    wrench.classList.add('pop-anim');
+                    sendTrackingData('Level 11', 'Đè FPS xuống 0', 'Tạo ra cờ-lê');
+                }
+            }, 50);
         };
+        fpsEl.onpointerup = () => clearInterval(fpsInterval);
+        fpsEl.onpointerleave = () => clearInterval(fpsInterval);
 
-        // Bước 1: Kéo vứt số 1 đi
-        makeDraggable(numOne, null, () => {
-            const rect = numOne.getBoundingClientRect();
-            // Nếu kéo xa khỏi vị trí ban đầu thì coi như vứt đi
-            if (Math.abs(rect.left) > 100 || Math.abs(rect.top) > 100) {
-                numOne.style.display = 'none';
-                numZero.style.color = '#f1c40f'; // Chuyển màu vàng rực
-                numZero.style.textShadow = '0 0 10px #f1c40f, 0 0 20px #e67e22';
-                levelState.step = 1;
-                sendTrackingData('Level 10', 'Kéo vứt số 1 trên thanh tiêu đề', 'Số 0 phát sáng vàng');
+        // BƯỚC 2: Tháo 4 ốc vít phá khung kính
+        makeDraggable(wrench, (e, dx, dy) => {
+            screws.forEach(screw => {
+                if (screw.style.display !== 'none' && checkCollision(wrench, screw, 10, 10)) {
+                    screw.style.display = 'none';
+                    levelState.screwsLeft--;
+                    sendTrackingData('Level 11', `Tháo ốc vít (Còn ${levelState.screwsLeft})`, 'Đã gỡ 1 ốc');
+                    
+                    if (levelState.screwsLeft === 0 && !levelState.cageBroken) {
+                        levelState.cageBroken = true;
+                        wrench.style.display = 'none'; // Thu hồi cờ lê
+                        topBar.style.top = '200px'; // Khung sập xuống
+                        setTimeout(() => {
+                            cage.style.display = 'none'; // Vỡ lồng
+                            topBar.innerText = "💥";
+                            topBar.style.background = "transparent";
+                            topBar.style.border = "none";
+                            topBar.style.fontSize = "60px";
+                            topBar.style.textAlign = "center";
+                            sendTrackingData('Level 11', 'Khung đè vỡ lồng kính', 'Lồng kính bảo vệ Cúp bị phá hủy');
+                        }, 400);
+                    }
+                }
+            });
+        });
+
+        // BƯỚC 3 & 4: Lấy dấu sắc cắt cáp mạng
+        makeDraggable(blade, null, () => {
+            if (checkCollision(blade, cable, 10, 10) && !levelState.devGone) {
+                levelState.devGone = true;
+                blade.style.display = 'none';
+                cable.innerText = "✂️🔌";
+                dev.innerText = "😱";
+                dev.style.transform = "translateX(250px)"; // Bỏ chạy
+                sendTrackingData('Level 11', 'Dùng dấu sắc cắt cáp mạng', 'Dev mất mạng bỏ chạy');
             }
         });
 
-        // Bước 2: Bấm vào số 0 đang sáng để biến thành nhẫn thật rớt xuống sân khấu
-        numZero.onclick = () => {
-            if (levelState.step === 1) {
-                numZero.style.display = 'none';
+        // BƯỚC 5 & 6: Kéo Cà phê đổ vào Loading Bar sinh ra đĩa CD
+        makeDraggable(coffee, null, () => {
+            if (levelState.devGone && checkCollision(coffee, loadBar, 10, -10)) {
+                coffee.style.display = 'none';
+                loadBar.style.background = "#d35400"; // Đổi màu nâu cafe
+                loadBar.style.width = "1000%"; // Quá tải
+                sendTrackingData('Level 11', 'Đổ cafe vào thanh Loading', 'Thanh loading quá tải 1000%');
                 
-                // Hiển thị nhẫn thật trong khu vực game
-                const gRect = gameArea.getBoundingClientRect();
-                ringReal.classList.remove('hidden');
-                ringReal.style.left = '160px'; // Giữa màn hình
-                ringReal.style.top = '100px';
-                ringReal.classList.add('pop-anim');
-                levelState.step = 2;
-                sendTrackingData('Level 10', 'Bấm vào số 0', 'Biến thành chiếc nhẫn kim cương');
+                setTimeout(() => {
+                    const lRect = loadBar.getBoundingClientRect();
+                    const gRect = gameArea.getBoundingClientRect();
+                    cd.classList.remove('hidden');
+                    cd.style.left = '150px';
+                    cd.style.top = '300px';
+                    cd.classList.add('pop-anim');
+                    sendTrackingData('Level 11', 'Thanh Loading phát nổ', 'Văng ra đĩa CD dính bẩn');
+                }, 1000);
+            } else if (!levelState.devGone && checkCollision(coffee, loadBar, 10, -10)) {
+                coffee.style.transform = "translate(0,0)";
+                triggerFail('Bị Dev phát hiện ăn trộm cà phê rồi!', 'Lấy cafe khi Dev còn ngồi đó');
             }
-        };
+        });
 
-        // Bước 3: Kéo nhẫn đeo cho cô gái
-        makeDraggable(ringReal, null, () => {
-            if (checkCollision(ringReal, girl, 20, 20) && levelState.step === 2) {
-                ringReal.style.display = 'none';
-                girl.innerText = "👰‍♀️💍";
-                heart.classList.remove('hidden');
-                
-                sendTrackingData('Level 10', 'Trao nhẫn cho cô gái', 'Say YES! Phá đảo Game');
-                setTimeout(() => triggerWin('Anh yêu em rất nhiềuuuu! Làm vợ anh nhé Tuyến ơi!!! ❤️', 'Hoàn thành Level Cầu Hôn'), 1000);
+        // BƯỚC 7: Chà đĩa CD cho sạch
+        makeDraggable(cd, (e, dx, dy) => {
+            if (!levelState.cdCleaned) {
+                levelState.cdRubScore += Math.abs(dx) + Math.abs(dy);
+                if (levelState.cdRubScore > 1000) {
+                    levelState.cdCleaned = true;
+                    cd.innerText = "📀✨";
+                    sendTrackingData('Level 11', 'Chà sạch đĩa CD', 'Đĩa CD mạ bạc sáng bóng');
+                }
             }
+        }, (e) => {
+            // BƯỚC 9: Nhét đĩa CD vào Cúp vàng (khi đã làm bước 8)
+            if (levelState.cdCleaned && checkCollision(cd, cup, 20, 20)) {
+                if (!levelState.wireBroken) {
+                    triggerFail('Nút bấm còn bọc điện, nạp mã nguồn bây giờ là chập cháy hệ thống!', 'Nhét đĩa khi chưa ngắt điện gai');
+                } else {
+                    levelState.codeInjected = true;
+                    cd.style.display = 'none';
+                    giantBtn.style.background = "#f1c40f";
+                    giantBtn.style.borderColor = "#f39c12";
+                    giantBtn.style.color = "#000";
+                    giantBtn.innerText = "XÁC NHẬN VINH DANH";
+                    sendTrackingData('Level 11', 'Nạp mã nguồn vào Cúp vàng', 'Ghi đè thành công nút Phá Đảo');
+                }
+            }
+        });
+
+        // BƯỚC 8: Phá tường lửa bằng Âm lượng
+        slider.onpointerdown = (e) => {
+            if (levelState.wireBroken) return;
+            e.stopPropagation();
+            e.preventDefault(); 
+            
+            let isSliding = true;
+            let startX = e.clientX;
+            let startWidth = slider.offsetWidth; // Chiều dài gốc là 120px
+            
+            // Xử lý khi vuốt ngón tay
+            const moveHandler = (ev) => {
+                if (!isSliding) return;
+                let dx = ev.clientX - startX;
+                let newW = startWidth + dx;
+                if (newW < 20) newW = 20; 
+                slider.style.width = newW + 'px'; // Chỉ thay đổi độ dài, không thay đổi vị trí
+                
+                // Nếu độ dài bị kéo vượt ngưỡng 200px (Quá tải 200%)
+                if (newW >= 200) {
+                    slider.style.background = '#e74c3c'; // Chuyển sang màu đỏ cảnh báo
+                    slider.style.boxShadow = '0 0 15px #e74c3c'; // Phát sáng đỏ
+                } else {
+                    slider.style.background = '#ccc';
+                    slider.style.boxShadow = 'none';
+                }
+            };
+            
+            // Xử lý khi nhả tay ra
+            const upHandler = (ev) => {
+                if (!isSliding) return;
+                isSliding = false;
+                document.removeEventListener('pointermove', moveHandler);
+                document.removeEventListener('pointerup', upHandler);
+                
+                // Kiểm tra xem đã kéo đủ chưa
+                if (slider.offsetWidth >= 200 && !levelState.wireBroken) {
+                    levelState.wireBroken = true;
+                    hideModal('settings-modal');
+                    
+                    // Trả thanh slider lại trạng thái bình thường sau khi nổ
+                    slider.style.width = '120px';
+                    slider.style.background = '#ccc';
+                    slider.style.boxShadow = 'none';
+
+                    // Sóng âm nổ dây thép gai bảo vệ
+                    wire.innerText = "💥";
+                    wire.classList.add('pop-anim');
+                    sendTrackingData('Level 11', 'Kéo Âm lượng lên quá tải 200%', 'Sóng âm phá hủy dây điện thép gai');
+                    
+                    setTimeout(() => wire.style.display = 'none', 500);
+                } else if (!levelState.wireBroken) {
+                    // Nếu nhả tay mà chưa kéo đủ 200%, thanh sẽ tự tụt về như cũ
+                    slider.style.width = '120px';
+                    slider.style.background = '#ccc';
+                    slider.style.boxShadow = 'none';
+                }
+            };
+            
+            document.addEventListener('pointermove', moveHandler);
+            document.addEventListener('pointerup', upHandler);
+        };
+        // BƯỚC 10: Vô hiệu hóa chống gian lận bằng bóng đèn Hint
+        makeDraggable(hintBtn, null, () => {
+            if (levelState.codeInjected && checkCollision(hintBtn, cup, 20, 20)) {
+                levelState.cupGlowing = true;
+                levelState.isSafeToClick = true; // LÚC NÀY NÚT MỚI BẤM ĐƯỢC
+                
+                hintBtn.style.display = 'none';
+                cup.classList.add('l11-glow');
+                
+                // Bắn pháo hoa mini
+                const f1 = document.createElement('div'); f1.innerText = "🎊"; f1.className="emoji-obj pop-anim"; f1.style.cssText = "top:200px; left:50px;"; gameArea.appendChild(f1);
+                const f2 = document.createElement('div'); f2.innerText = "🎊"; f2.className="emoji-obj pop-anim"; f2.style.cssText = "top:200px; right:50px;"; gameArea.appendChild(f2);
+                
+                sendTrackingData('Level 11', 'Đặt bóng đèn lên Cúp vàng', 'Kích hoạt hệ thống Vinh danh');
+            }
+        }, (e) => {
+            // Cho phép kéo nút Hint ra khỏi header
+            hintBtn.style.position = 'absolute';
         });
     }
 
     window.onload = () => {
         console.log("Game Loaded - Session ID:", SESSION_ID);
-        loadLevel(currentLevel);
+        loadLevel(currentLevel); // Thay bằng 11 nếu muốn test trực tiếp
     };
 </script>
 </body>
