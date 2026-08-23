@@ -46,7 +46,6 @@ button,input{font:inherit}
 .btn.primary{background:var(--c-accent);font-size:22px}.btn.danger{background:var(--c-primary);color:#fff}.btn.green{background:var(--c-secondary);color:#fff}
 .menuGrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.menuGrid .primary{grid-column:1/-1}
 
-/* KHẮC PHỤC Z-INDEX QUẢN TRÒ NỔI LÊN TRÊN OVERLAY (160 > 120) */
 #troll{position:absolute;right:18px;top:18px;width:170px;height:155px;z-index:160;cursor:pointer;transition:.25s;filter:drop-shadow(0 8px 0 #0002)}
 .trollFace{width:96px;height:96px;margin-left:auto;border:4px solid var(--ink);border-radius:45% 45% 50% 50%;background:#f7d07d;position:relative}
 .trollFace:before,.trollFace:after{content:"";position:absolute;top:28px;width:18px;height:12px;border-radius:50%;background:var(--ink)}
@@ -55,7 +54,7 @@ button,input{font:inherit}
 #trollName{position:absolute;right:0;bottom:3px;background:#fff;border:3px solid var(--ink);border-radius:10px;padding:4px 8px;font-size:12px;font-weight:1000;white-space:nowrap;box-shadow:0 3px 0 #0002}
 #speech{position:absolute;right:100px;top:95px;width:300px;z-index:159;background:#fff;border:3px solid var(--ink);border-radius:18px;padding:12px 15px;font-weight:900;box-shadow:0 6px 0 #0002;opacity:0;transform:translateY(-8px);transition:.2s;pointer-events:none}
 #speech.show{opacity:1;transform:none}
-#speech::before{content:"Đạt";display:block;margin-bottom:4px;font-size:11px;letter-spacing:.4px;text-transform:uppercase;color:#69728a}
+#speech::before{content:"Anh MC Đạt";display:block;margin-bottom:4px;font-size:11px;letter-spacing:.4px;text-transform:uppercase;color:#69728a}
 
 .topbar{position:absolute;left:16px;right:16px;top:14px;height:58px;display:flex;gap:10px;align-items:center;z-index:30;pointer-events:none}
 .chip{pointer-events:auto;border:3px solid var(--ink);background:#fff;border-radius:15px;padding:9px 14px;font-weight:1000;box-shadow:0 4px 0 #0002}
@@ -178,7 +177,7 @@ button,input{font:inherit}
     <div id="endScene" style="position:relative;height:100%;width:100%"></div>
   </div></div>
 
-  <div id="troll"><div class="trollFace"><div class="trollMouth"></div></div><div id="trollName">Đạt</div></div><div id="speech"></div>
+  <div id="troll"><div class="trollFace"><div class="trollMouth"></div></div><div id="trollName">Anh MC Đạt</div></div><div id="speech"></div>
   <div id="overlay"><div id="overlayCard" class="overlayCard"></div></div>
   <div id="toast"></div><div id="debug"></div>
 </div></div>
@@ -330,12 +329,11 @@ function screen(name){$$(".screen").forEach(s=>s.classList.remove("active"));$("
 function goMenu(){cleanupLevel();screen("menu");Game.state="menu";}
 
 const levelIcons = ["☀️","📅","👑","🎨","🍰","🎈","📸","🎁","💌","✨","🌷","🎵","🐾","💭","🎟️","🎂","🎁","🔍","⭐","💖"];
-function renderLevelSelect(){const g=$("#levelGrid");g.innerHTML="";for(let i=1;i<=20;i++){const b=document.createElement("button");b.className="levelTile "+(i>Game.unlockedLevels?"locked":"")+" "+(Game.completed[i]?"done":"");b.innerHTML=(Game.completed[i]?"⭐ ":String(i).padStart(2,"0")+" ")+levelIcons[i-1];b.onclick=()=>{if(i<=Game.unlockedLevels){ track("Chọn màn chơi", `Vào màn ${i}`); startLevel(i); }};g.appendChild(b)}}
+function renderLevelSelect(){const g=$("#levelGrid");g.innerHTML="";for(let i=1;i<=20;i++){const b=document.createElement("button");b.className="levelTile "+(i>Game.unlockedLevels?"locked":"")+" "+(Game.completed[i]?"done":"");b.innerHTML=(Game.completed[i]?"⭐ ":String(i).padStart(2,"0")+" ")+levelIcons[i-1];b.onclick=()=>{if(i<=Game.unlockedLevels){ track("Nút UI", `Chọn Màn ${i}`); startLevel(i); }};g.appendChild(b)}}
 function renderAch(){const c=$("#achCards");c.innerHTML="";Object.entries(ACH).forEach(([k,v])=>{const d=document.createElement("div");d.className="achCard "+(Game.achievements[k]?"on":"");d.textContent=v[0]+" — "+v[1];c.appendChild(d)})}
 
 function unlock(k){if(Game.achievements[k])return;Game.achievements[k]=true;save();toast("KỶ NIỆM: "+ACH[k][0]); track("Đạt thành tựu", ACH[k][0]); if(Object.keys(Game.achievements).length===16) unlock("all");}
 function toast(t){const e=$("#toast");e.textContent=t;e.classList.add("show");setTimeout(()=>e.classList.remove("show"),1800)}
-// TĂNG THỜI GIAN HIỂN THỊ CỦA QUẢN TRÒ LÊN 6 GIÂY
 function say(t,ms=6000){$("#speech").textContent=t;$("#speech").classList.add("show");clearTimeout(say.t);say.t=setTimeout(()=>$("#speech").classList.remove("show"),ms)}
 
 function confetti(x, y){for(let i=0;i<45;i++){const p=document.createElement("i");p.className="particle";p.style.left=(x||rnd(10,90)+"%");p.style.top=(y||rnd(5,40)+"%");p.style.background=choice([HER.colors.primary, HER.colors.secondary, HER.colors.accent, "#fff"]);p.style.transform=`rotate(${rnd(0,360)}deg)`;$("#frame").appendChild(p);p.animate([{transform:"translateY(0) rotate(0)",opacity:1},{transform:`translate(${rnd(-120,120)}px,${rnd(260,520)}px) rotate(${rnd(180,720)}deg)`,opacity:0}],{duration:rnd(900,1600),easing:"cubic-bezier(.2,.8,.3,1)"}).onfinish=()=>p.remove()}}
@@ -355,11 +353,11 @@ function complete(extra="", choiceStr="Giải đố thành công", achKey=null){
  </div>`;
  $("#overlay").classList.add("show");
  
- track(choiceStr, winMsg);
+ track("Hoàn thành màn", winMsg);
  
  document.getElementById("btnContinue").onclick = () => {
     Audio.click(); $("#overlay").classList.remove("show");
-    track("Bấm nút", "Tiếp tục qua màn");
+    track("Nút UI", "Tiếp tục sang màn " + (Game.currentLevel < 20 ? Game.currentLevel + 1 : 20));
     if(Game.currentLevel < 20) startLevel(Game.currentLevel + 1);
     else startLevel(20);
  };
@@ -408,6 +406,10 @@ function drag(el,{onMove,onDrop,axis}={}){
  el.classList.add("drag");let active=false,ox=0,oy=0;
  const down=e=>{
     if(!["playing","paused","victory"].includes(Game.state))return;
+    
+    let objName = el.id || (el.textContent ? el.textContent.trim().substring(0, 15) : "Vật thể không tên");
+    track("Kéo vật thể", objName);
+
     if(!el.dataset.freeDrag && el.parentElement !== $("#world")){
         const lr=logicalRect(el);
         $("#world").appendChild(el);
@@ -457,7 +459,7 @@ const levels=[
     
     const bed = E("div","panel",{left:"450px",top:"500px",width:"180px",height:"80px",background:"#aedefc",zIndex:5},"");
     const clock = E("div","panel",{left:"380px",top:"530px",fontSize:"30px",padding:"5px",cursor:"pointer",zIndex:10},"⏰");
-    on(clock,"click",()=>{ shake(); say("Keng keng keng! Nhưng chăn ấm quá không dậy nổi đâu 😴"); track("Click đồng hồ", "Đánh thức bằng âm thanh thất bại"); });
+    on(clock,"click",()=>{ shake(); say("Keng keng keng! Nhưng chăn ấm quá không dậy nổi đâu 😴"); track("Click đồ vật", "Đánh thức bằng âm thanh thất bại"); });
     
     const winEl = E("div","panel",{left:"800px",top:"200px",width:"120px",height:"150px",background:"#87ceeb",border:"8px solid #fff",zIndex:5},"");
     const sunEl = E("div","drag",{position:"absolute",left:"820px",top:"220px",fontSize:"60px",zIndex:100,cursor:"pointer"},"☀️");
@@ -658,7 +660,7 @@ const levels=[
                 } else if(!isTarget){
                     die("Xếp bậy bạ gì đó! Tên sai bét rồi! 😂", "Kéo sai bóng bay: " + l);
                 } else {
-                    track("Kéo đúng chữ nhưng sai vị trí", "Thử lại");
+                    track("Thả vật thể", "Kéo đúng chữ nhưng thả sai vị trí ô");
                 }
             }
         });
@@ -768,7 +770,7 @@ const levels=[
                         let dz = $("#dropZone");
                         dz.innerHTML += w.t + ", ";
                         correctCount++;
-                        track("Ghép lời chúc", "Từ thêm vào: " + w.t);
+                        track("Giải đố Lời Chúc", "Ghép từ: " + w.t);
                         if(correctCount===6){
                             say("Chồng chúc là phải vay chớ 😂");
                             setTimeout(()=>complete("Câu chúc dài loằng ngoằng nhưng chứa đựng đầy tình yêu! 💌", "Ghép xong chuỗi lời chúc siêu dài", "l9"), 2000);
@@ -788,13 +790,14 @@ const levels=[
     
     for(let i=0;i<4;i++){
         let n=E("div","npc",{left:(300+i*100)+"px",top:"450px",cursor:"pointer"},"<div class='head'></div>");
-        on(n,"click",()=>die("Gương bảo người này xấu quắc! Nhìn lại đi! 🤪", "Chọn nhầm NPC"));
+        on(n,"click",()=>die("Gương bảo người này xấu quắc! Nhìn lại đi! 🤪", "Chọn nhầm NPC soi gương"));
     }
     
-    const trollHit = E("div","",{position:"absolute",left:"1100px",top:"18px",width:"170px",height:"155px",zIndex:100},"");
+    // ĐÃ CHỈNH LẠI TOP TỪ 18PX XUỐNG 100PX CHO CÁI TRAP HIT 
+    const trollHit = E("div","",{position:"absolute",left:"1100px",top:"100px",width:"170px",height:"155px",zIndex:100},"");
     on(trollHit,"click",()=>{
         say("Cuối cùng cũng có người hiểu nghệ thuật! Nhưng mà vẫn thua nhé vợ yêu 😏");
-        track("Soi gương", "Chọn quản trò troll");
+        track("Click đồ vật", "Chọn quản trò troll khi đang soi gương");
     });
     
     drag(p,{
@@ -842,13 +845,14 @@ const levels=[
     on($("#btnPlay"),"pointerenter",()=>{
         $("#btnPlay").style.left=rnd(-100,300)+"px"; $("#btnPlay").style.top=rnd(100,400)+"px";
     });
-    on($("#btnPlay"),"click",()=>{ track("Bấm Nút Play", "Không thể bắt được nút"); });
+    on($("#btnPlay"),"click",()=>{ track("Click đồ vật", "Cố bắt nút Play"); });
     
     const foot = E("div","",{position:"absolute",left:"610px",top:"600px",width:"36px",height:"30px",zIndex:100,cursor:"pointer"},"");
     foot.clicks=0;
     on(foot,"click",()=>{
         foot.clicks++; Audio.click();
         p.style.transform=`translateY(-10px)`; setTimeout(()=>p.style.transform="", 100);
+        track("Click đồ vật", "Nhịp chân lần " + foot.clicks);
         if(foot.clicks>=4){
             foot.remove(); $("#btnPlay").remove();
             say("Bật nhạc bằng chân luôn! Khét đấy! 🎶");
@@ -872,7 +876,7 @@ const levels=[
         if(this.caught)return;
         let px = parseFloat(pet.style.left);
         pet.style.left = (px>600 ? px-200 : px+200) + "px";
-        track("Đuổi bắt thú cưng", "Nó chạy trốn");
+        track("Chơi đùa thú cưng", "Làm thú cưng chạy trốn");
     });
     
     drag(p,{
@@ -883,7 +887,7 @@ const levels=[
                 this.caught=true;
                 pet.style.left=(p.x+60)+"px";
                 say("Anh cũng muốn làm con mèo của em lắm áaaa");
-                setTimeout(()=>complete("Động vật cũng biết ai là thiên thần để sáp lại đó nha! 🐾", "Ngồi xuống để dụ thú cưng tới", "l13"), 2000);
+                setTimeout(()=>complete("Động vật cũng biết ai là thiên thần để sáp lại đó nha! 🐾", "Kéo avatar ngồi xuống gọi thú", "l13"), 2000);
             }
         }
     });
@@ -955,7 +959,7 @@ const levels=[
                 say("Sinh nhật vợ tui mà cần gì vé chớ");
                 complete("Giỏi quá!", "Bế nhân vật hất văng bảo vệ VIP", "l15");
             } else if (p.x < 500) {
-                track("Kéo avatar", "Lùi lại sợ sệt bảo vệ");
+                track("Thả vật thể", "Lùi lại sợ sệt bảo vệ");
             }
         }
     });
@@ -969,7 +973,7 @@ const levels=[
     
     ["🍓","🍫","🕯️","🌸","✨"].forEach((d,i)=>{
         let item = E("div","drag",{position:"absolute",left:(200+i*100)+"px",top:"200px",fontSize:"40px",zIndex:60,cursor:"pointer"},d);
-        drag(item, {onDrop: el => { track("Trang trí bánh", "Thêm: " + d); }});
+        drag(item, {onDrop: el => { track("Trang trí bánh", "Thêm decor: " + d); }});
     });
     
     const pn = Game.player.querySelector(".playerName");
@@ -1037,7 +1041,8 @@ const levels=[
     const realIdx = Math.floor(rnd(0,20));
     this.clones[realIdx].isReal = true;
     
-    const item = E("div","drag",{position:"absolute",left:"1150px",top:"100px",fontSize:"50px",zIndex:100,cursor:"pointer"},HER.favoriteAnimal);
+    // Đã thay đổi tọa độ của món đồ (mèo) sang góc trái để không đè lên quản trò
+    const item = E("div","drag",{position:"absolute",left:"100px",top:"150px",fontSize:"50px",zIndex:100,cursor:"pointer"},HER.favoriteAnimal);
     
     drag(item,{
         onDrop:el=>{
@@ -1050,7 +1055,7 @@ const levels=[
                 this.clones.forEach(c=>c.onclick=null);
                 
                 on(realC,"click",()=>{
-                    say("Được rồi. Chi tiết này cũng khá đáng yêu đấy. Anh du di cho qua màn 🥰");
+                    say("Lại ước được làm bé mèo của vợ ghê 🥰");
                     complete("Tìm ra người thương thật sự rồi! Quá dữ! 💖", "Thả thú cưng tìm chủ", "l18");
                 });
             }
@@ -1100,21 +1105,21 @@ const levels=[
     // P1: Party
     spawnWord("PARTY", ()=>{
         this.phase=1; Audio.pop();
-        track("Chuẩn bị Tiệc", "Kéo chữ PARTY");
+        track("Chuẩn bị Tiệc", "Kéo chữ PARTY hoàn thành cảnh 1");
         $("#world").style.background="linear-gradient(135deg, var(--c-primary), var(--c-secondary))";
         say("Hợp lý! Có tiệc tùng rồi đó 🎉");
         
         // P2: CAKE
         spawnWord("CAKE", ()=>{
             this.phase=2; Audio.pop();
-            track("Chuẩn bị Tiệc", "Kéo chữ CAKE");
+            track("Chuẩn bị Tiệc", "Kéo chữ CAKE hoàn thành cảnh 2");
             E("div","panel",{left:"700px",top:"450px",fontSize:"80px"},"🎂");
             say("Bánh sinh nhật tới! Thèm quá đi 😋");
             
             // P3: DECOR
             spawnWord("DECOR", ()=>{
                 this.phase=3; Audio.pop();
-                track("Chuẩn bị Tiệc", "Kéo chữ DECOR");
+                track("Chuẩn bị Tiệc", "Kéo chữ DECOR hoàn thành cảnh 3");
                 for(let i=0;i<8;i++) E("div","",{position:"absolute",left:rnd(100,1100)+"px",top:rnd(50,200)+"px",fontSize:"40px"},choice(["🎈","🎊","🎀"]));
                 say("Trang trí sương sương, mà hơi tối nhỉ? Bật đèn lên vợ ơi 💡");
                 
@@ -1132,7 +1137,7 @@ const levels=[
                     on($("#lstar"),"click",()=>{
                         $("#lstar").remove(); Audio.win();
                         Game.stars = 20; $("#starCount").textContent=20;
-                        track("Kết thúc Tiệc", "Bấm sao trên mũ nhận 20/20");
+                        track("Kết thúc Tiệc", "Bấm sao trên mũ mở Ending");
                         cleanupLevel(); screen("ending"); Game.state="ending";
                         playEnding();
                     });
@@ -1206,15 +1211,15 @@ function playEnding() {
                     fBtn.style.position="absolute";
                     fBtn.style.left=rnd(20,80)+"%"; fBtn.style.top=rnd(20,80)+"%";
                     say("Haha, vẫn troll xíu cuối cùng nha! Đố bắt được nút! 😂", 2000);
-                    track("Nút Tiếp Tục Ending", "Nút bỏ chạy");
+                    track("Nút Tiếp Tục Ending", "Nút bỏ chạy khi hover");
                     setTimeout(()=>{
                         fBtn.style.position="relative"; fBtn.style.left="auto"; fBtn.style.top="auto";
-                        say("Được rồi... hôm nay vợ thắng. Anh chịu thua. ❤️", 3000);
+                        say("Được rồi... hôm nay vợ thắng toàn tập. Anh chịu thua. ❤️", 3000);
                         fClicks=1;
                     }, 3000);
                 }
             });
-            on(fBtn,"click",()=>{ if(fClicks>0){ track("Nút Tiếp Tục Ending", "Quay về màn hình chính"); goMenu(); } });
+            on(fBtn,"click",()=>{ if(fClicks>0){ track("Nút UI", "Bấm nút Tiếp Tục -> Quay về màn hình chính"); goMenu(); } });
         }
     };
     sequence();
@@ -1228,7 +1233,7 @@ function showHint(){
     save();
     const idx=Math.min(2,l._h-1);
     toast("💡 "+l.hints[idx]);
-    track(`Dùng hint cấp ${l._h}`, l.hints[idx]);
+    track(`Nút UI: Gợi ý cấp ${l._h}`, l.hints[idx]);
     if(l._h===1) say("Vợ cần gợi ý hả? Để chồng nịnh xíu rồi bật mí nha 😏❤️");
     if(l._h===3) say("Hint cuối rồi đó, hay chồng chơi hộ luôn nhé? 😂");
 }
@@ -1237,7 +1242,7 @@ function togglePause(){
     if(!["playing","paused"].includes(Game.state))return;
     Game.paused=!Game.paused;Game.state=Game.paused?"paused":"playing";
     $("#pauseBtn").textContent=Game.paused?"▶ RESUME":"⏸ PAUSE";
-    track("Bấm Pause Game", Game.paused ? "Tạm dừng" : "Tiếp tục");
+    track("Nút UI: Bấm Pause", Game.paused ? "Game dừng" : "Game tiếp tục");
     say(Game.paused?"Nghỉ tay ăn miếng bánh đi vợ yêu 😘":"Chiến tiếp thôi nào! 🎉")
 }
 
@@ -1253,7 +1258,7 @@ window.addEventListener("keydown", e=>{
     if(kbStr.includes("happybirthday")){
         kbStr=""; Audio.win();
         confetti(); say("Đúng mật mã! Ngàn lời chúc mừng sinh nhật cho vợ nha! ❤️");
-        track("Mã Bí Mật", "Nhập mật mã happybirthday -> Thả tim");
+        track("Mã Bí Mật", "Gõ chữ happybirthday -> Thả tim rớt pháo giấy");
     }
 });
 
@@ -1269,7 +1274,7 @@ $("#frame").addEventListener("pointermove",e=>{
 $$("[data-action]").forEach(b=>b.addEventListener("click",()=>{
     Audio.click();
     const a=b.dataset.action;
-    track("Bấm nút Menu", a);
+    track("Nút Menu: " + a, "Kích hoạt chức năng");
     if(a==="play")startLevel(Math.min(Game.currentLevel,Game.unlockedLevels));
     if(a==="select"){renderLevelSelect();screen("levelSelect")}
     if(a==="ach"){renderAch();screen("achievements")}
@@ -1280,7 +1285,7 @@ $$("[data-action]").forEach(b=>b.addEventListener("click",()=>{
 }));
 
 $("#hintBtn").addEventListener("click",showHint);
-$("#restartBtn").addEventListener("click",()=>{ track("Bấm Restart", "Chơi lại màn " + Game.currentLevel); startLevel(Game.currentLevel); });
+$("#restartBtn").addEventListener("click",()=>{ track("Nút UI: Bấm Restart", "Chơi lại màn " + Game.currentLevel); startLevel(Game.currentLevel); });
 $("#pauseBtn").addEventListener("click",togglePause);
 
 $$(".mobileBtn").forEach(b=>{
@@ -1305,13 +1310,15 @@ $("#menuAvatarWrap").addEventListener("click", ()=>{
 // Easter Egg Troll Clicks
 $("#troll").addEventListener("click",()=>{
     Game.trollClicks++;
+    let textsay = "";
     if(Game.trollClicks===5){
-        say(`Đây là sinh nhật ${HER.name}, không phải ngày hành hạ anh! 😭`, 3000);
+        textsay = `Đây là sinh nhật ${HER.name}, không phải ngày hành hạ anh! 😭`;
         Game.trollClicks=0;
     } else {
-        say(choice(["Á, chọc đau đó 😭","Tập trung chơi đi vợ yêu 😏","Nhớ anh nên cứ bấm hoài hả? ❤️","Đừng nhìn anh mãi 😳"]));
+        textsay = choice(["Á, chọc đau đó 😭","Tập trung chơi đi vợ yêu 😏","Nhớ anh nên cứ bấm hoài hả? ❤️","Đừng nhìn anh mãi 😳"]);
     }
-    track("Chọc mặt Quản Trò", "Quản trò kêu ca");
+    say(textsay, 3000);
+    track("Chọc mặt Quản Trò", textsay);
 });
 
 window.addEventListener("beforeunload",save);
