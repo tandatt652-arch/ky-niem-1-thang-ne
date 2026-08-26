@@ -1,759 +1,800 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Happy Birthday To My Lover.</title>
-    <style>
-        :root {
-            --midnight: #060814;
-            --deep-violet: #1d0f35;
-            --magenta: #d90f5a;
-            --rose-pink: #ff749f;
-            --lavender: #c4a1ff;
-            --champagne: #f9e5a5;
-            --cyan: #4ffaff;
-            --warm-white: #fffdf5;
-            --glass-bg: rgba(29, 15, 53, 0.4);
-            --glass-border: rgba(196, 161, 255, 0.3);
-            
-            --ink: #1d0f35;
-            --c-primary: #ff749f;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>ĐỪNG TIN CÁI GAME NÀY! - Birthday Edition</title>
+<style>
+:root{
+  --ink:#172033;--paper:#fff9ea;--yellow:#ffd84d;--red:#ff5b5b;--blue:#59b7ff;
+  --green:#67df91;--purple:#a988ff;--shadow:0 10px 0 rgba(23,32,51,.18);
+  /* Sẽ được overriden bởi HER object trong JS */
+  --c-primary:#ff91b8; --c-secondary:#b79cff; --c-accent:#ffe28a;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#171b2b;font-family:Inter,system-ui,Segoe UI,Arial,sans-serif;color:var(--ink)}
+button,input{font:inherit}
+#app{width:100%;height:100%;display:grid;place-items:center;background:
+ radial-gradient(circle at 20% 15%,#31395e 0 8%,transparent 9%),
+ linear-gradient(135deg,#1b2035,#252c49)}
+#frame{position:fixed;width:1280px;height:720px;aspect-ratio:16/9;transform-origin:0 0;
+ overflow:hidden;background:linear-gradient(var(--paper) 0 72%,#e5dfcc 72%);border:4px solid #0f1423;box-shadow:0 0 0 7px #ffffff12,0 24px 80px #0008; transition: filter 1s}
+.screen{position:absolute;inset:0;display:none}.screen.active{display:block}
+#menu,#levelSelect,#achievements,#help,#ending{background:linear-gradient(145deg,var(--paper),#ffe1ec)}
+#menu{display:none;overflow:hidden}#menu.active{display:grid;place-items:center}
+.bgmark{position:absolute;font-size:44px;font-weight:1000;opacity:.40;animation:float 6s ease-in-out infinite}
+@keyframes float{50%{transform:translateY(-25px) rotate(12deg)}}@keyframes wobble{25%{transform:rotate(-2deg) scale(1.02)}75%{transform:rotate(2deg) scale(.99)}}
+@keyframes bounce{50%{transform:translateY(-10px)}}@keyframes shake{25%{transform:translate(7px,0)}50%{transform:translate(-6px,2px)}75%{transform:translate(4px,-2px)}}
+@keyframes pop{0%{transform:scale(.4);opacity:0}70%{transform:scale(1.1)}100%{transform:scale(1);opacity:1}}
 
-        * { box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
+.menu-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 50px;
+    width: 100%;
+    height: 100%;
+    position: relative;
+    z-index: 5;
+}
 
-        html, body {
-            margin: 0; padding: 0; width: 100%;
-            background-color: var(--midnight); color: var(--warm-white);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            overflow-x: hidden; 
-        }
-        body { height: 400vh; overflow-y: auto; -webkit-overflow-scrolling: touch; }
-        ::-webkit-scrollbar { display: none; }
+.menuCard{position:relative;z-index:10;width:min(600px,95%);text-align:center;padding:28px}
+.logo{font-size:clamp(34px,5vw,70px);line-height:.92;font-weight:1000;letter-spacing:-3px;text-shadow:0 5px 0 #fff,0 9px 0 var(--c-primary)}
+.subtitle{font-weight:800;margin:18px 0 24px;color:#4d5875}
+.btn{border:3px solid var(--ink);background:white;border-radius:18px;padding:13px 20px;font-weight:1000;cursor:pointer;box-shadow:0 6px 0 var(--ink);transition:.12s transform,.12s box-shadow}
+.btn:hover{transform:translateY(-2px)}.btn:active{transform:translateY(5px);box-shadow:0 1px 0 var(--ink)}
+.btn.primary{background:var(--c-accent);font-size:22px}.btn.danger{background:var(--c-primary);color:#fff}.btn.green{background:var(--c-secondary);color:#fff}
+.menuGrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.menuGrid .primary{grid-column:1/-1}
+.accessoryPanel{margin-top:16px;background:#fff7fb;border:3px solid var(--ink);border-radius:22px;padding:14px 16px;box-shadow:0 6px 0 #0002;text-align:left}.accessoryTitle{font-size:16px;font-weight:1000;letter-spacing:.5px}.accessorySub{margin:4px 0 12px;color:#64708c;font-size:13px;font-weight:800}.accessoryPicker{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.accessoryChoice{border:3px solid var(--ink);background:#fff;border-radius:16px;padding:8px 6px;cursor:pointer;box-shadow:0 5px 0 #0002;font-weight:900;color:var(--ink);transition:.12s transform,.12s box-shadow,.12s background}.accessoryChoice:hover{transform:translateY(-2px)}.accessoryChoice.on{background:#fff2b8;box-shadow:0 3px 0 var(--ink);transform:translateY(2px)}.accessorySwatch{position:relative;height:46px;border:2px dashed #d7dceb;border-radius:13px;background:linear-gradient(#fff,#fff7fd);display:grid;place-items:center;overflow:hidden}.accessoryLabel{text-align:center;font-size:12px;line-height:1.1;margin-top:6px}
 
-        .glass-panel {
-            background: var(--glass-bg); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-            border: 1px solid var(--glass-border); border-radius: 20px; padding: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5), inset 0 0 20px rgba(255,255,255,0.05);
-        }
+#troll{position:absolute;right:18px;top:18px;width:170px;height:155px;z-index:160;cursor:pointer;transition:.25s;filter:drop-shadow(0 8px 0 #0002)}
+.trollFace{width:96px;height:96px;margin-left:auto;border:4px solid var(--ink);border-radius:45% 45% 50% 50%;background:#f7d07d;position:relative}
+.trollFace:before,.trollFace:after{content:"";position:absolute;top:28px;width:18px;height:12px;border-radius:50%;background:var(--ink)}
+.trollFace:before{left:18px}.trollFace:after{right:18px}
+.trollMouth{position:absolute;left:20px;right:20px;bottom:15px;height:25px;border:4px solid var(--ink);border-top:0;border-radius:0 0 60px 60px;background:#fff}
+#trollName{position:absolute;right:0;bottom:3px;background:#fff;border:3px solid var(--ink);border-radius:10px;padding:4px 8px;font-size:12px;font-weight:1000;white-space:nowrap;box-shadow:0 3px 0 #0002}
+#speech{position:absolute;right:100px;top:95px;width:300px;z-index:159;background:#fff;border:3px solid var(--ink);border-radius:18px;padding:12px 15px;font-weight:900;box-shadow:0 6px 0 #0002;opacity:0;transform:translateY(-8px);transition:.2s;pointer-events:none}
+#speech.show{opacity:1;transform:none}
+#speech::before{content:"Anh MC Đạt";display:block;margin-bottom:4px;font-size:11px;letter-spacing:.4px;text-transform:uppercase;color:#69728a}
 
-        button {
-            background: linear-gradient(45deg, var(--magenta), var(--rose-pink)); border: none; color: white;
-            padding: 12px 24px; border-radius: 30px; font-size: 16px; font-weight: bold;
-            box-shadow: 0 0 15px var(--magenta); cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;
-        }
-        button:active { transform: scale(0.95); box-shadow: 0 0 5px var(--magenta); }
+.topbar{position:absolute;left:16px;right:16px;top:14px;height:58px;display:flex;gap:10px;align-items:center;z-index:30;pointer-events:none}
+.chip{pointer-events:auto;border:3px solid var(--ink);background:#fff;border-radius:15px;padding:9px 14px;font-weight:1000;box-shadow:0 4px 0 #0002}
+#instruction{position:absolute;left:50%;top:84px;transform:translateX(-50%);z-index:25;background:#fffbe9;border:3px solid var(--ink);border-radius:18px;padding:12px 18px;font-size:22px;font-weight:1000;box-shadow:0 5px 0 #0002;white-space:nowrap; text-align:center}
+#world{position:absolute;inset:0;overflow:hidden;transition: background 1s}
 
-        #canvas-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
-        canvas { display: block; width: 100%; height: 100%; }
+/* CHIBI AVATAR */
+.player{position:absolute;width:56px;height:66px;z-index:20;transform-origin:center bottom;background:transparent;border:none}
+.chibi{position:relative;width:100%;height:100%;animation:bounce 1.5s infinite ease-in-out}
+.cb-head{position:absolute;width:46px;height:46px;border:4px solid var(--ink);border-radius:45%;left:5px;top:0;z-index:2;background:#ffe6d5}
+.cb-hair{position:absolute;width:54px;height:25px;background:var(--ink);border-radius:25px 25px 0 0;top:-4px;left:-4px;z-index:3}
+.cb-backhair{position:absolute;width:56px;height:50px;background:var(--ink);border-radius:30px;top:10px;left:0;z-index:1}
+.cb-eye{position:absolute;top:20px;width:6px;height:10px;background:var(--ink);border-radius:50%;z-index:3}
+.cb-eye.e1{left:8px} .cb-eye.e2{right:8px}
+.cb-blush{position:absolute;top:26px;width:8px;height:5px;background:#ff7ca8;border-radius:50%;opacity:0.6;z-index:3}
+.cb-blush.b1{left:2px} .cb-blush.b2{right:2px}
+.cb-mouth{position:absolute;left:14px;top:30px;width:10px;height:5px;border-radius:0 0 10px 10px;background:var(--ink);z-index:3}
+.cb-body{position:absolute;width:34px;height:26px;background:var(--c-primary);border:4px solid var(--ink);border-radius:10px;bottom:0;left:11px;z-index:2}
+.avatar-acc{position:absolute;pointer-events:none;z-index:6}
+.acc-bow{left:23px;top:-2px;width:42px;height:26px;transform:rotate(6deg)}
+.acc-bow::before,.acc-bow::after{content:"";position:absolute;top:3px;width:18px;height:14px;background:var(--c-secondary);border:3px solid var(--ink);box-shadow:inset 0 3px #ffffffa0}.acc-bow::before{left:1px;border-radius:80% 25% 65% 30%;transform:rotate(-12deg)}.acc-bow::after{right:1px;border-radius:25% 80% 30% 65%;transform:rotate(12deg)}.acc-bow i{position:absolute;left:16px;top:6px;width:10px;height:10px;background:var(--c-accent);border:3px solid var(--ink);border-radius:5px;z-index:3}.acc-bow span,.acc-bow b{position:absolute;display:block;width:7px;height:11px;background:var(--c-primary);border:3px solid var(--ink);border-top:none;border-radius:0 0 7px 7px;top:12px;z-index:2}.acc-bow span{left:10px;transform:rotate(10deg)}.acc-bow b{right:10px;transform:rotate(-10deg)}
+.acc-butterfly{left:22px;top:-3px;width:40px;height:24px;transform:rotate(4deg)}.acc-butterfly .wing1,.acc-butterfly .wing2,.acc-butterfly .wing3,.acc-butterfly .wing4{position:absolute;display:block;border:3px solid var(--ink);background:#ff9bc0}.acc-butterfly .wing1{left:5px;top:1px;width:16px;height:12px;border-radius:70% 35% 65% 35%;transform:rotate(-18deg)}.acc-butterfly .wing2{left:7px;top:11px;width:13px;height:9px;border-radius:65% 25% 70% 30%;background:#ffd7e6;transform:rotate(8deg)}.acc-butterfly .wing3{right:5px;top:1px;width:16px;height:12px;border-radius:35% 70% 35% 65%;transform:rotate(18deg)}.acc-butterfly .wing4{right:7px;top:11px;width:13px;height:9px;border-radius:25% 65% 30% 70%;background:#ffd7e6;transform:rotate(-8deg)}.acc-butterfly i{position:absolute;left:17px;top:4px;width:6px;height:15px;background:var(--c-primary);border:3px solid var(--ink);border-radius:10px;z-index:2}.acc-butterfly b{position:absolute;left:16px;top:0;width:8px;height:7px;border-top:3px solid var(--ink);border-left:3px solid transparent;border-right:3px solid transparent;border-radius:50%;transform:rotate(-8deg)}.acc-butterfly b::after{content:"";position:absolute;left:5px;top:-2px;width:8px;height:7px;border-top:3px solid var(--ink);border-left:3px solid transparent;border-right:3px solid transparent;border-radius:50%;transform:rotate(18deg)}
+.acc-leaf{left:24px;top:-2px;width:40px;height:24px;transform:rotate(6deg)}.acc-leaf::before,.acc-leaf::after{content:"";position:absolute;top:4px;width:17px;height:12px;background:#91d986;border:3px solid var(--ink)}.acc-leaf::before{left:3px;border-radius:70% 12% 70% 18%;transform:rotate(-16deg)}.acc-leaf::after{right:3px;border-radius:12% 70% 18% 70%;transform:rotate(16deg)}.acc-leaf i{position:absolute;left:18px;top:4px;width:4px;height:17px;background:#6aa96e;border-radius:999px;transform:rotate(4deg)}.acc-leaf span,.acc-leaf b{position:absolute;top:8px;width:2px;height:9px;background:#6aa96e;opacity:.9}.acc-leaf span{left:10px;transform:rotate(-26deg)}.acc-leaf b{right:10px;transform:rotate(26deg)}
+.acc-flower{left:26px;top:-2px;width:34px;height:26px;transform:rotate(4deg)}.acc-flower::before{content:"";position:absolute;left:10px;top:5px;width:12px;height:12px;background:var(--c-accent);border:3px solid var(--ink);border-radius:50%;box-shadow:0 -10px 0 #ffd4e3,0 10px 0 #ffd4e3,-10px 0 0 #ffd4e3,10px 0 0 #ffd4e3}.acc-flower i{position:absolute;left:13px;top:8px;width:8px;height:8px;background:#ffb34d;border:3px solid var(--ink);border-radius:50%;z-index:2}
+.acc-star{left:25px;top:-3px;width:34px;height:26px;transform:rotate(-8deg)}.acc-star::before{content:"";position:absolute;left:8px;top:1px;width:18px;height:18px;background:var(--c-accent);clip-path:polygon(50% 0,61% 35%,98% 35%,68% 57%,79% 94%,50% 72%,21% 94%,32% 57%,2% 35%,39% 35%);border:3px solid var(--ink)}.acc-star i{position:absolute;left:17px;top:18px;width:6px;height:9px;background:var(--c-primary);border:3px solid var(--ink);border-top:none;border-radius:0 0 6px 6px}
+.acc-ribbon{left:21px;top:-3px;width:42px;height:25px;transform:rotate(7deg)}.acc-ribbon::before,.acc-ribbon::after{content:"";position:absolute;top:3px;width:15px;height:14px;background:#9fd5ff;border:3px solid var(--ink)}.acc-ribbon::before{left:3px;border-radius:75% 25% 55% 25%;transform:rotate(-10deg)}.acc-ribbon::after{right:3px;border-radius:25% 75% 25% 55%;transform:rotate(10deg)}.acc-ribbon i{position:absolute;left:17px;top:5px;width:8px;height:8px;background:#fff;border:3px solid var(--ink);border-radius:3px}.acc-ribbon span,.acc-ribbon b{position:absolute;display:block;top:13px;width:6px;height:11px;background:#9fd5ff;border:3px solid var(--ink);border-top:none;border-radius:0 0 6px 6px}.acc-ribbon span{left:13px;transform:rotate(8deg)}.acc-ribbon b{right:13px;transform:rotate(-8deg)}
+.accessorySwatch .avatar-acc{position:relative;left:auto!important;top:auto!important;transform:none!important;margin:auto;display:block}
 
-        #world { position: absolute; top: 0; left: 0; width: 100%; height: 400vh; z-index: 2; pointer-events: none; }
-        .scroll-layer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; will-change: transform; }
+/* TÊN NHÂN VẬT TƯƠNG TÁC ĐƯỢC */
+.playerName{position:absolute;left:50%;top:-35px;transform:translateX(-50%);font-size:18px;font-weight:1000;color:var(--c-primary);white-space:nowrap;text-shadow:0 2px 0 #fff, 0 -2px 0 #fff, 2px 0 0 #fff, -2px 0 0 #fff;pointer-events:auto;z-index:50;cursor:pointer;border:2px dashed transparent;border-radius:10px;padding:2px 8px;transition:0.2s}
+.playerName:hover{background:rgba(255,255,255,0.8);transform:translateX(-50%) scale(1.1)}
+.playerName.dragging{transform:none !important; background:rgba(255,255,255,0.8)}
 
-        /* --- MÂY MỜ ẢO --- */
-        .cloud { position: absolute; background: rgba(255, 255, 255, 0.08); border-radius: 100px; filter: blur(12px); left: -300px; pointer-events: none; }
-        @keyframes floatCloud { 0% { transform: translateX(0); } 100% { transform: translateX(150vw); } }
+.player.idle .chibi{animation:bounce 1.2s ease-in-out infinite}
+.player.walk .chibi{animation:wobble .22s linear infinite}
+.player.jump .chibi{transform:scale(.9,1.12)}
+.player.sit .cb-body{height:16px; bottom:0}
+.player.sit .cb-head{top:10px}
 
-        #ui-layer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 100; pointer-events: none; display: flex; justify-content: center; align-items: center; }
-        #opening { position: fixed; width: 100%; height: 100%; background: var(--midnight); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 200; pointer-events: auto; transition: opacity 2s ease; }
-        .opening-star { width: 4px; height: 4px; background: var(--warm-white); border-radius: 50%; box-shadow: 0 0 10px 2px var(--warm-white), 0 0 30px 5px var(--champagne); animation: pulseStar 2s infinite alternate, rotateStar 10s linear infinite; cursor: pointer; position: relative; }
-        .opening-star::before, .opening-star::after { content: ''; position: absolute; top: 50%; left: 50%; background: var(--warm-white); transform: translate(-50%, -50%); border-radius: 50%; filter: blur(2px); }
-        .opening-star::before { width: 40px; height: 1px; } .opening-star::after { width: 1px; height: 40px; }
-        .opening-text { margin-top: 40px; font-size: 14px; color: var(--lavender); opacity: 0; letter-spacing: 2px; text-align: center; text-shadow: 0 0 10px var(--lavender); transition: opacity 2s; }
-        @keyframes pulseStar { 0% { transform: scale(1); box-shadow: 0 0 10px 2px var(--warm-white), 0 0 20px 2px var(--champagne); } 100% { transform: scale(1.5); box-shadow: 0 0 20px 5px var(--warm-white), 0 0 50px 10px var(--champagne); } }
-        @keyframes rotateStar { 100% { transform: rotate(360deg); } }
+.ground{position:absolute;left:0;right:0;bottom:0;height:96px;background:var(--c-secondary);border-top:4px solid var(--ink); transition: background 1s}
+.platform{position:absolute;background:#fff;border:4px solid var(--ink);border-radius:10px;box-shadow:0 6px 0 #0002}
+.door{position:absolute;width:105px;height:170px;background:var(--c-accent);border:5px solid var(--ink);border-radius:12px 12px 0 0;display:grid;place-items:center;color:var(--ink);font-size:28px;font-weight:1000;cursor:pointer}
+.secretDoor{background:#5fd994}
+.drag{touch-action:none}.drag.dragging{filter:drop-shadow(0 8px 5px #0003);z-index:100!important}
+.word{display:inline-block;padding:0;border-radius:0}.word.drag{background:transparent;border:0;box-shadow:none; color:var(--c-primary)}
+.panel{position:absolute;background:white;border:4px solid var(--ink);border-radius:20px;box-shadow:var(--shadow);padding:20px;z-index:11}
+#mobileControls{position:absolute;left:18px;right:18px;bottom:18px;z-index:50;display:none;justify-content:space-between;pointer-events:none}
+.mobileSide{display:flex;gap:12px}.mobileBtn{pointer-events:auto;width:72px;height:72px;border:3px solid var(--ink);border-radius:50%;background:#ffffffc9;font-size:28px;font-weight:1000;box-shadow:0 5px 0 #0004;touch-action:none}
+#overlay{position:absolute;inset:0;z-index:120;display:none;place-items:center;background:#172033a8;backdrop-filter:blur(3px)}
+#overlay.show{display:grid}.overlayCard{width:min(560px,86%);background:#fff;border:4px solid var(--ink);border-radius:24px;padding:26px;text-align:center;box-shadow:0 12px 0 #0f1423;animation:pop .25s}
+#toast{position:absolute;left:50%;bottom:25px;transform:translateX(-50%) translateY(100px);z-index:150;background:#172033;color:#fff;padding:12px 18px;border-radius:14px;font-weight:900;transition:.25s;max-width:80%;text-align:center}
+#toast.show{transform:translateX(-50%) translateY(0)}
+.particle{position:absolute;width:10px;height:10px;border-radius:3px;z-index:110;pointer-events:none}
+.levelGrid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;width:min(720px,90%);margin:115px auto 0}
+.levelTile{height:82px;border:3px solid var(--ink);border-radius:16px;background:#fff;font-weight:1000;font-size:20px;box-shadow:0 5px 0 #0002;cursor:pointer}
+.levelTile.locked{opacity:.45;cursor:not-allowed}.levelTile.done{background:#e9ffe8}
+.pageTitle{position:absolute;left:40px;top:35px;font-size:38px;font-weight:1000}
+.back{position:absolute;left:24px;bottom:22px}
+.cards{position:absolute;left:50%;top:105px;transform:translateX(-50%);width:min(900px,88%);max-height:510px;overflow:auto;display:grid;gap:12px}
+.achCard{background:#fff;border:3px solid var(--ink);border-radius:16px;padding:14px 18px;font-weight:800;opacity:.45}.achCard.on{opacity:1;background:#edffe8}
+.npc{position:absolute;width:110px;text-align:center}.npc .head{width:70px;height:70px;margin:auto;background:#ffd18b;border:4px solid var(--ink);border-radius:45%}.npc .bubble{background:#fff;border:3px solid var(--ink);border-radius:14px;padding:7px;font-size:13px;font-weight:800;margin-bottom:7px}
+.fakeWin{font-size:64px;font-weight:1000}
+.star-collect{color:#ffd84d; font-size:24px; text-shadow:0 2px 0 var(--ink)}
+.balloon{position:absolute;width:50px;height:65px;border:3px solid var(--ink);border-radius:50% 50% 50% 50% / 40% 40% 60% 60%;display:grid;place-items:center;font-weight:900;font-size:30px;color:#fff}
+.balloon::after{content:"";position:absolute;bottom:-10px;width:2px;height:20px;background:var(--ink)}
+.cake{position:absolute;width:120px;height:80px;background:#f5a6b7;border:4px solid var(--ink);border-radius:10px;box-shadow:0 8px 0 #b35d72;display:grid;place-items:center;font-size:40px}
+.cake-flame{position:absolute;width:20px;height:30px;background:#ffd84d;border:3px solid var(--ink);border-radius:50% 50% 20% 20%;transform-origin:bottom center}
+.cake-flame.flicker{animation:wobble .3s infinite}
 
-        .aurora { position: absolute; width: 200%; height: 50%; top: 20%; left: -50%; background: linear-gradient(90deg, transparent, rgba(196, 161, 255, 0.1), rgba(79, 250, 255, 0.1), rgba(217, 15, 90, 0.1), transparent); filter: blur(60px); border-radius: 50%; animation: auroraWove 15s infinite alternate ease-in-out; opacity: 0; transition: opacity 3s; }
-        @keyframes auroraWove { 0% { transform: translateY(0) scaleY(1) rotate(-5deg); } 100% { transform: translateY(-30px) scaleY(1.5) rotate(5deg); } }
+/* ===== BIRTHDAY PARTY V2: REUSABLE GAMEPLAY ART ===== */
+:root{--outline:4px solid var(--ink)}
+.party-room{position:absolute;inset:0;background:linear-gradient(#fff4f7 0 72%,#f6dcc5 72% 100%)}
+.party-wall{position:absolute;left:0;right:0;top:0;height:520px;background:linear-gradient(180deg,#fff8ef,#ffe8f1)}
+.party-stage{position:absolute;left:760px;top:430px;width:360px;height:130px;border:4px solid var(--ink);border-radius:22px 22px 8px 8px;background:linear-gradient(#c7b2ff,#9b7fe9);box-shadow:0 14px 0 #795fc4}
+.party-stage::before{content:"absolute;left:30px;right:30px;top:22px;height:12px;border-radius:999px;background:#fff8;box-shadow:0 30px 0 #fff5}
+.snap-target{transition:.18s box-shadow,.18s transform,.18s background}.snap-target.hot{box-shadow:0 0 0 7px #fff,0 0 28px var(--c-accent)!important;transform:scale(1.03)}
+.drag{cursor:grab;transition:filter .12s,transform .12s,box-shadow .12s}.drag:hover{filter:brightness(1.04);transform:scale(1.025)}.drag.dragging{cursor:grabbing;filter:drop-shadow(0 12px 8px #0004);transform:scale(1.045);z-index:105!important}
+.party-banner{position:absolute;left:50%;transform:translateX(-50%);top:105px;min-width:560px;padding:16px 26px;text-align:center;background:#fff;border:4px solid var(--ink);border-radius:18px;box-shadow:0 8px 0 #0002;font-size:28px;font-weight:1000;letter-spacing:2px}
+.banner-word{display:inline-block;color:var(--c-primary);padding:2px 8px;border-radius:10px}
+.party-door{position:absolute;width:150px;height:245px;background:linear-gradient(90deg,#ffe390,#ffc966);border:6px solid var(--ink);border-radius:18px 18px 2px 2px;transform-origin:left center;transition:transform .8s cubic-bezier(.2,.8,.2,1),filter .25s;box-shadow:inset -18px 0 #d9a34d}
+.party-door::before{content:"";position:absolute;right:20px;top:120px;width:16px;height:16px;border:4px solid var(--ink);background:#fff3b0;border-radius:50%}.party-door.open{transform:perspective(600px) rotateY(-68deg);filter:drop-shadow(0 0 16px var(--c-accent))}
+.guest{position:absolute;width:82px;height:118px;transition:transform .5s,left .8s,top .8s}.guest .head{position:absolute;left:18px;top:0;width:48px;height:48px;background:#ffd8ad;border:4px solid var(--ink);border-radius:46%}.guest .body{position:absolute;left:10px;top:42px;width:64px;height:62px;background:var(--c-secondary);border:4px solid var(--ink);border-radius:20px 20px 10px 10px}.guest .arm{position:absolute;width:14px;height:46px;background:#ffd8ad;border:3px solid var(--ink);border-radius:10px;top:53px}.guest .arm.a{left:0;transform:rotate(12deg)}.guest .arm.b{right:0;transform:rotate(-12deg)}.guest.wave .arm.b{animation:wave .55s ease-in-out 2;transform-origin:top}.guest.dance{animation:guestDance .5s ease-in-out infinite alternate}
+@keyframes wave{50%{transform:rotate(-55deg)}}@keyframes guestDance{to{transform:translateY(-10px) rotate(4deg)}}
+.balloon{position:absolute;width:54px;height:70px;border:4px solid var(--ink);border-radius:50% 50% 48% 48% / 44% 44% 58% 58%;background:var(--c-primary);box-shadow:inset 10px 8px 0 #fff7;animation:balloonBob 2.4s ease-in-out infinite;z-index:15}.balloon::before{content:"";position:absolute;left:22px;bottom:-9px;width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:10px solid var(--ink)}.balloon::after{content:"";position:absolute;left:26px;top:69px;width:2px;height:72px;background:#566078}.balloon.alt{background:var(--c-secondary)}.balloon.gold{background:var(--c-accent)}
+@keyframes balloonBob{50%{transform:translateY(-9px) rotate(2deg)}}
+.party-chair{position:absolute;width:112px;height:132px}.party-chair .back{position:absolute;left:12px;top:0;width:88px;height:76px;background:#fff;border:4px solid var(--ink);border-radius:24px 24px 12px 12px}.party-chair .seat{position:absolute;left:5px;top:66px;width:102px;height:34px;background:var(--c-secondary);border:4px solid var(--ink);border-radius:12px}.party-chair .leg{position:absolute;top:95px;width:12px;height:35px;background:var(--ink);border-radius:5px}.party-chair .leg.l{left:20px}.party-chair .leg.r{right:20px}.vip-sign{position:absolute;left:26px;top:14px;font-size:20px;font-weight:1000;color:var(--c-primary);letter-spacing:1px}.party-chair.vip .back{box-shadow:0 0 0 5px var(--c-accent),0 10px 0 #0002}
+.drink-counter{position:absolute;background:linear-gradient(#fff8ed 0 68%,#e8c9a5 68%);border:4px solid var(--ink);border-radius:22px;box-shadow:0 10px 0 #0002;z-index:10;overflow:visible}.drink-counter::before{content:"";position:absolute;left:18px;right:18px;top:118px;height:16px;background:#fff;border:4px solid var(--ink);border-radius:50%;box-shadow:0 7px 0 #d9b78f}.drink-counter::after{content:"";position:absolute;left:35px;right:35px;bottom:-30px;height:34px;background:#c49368;border:4px solid var(--ink);border-radius:0 0 14px 14px}.counter-title{position:absolute;left:18px;top:14px;font-size:18px;font-weight:1000;letter-spacing:1px}.drink-tray{position:absolute;width:78px;height:25px;background:#f8fbff;border:3px solid var(--ink);border-radius:50%;box-shadow:0 5px 0 #0002;z-index:13}.drink{position:absolute;width:82px;height:118px;filter:drop-shadow(0 7px 0 #0002);z-index:20}.drink .cup{position:absolute;left:12px;top:26px;width:58px;height:80px;border:4px solid var(--ink);border-radius:8px 8px 20px 20px;background:#fff;overflow:hidden}.drink .liquid{position:absolute;left:0;right:0;bottom:0;height:64%;background:#d8a078}.drink .lid{position:absolute;left:7px;top:18px;width:68px;height:14px;border:4px solid var(--ink);border-radius:9px;background:#fff}.drink .straw{position:absolute;left:54px;top:0;width:8px;height:50px;background:var(--c-secondary);border:3px solid var(--ink);transform:rotate(8deg);z-index:0}.drink .pearls{position:absolute;left:18px;right:18px;bottom:15px;height:20px;background:radial-gradient(circle,#49392f 0 4px,transparent 5px) 0 0/15px 13px}.drink .foam{display:none}.drink .garnish{display:none}.drink.bubbleTea .liquid{background:#d9aa7e}.drink.juice .liquid{background:linear-gradient(#ffd36a,#ff9f4f)}.drink.juice .garnish{display:block;position:absolute;right:1px;top:22px;width:24px;height:24px;border:4px solid var(--ink);border-radius:50%;background:conic-gradient(#fff4c6 0 12%,#ffb339 12% 25%,#fff4c6 25% 37%,#ffb339 37% 50%,#fff4c6 50% 62%,#ffb339 62% 75%,#fff4c6 75% 87%,#ffb339 87%)}.drink.soda .cup{left:20px;top:20px;width:44px;height:86px;border-radius:10px;background:#6fc7ff}.drink.soda .liquid{height:100%;background:linear-gradient(90deg,#75cfff,#b8ecff 45%,#58b4f0)}.drink.soda .lid{left:18px;top:15px;width:48px;height:10px;border-radius:50%;background:#dbe4ea}.drink.soda .straw{display:none}.drink.coffee .cup{left:14px;top:38px;width:58px;height:55px;border-radius:8px 8px 18px 18px;overflow:visible;background:#fff}.drink.coffee .cup::after{content:"";position:absolute;right:-24px;top:10px;width:28px;height:30px;border:4px solid var(--ink);border-left:0;border-radius:0 18px 18px 0}.drink.coffee .liquid{height:72%;background:#7d523c;border-radius:2px 2px 12px 12px}.drink.coffee .lid,.drink.coffee .straw{display:none}.drink.coffee .foam{display:block;position:absolute;left:25px;top:25px;width:34px;height:10px;border-radius:50%;background:#fff4df;box-shadow:0 -13px 0 -3px #fff4df}.drink.milkshake .liquid{background:linear-gradient(#fbe2ef,#eeb2d4)}.drink.milkshake .cup{border-radius:12px 12px 28px 28px}.drink.milkshake .lid{top:8px;height:28px;border-radius:50% 50% 8px 8px;background:#fff}.drink.milkshake .foam{display:block;position:absolute;left:20px;top:4px;width:42px;height:30px;border:4px solid var(--ink);border-bottom:0;border-radius:50% 50% 20% 20%;background:#fff}.drink.matchaLatte .liquid{height:68%;background:linear-gradient(#dff0cd 0 16%,#9bc87c 17% 62%,#79ad5d 63%)}.drink.matchaLatte .lid{background:#f7fff2}.drink.matchaLatte .straw{background:#e9d4a4}.drink.matchaLatte .foam{display:block;position:absolute;left:20px;top:31px;width:42px;height:11px;border-radius:50%;background:#eef6df;z-index:3}.drink.matchaLatte .garnish{display:block;position:absolute;left:31px;top:34px;width:20px;height:8px;border-radius:50%;border-top:3px solid #5f8f49;transform:rotate(-8deg);z-index:4}.drink-label{position:absolute;top:107px;left:-15px;width:112px;text-align:center;font-size:12px;font-weight:1000;background:#fff9;padding:2px 4px;border-radius:8px}
+.dj-booth{position:absolute;width:350px;height:180px;background:#323a5a;border:5px solid var(--ink);border-radius:22px;box-shadow:0 13px 0 #1d243d}.dj-deck{position:absolute;left:22px;right:22px;top:35px;height:90px;background:#e9edf7;border:4px solid var(--ink);border-radius:16px}.vinyl{position:absolute;top:14px;width:62px;height:62px;border:4px solid var(--ink);border-radius:50%;background:radial-gradient(circle,#fff 0 6px,var(--c-primary) 7px 13px,#28304e 14px)}.vinyl.v1{left:35px}.vinyl.v2{right:35px}.mixer{position:absolute;left:134px;top:12px;width:60px;height:68px;border:3px solid var(--ink);border-radius:8px;background:#fff}.mixer::before{content:"";position:absolute;left:10px;right:10px;top:16px;height:5px;background:var(--c-secondary);box-shadow:0 15px 0 var(--c-primary),0 30px 0 var(--c-accent)}.equalizer{position:absolute;left:30px;right:30px;bottom:16px;height:22px;display:flex;gap:8px;align-items:end}.equalizer i{flex:1;height:25%;background:var(--c-accent);border:2px solid var(--ink);border-radius:3px}.dj-booth.on .equalizer i{animation:eq .45s ease-in-out infinite alternate}.dj-booth.on .equalizer i:nth-child(2n){animation-delay:-.2s}@keyframes eq{to{height:100%}}
+.speaker-art{position:absolute;width:92px;height:142px;background:#333b56;border:5px solid var(--ink);border-radius:18px}.speaker-art::before,.speaker-art::after{content:"";position:absolute;left:18px;width:48px;height:48px;border:4px solid var(--ink);border-radius:50%;background:radial-gradient(circle,#697390 0 10px,#20273d 11px)}.speaker-art::before{top:14px}.speaker-art::after{bottom:14px}
+.photo-booth{position:absolute;width:510px;height:310px;background:linear-gradient(135deg,#ffe4ef,#eee3ff);border:5px solid var(--ink);border-radius:26px;box-shadow:0 12px 0 #0002;overflow:hidden}.photo-booth::before{content:"";position:absolute;inset:20px;border:3px dashed #fff;background:radial-gradient(circle at 20% 20%,#fff9 0 8px,transparent 9px) 0 0/55px 55px}.camera-art{position:absolute;width:115px;height:82px;background:#414966;border:5px solid var(--ink);border-radius:18px;cursor:pointer}.camera-art::before{content:"";position:absolute;left:35px;top:15px;width:38px;height:38px;border:5px solid var(--ink);border-radius:50%;background:radial-gradient(circle,#bff1ff 0 8px,#50657e 9px 14px,#1f273d 15px)}.camera-art::after{content:"";position:absolute;left:16px;top:-18px;width:38px;height:20px;background:#414966;border:4px solid var(--ink);border-bottom:0;border-radius:8px 8px 0 0}.camera-tripod{position:absolute;width:6px;height:94px;background:var(--ink)}.camera-tripod::before,.camera-tripod::after{content:"";position:absolute;bottom:-55px;width:6px;height:70px;background:var(--ink);transform-origin:top}.camera-tripod::before{transform:rotate(24deg)}.camera-tripod::after{transform:rotate(-24deg)}
+.flash-layer{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none;z-index:115}.flash-layer.fire{animation:flash .45s ease-out}@keyframes flash{0%{opacity:0}20%{opacity:1}100%{opacity:0}}
+.gift-box{position:absolute;width:110px;height:92px;background:var(--gift,#ff8fbd);border:4px solid var(--ink);border-radius:10px;box-shadow:0 8px 0 #0002}.gift-box .lid{position:absolute;left:-8px;right:-8px;top:-18px;height:28px;background:color-mix(in srgb,var(--gift,#ff8fbd),white 15%);border:4px solid var(--ink);border-radius:10px}.gift-box .ribbon-v{position:absolute;left:45px;top:-18px;width:18px;height:108px;background:var(--ribbon,#ffe28a);border-left:3px solid var(--ink);border-right:3px solid var(--ink)}.gift-box .ribbon-h{position:absolute;left:-4px;right:-4px;top:34px;height:18px;background:var(--ribbon,#ffe28a);border-top:3px solid var(--ink);border-bottom:3px solid var(--ink)}.gift-box .bow{position:absolute;left:31px;top:-38px;width:26px;height:22px;border:4px solid var(--ink);border-radius:55% 10% 55% 10%;background:var(--ribbon,#ffe28a);transform:rotate(35deg);z-index:2}.gift-box .bow::after{content:"";position:absolute;left:17px;top:-10px;width:26px;height:22px;border:4px solid var(--ink);border-radius:10% 55% 10% 55%;background:var(--ribbon,#ffe28a);transform:rotate(-70deg)}.gift-box.big{width:210px;height:170px;border-width:6px;border-radius:18px}.gift-box.big .lid{top:-30px;height:42px}.gift-box.big .ribbon-v{left:91px;width:28px;height:200px}.gift-box.big .ribbon-h{top:70px;height:28px}.gift-box.big .bow{left:75px;top:-60px;transform:scale(1.5) rotate(35deg)}
+.cake-art{position:absolute;width:190px;height:145px}.cake-art .plate{position:absolute;left:-14px;bottom:0;width:218px;height:22px;border:4px solid var(--ink);border-radius:50%;background:#fff}.cake-art .layer{position:absolute;left:15px;width:160px;border:4px solid var(--ink);border-radius:16px 16px 10px 10px;background:#f6a9bd}.cake-art .layer.bottom{bottom:18px;height:70px}.cake-art .layer.top{left:35px;bottom:78px;width:120px;height:48px;background:#ffd4df}.cake-art .frost{position:absolute;left:35px;bottom:108px;width:120px;height:18px;border:4px solid var(--ink);border-radius:50%;background:#fff}.candle{position:absolute;width:13px;height:42px;background:repeating-linear-gradient(45deg,#fff 0 6px,var(--c-secondary) 6px 12px);border:3px solid var(--ink);border-radius:5px;z-index:4}.candle .flame{position:absolute;left:-5px;top:-25px;width:18px;height:27px;background:#ffd84d;border:3px solid var(--ink);border-radius:55% 55% 45% 45%;transform-origin:50% 100%;animation:flicker .45s ease-in-out infinite alternate;box-shadow:0 0 18px #ffd84d}.candle.out .flame{display:none}.candle.out::after{content:"";position:absolute;left:2px;top:-22px;width:8px;height:18px;border-radius:50%;background:#b9c0cc;opacity:.7;animation:smokeUp 1.4s ease-out forwards}@keyframes flicker{to{transform:rotate(7deg) scale(.92,1.06)}}@keyframes smokeUp{to{transform:translateY(-35px) translateX(10px);opacity:0}}
+.accessory-table{position:absolute;width:420px;height:36px;background:#fff;border:4px solid var(--ink);border-radius:14px;box-shadow:0 12px 0 #bba88e}.accessory-table::after{content:"";position:absolute;left:40px;right:40px;top:32px;height:85px;border-left:14px solid var(--ink);border-right:14px solid var(--ink)}
+.crown-art{position:absolute;width:76px;height:54px}.crown-art .base{position:absolute;left:4px;right:4px;bottom:2px;height:22px;background:var(--c-accent);border:4px solid var(--ink);border-radius:6px}.crown-art .peaks{position:absolute;left:5px;top:0;width:66px;height:38px;background:var(--c-accent);border:4px solid var(--ink);clip-path:polygon(0 100%,0 32%,22% 62%,38% 8%,56% 62%,79% 25%,100% 62%,100% 100%)}.crown-star{position:absolute;left:31px;top:22px;width:14px;height:14px;background:#fff;clip-path:polygon(50% 0,61% 35%,98% 35%,68% 57%,79% 94%,50% 72%,21% 94%,32% 57%,2% 35%,39% 35%);z-index:5;cursor:pointer}
+.party-hat{position:absolute;width:58px;height:62px;background:var(--c-secondary);border:4px solid var(--ink);clip-path:polygon(50% 0,100% 100%,0 100%)}.party-hat::after{content:"";position:absolute;left:22px;top:-10px;width:15px;height:15px;background:var(--c-accent);border:3px solid var(--ink);border-radius:50%}
+.bow-art{position:absolute;width:70px;height:40px}.bow-art::before,.bow-art::after{content:"";position:absolute;top:5px;width:34px;height:28px;background:var(--c-primary);border:4px solid var(--ink)}.bow-art::before{left:0;border-radius:60% 15% 60% 15%}.bow-art::after{right:0;border-radius:15% 60% 15% 60%}
+.glasses-art{position:absolute;width:80px;height:34px}.glasses-art::before,.glasses-art::after{content:"";position:absolute;top:0;width:28px;height:24px;border:4px solid var(--ink);border-radius:50%;background:#aee9ff88}.glasses-art::before{left:5px}.glasses-art::after{right:5px}.glasses-art span{position:absolute;left:32px;top:10px;width:16px;height:4px;background:var(--ink)}
+.spotlight-unit{position:absolute;width:130px;height:190px;z-index:12}.spotlight-head{position:absolute;left:35px;top:0;width:65px;height:55px;background:#3d455f;border:4px solid var(--ink);border-radius:16px;transform:rotate(var(--rot,15deg))}.spotlight-head::before{content:"";position:absolute;left:10px;right:10px;bottom:-10px;height:18px;background:var(--c-accent);border:4px solid var(--ink);border-radius:50%}.light-cone{position:absolute;left:-18px;top:50px;width:170px;height:150px;background:linear-gradient(#fff7bba0,#fff3a310);clip-path:polygon(40% 0,60% 0,100% 100%,0 100%);pointer-events:none}.spotlight-unit.aimed .light-cone{filter:drop-shadow(0 0 16px #fff5aa)}
+.mic-art{position:absolute;width:70px;height:165px}.mic-head{position:absolute;left:14px;top:0;width:44px;height:58px;background:linear-gradient(#cfd5df,#828ca0);border:4px solid var(--ink);border-radius:50%}.mic-handle{position:absolute;left:28px;top:50px;width:18px;height:82px;background:#505a70;border:4px solid var(--ink);border-radius:8px;transform:rotate(-7deg)}.mic-stand{position:absolute;left:32px;top:122px;width:8px;height:36px;background:var(--ink)}.mic-stand::after{content:"";position:absolute;left:-25px;bottom:-5px;width:58px;height:8px;background:var(--ink);border-radius:8px}.mic-art.live{filter:drop-shadow(0 0 14px var(--c-accent))}
+.raffle-box{position:absolute;width:230px;height:190px;background:#bcd8ff;border:5px solid var(--ink);border-radius:18px;box-shadow:0 12px 0 #7894bd}.raffle-box::before{content:"";position:absolute;left:35px;right:35px;top:-26px;height:50px;background:#e6f1ff;border:5px solid var(--ink);border-radius:12px}.raffle-slot{position:absolute;left:72px;top:16px;width:86px;height:12px;background:var(--ink);border-radius:8px}.ticket{position:absolute;width:180px;height:64px;background:#fff6c8;border:4px dashed var(--ink);border-radius:10px;padding:12px;text-align:center;font-weight:1000;font-size:14px;box-shadow:0 7px 0 #0002}
+.dessert{position:absolute;width:104px;height:118px;z-index:15}.dessert-card{position:absolute;left:6px;top:0;width:92px;height:84px;background:#fffdf7;border:4px solid var(--ink);border-radius:18px;box-shadow:0 8px 0 #0002;transition:transform .15s,box-shadow .15s}.dessert.dragging .dessert-card{transform:translateY(-4px) scale(1.04);box-shadow:0 14px 0 #0002}.dessert-card::after{content:"";position:absolute;left:12px;right:12px;bottom:10px;height:10px;background:#e8eef9;border-radius:50%;opacity:.8}.dessert .label{position:absolute;left:-16px;right:-16px;top:90px;text-align:center;font-size:12px;font-weight:900;line-height:1.05}.cupcake-art{position:absolute;left:19px;top:28px;width:54px;height:42px;background:#dfb27c;border:4px solid var(--ink);clip-path:polygon(8% 0,92% 0,80% 100%,20% 100%);box-shadow:inset 0 8px #f2ca95}.cupcake-art::before{content:"";position:absolute;left:-2px;top:-33px;width:58px;height:38px;background:#ffd4e3;border:4px solid var(--ink);border-radius:50% 50% 35% 35%;box-shadow:0 -10px 0 -6px #fff}.cupcake-art::after{content:"";position:absolute;left:18px;top:-42px;width:16px;height:16px;background:#ff6b8e;border:3px solid var(--ink);border-radius:50%}.macaron-art{position:absolute;left:13px;top:22px;width:66px;height:38px;background:#b79cff;border:4px solid var(--ink);border-radius:50px 50px 40px 40px;box-shadow:inset 0 -10px #fff,inset 0 -15px var(--ink)}.macaron-art::before{content:"";position:absolute;left:-3px;top:18px;width:66px;height:18px;background:#caaeff;border:4px solid var(--ink);border-top:0;border-radius:0 0 20px 20px}.macaron-art::after{content:"";position:absolute;left:12px;top:7px;width:18px;height:7px;background:#fff;border-radius:999px;opacity:.85}.slice-art{position:absolute;left:14px;top:16px;width:66px;height:56px;background:linear-gradient(#ffbfd0 0 42%,#ffd7e5 42% 56%,#ffabc3 56% 100%);border:4px solid var(--ink);clip-path:polygon(0 100%,14% 18%,100% 0,100% 100%)}.slice-art::before{content:"";position:absolute;left:14px;top:-10px;width:18px;height:18px;background:#ff5b7e;border:3px solid var(--ink);border-radius:50%;box-shadow:10px 8px 0 -7px #67df91}.slice-art::after{content:"";position:absolute;left:8px;right:2px;top:17px;height:11px;background:#fff;border-top:3px solid var(--ink);border-bottom:3px solid var(--ink)}.pudding-art{position:absolute;left:18px;top:22px;width:58px;height:44px;background:#f2c66c;border:4px solid var(--ink);border-radius:40% 40% 15px 15px;box-shadow:inset 0 -9px #eab85b}.pudding-art::before{content:"";position:absolute;left:6px;right:6px;top:-6px;height:15px;border-radius:50%;background:#a76b3c;border:3px solid var(--ink)}.pudding-art::after{content:"";position:absolute;left:20px;top:-18px;width:14px;height:14px;background:#ff6b8e;border:3px solid var(--ink);border-radius:50%}.cookie-art{position:absolute;left:17px;top:15px;width:58px;height:58px;background:#dca86d;border:4px solid var(--ink);border-radius:50%;box-shadow:inset 12px 12px 0 #f3c889}.cookie-art::before{content:"";position:absolute;left:11px;top:12px;width:8px;height:8px;background:#6e4a34;border-radius:50%;box-shadow:18px -1px 0 #6e4a34,25px 17px 0 #6e4a34,7px 25px 0 #6e4a34,32px 31px 0 #6e4a34}.cookie-art::after{content:"";position:absolute;right:10px;top:9px;width:12px;height:7px;background:#fff5c8;border-radius:999px;transform:rotate(25deg)}.parfait-art{position:absolute;left:27px;top:10px;width:40px;height:64px;border:4px solid var(--ink);border-radius:8px 8px 22px 22px;background:linear-gradient(#fff 0 20%,#9de3a9 20% 38%,#fff 38% 56%,#ef91b6 56% 76%,#fff 76% 100%)}.parfait-art::before{content:"";position:absolute;left:8px;top:-11px;width:16px;height:12px;background:#fff;border:3px solid var(--ink);border-radius:50% 50% 12px 12px}.parfait-art::after{content:"";position:absolute;left:11px;top:-24px;width:10px;height:16px;background:#ff6b8e;border:3px solid var(--ink);border-radius:50% 50% 50% 0;transform:rotate(35deg)}
+.long-ribbon{position:absolute;width:300px;height:34px;background:var(--c-primary);border:4px solid var(--ink);border-radius:999px;box-shadow:inset 0 8px #fff5}.ribbon-anchor{position:absolute;width:36px;height:36px;border:4px dashed var(--ink);border-radius:50%;background:#fff8}.ribbon-anchor.hit{background:var(--c-accent);box-shadow:0 0 18px var(--c-accent)}.gift-tower{position:absolute;width:260px;height:300px;transform:rotate(7deg);transform-origin:50% 100%;transition:transform .6s;animation:towerLean 1.1s ease-in-out infinite alternate}.gift-tower.stable{transform:rotate(0);animation:none}@keyframes towerLean{to{transform:rotate(10deg)}}
+.noise-source{position:absolute;width:125px;height:105px;background:#fff;border:4px solid var(--ink);border-radius:18px;box-shadow:0 8px 0 #0002;display:grid;place-items:center;font-weight:1000;text-align:center;padding-top:46px;cursor:pointer}.noise-source::before{content:"";position:absolute;top:14px;left:40px;width:42px;height:30px;background:var(--c-primary);border:4px solid var(--ink);border-radius:10px}.noise-source.speaker-source::before{background:radial-gradient(circle,#75809c 0 7px,#252d47 8px 14px,#414a66 15px);border-radius:50%}.noise-source.talk-source::before{width:52px;height:32px;left:34px;background:#fff;border-radius:12px}.noise-source.talk-source::after{content:"";position:absolute;left:47px;top:43px;width:12px;height:12px;background:#fff;border-left:4px solid var(--ink);border-bottom:4px solid var(--ink);transform:rotate(-35deg)}.noise-source.horn-source::before{width:56px;height:34px;left:31px;background:var(--c-accent);clip-path:polygon(0 35%,72% 0,72% 100%,0 65%);border-radius:4px}.noise-source.music-source::before{width:58px;height:34px;left:31px;background:linear-gradient(90deg,var(--c-secondary) 0 55%,#fff 55%);border-radius:8px}.noise-source.off{opacity:.35;filter:grayscale(1)}.noise-source.off::after{content:"×";position:absolute;inset:0;display:grid;place-items:center;font-size:70px;color:var(--red);font-weight:1000}
+.dance-floor{position:absolute;width:360px;height:270px;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);gap:5px;padding:5px;background:#2d3551;border:5px solid var(--ink);border-radius:20px}.dance-tile{border:3px solid var(--ink);border-radius:10px;background:#8176ca;cursor:pointer;transition:.15s}.dance-tile.pulse{animation:tilePulse .55s ease-in-out infinite alternate}.dance-tile.active{background:var(--c-accent)}@keyframes tilePulse{to{filter:brightness(1.7);transform:scale(.96)}}
+.hud-name-token{padding-top:18px!important}.hud-name-token::before{content:"HUD · NAME";position:absolute;left:8px;top:3px;font-size:9px;letter-spacing:1px;color:#6b748b}.profile-clue{position:absolute;background:#fff;border:4px solid var(--ink);border-radius:18px;padding:12px 16px;box-shadow:0 7px 0 #0002;font-weight:900}.plate-art{position:absolute;width:130px;height:52px;background:#fff;border:4px solid var(--ink);border-radius:50%;box-shadow:0 8px 0 #0002}
+.css-star{position:absolute;width:64px;height:64px;background:var(--c-accent);clip-path:polygon(50% 0,61% 35%,98% 35%,68% 57%,79% 94%,50% 72%,21% 94%,32% 57%,2% 35%,39% 35%);filter:drop-shadow(0 0 12px #fff4a0)}
+.party-particle{position:absolute;width:10px;height:18px;border-radius:2px;pointer-events:none;z-index:40}.party-lights{position:absolute;left:80px;right:80px;top:120px;height:30px;display:flex;justify-content:space-between;z-index:8;pointer-events:none}.party-lights::before{content:"";position:absolute;left:0;right:0;top:5px;height:4px;background:var(--ink);border-radius:999px}.party-lights i{position:relative;width:18px;height:18px;border:3px solid var(--ink);border-radius:50%;background:#777;opacity:.4;z-index:2}.party-lights.on i{opacity:1;background:var(--c-accent);box-shadow:0 0 18px var(--c-accent);animation:lightBlink .55s ease-in-out infinite alternate}.party-lights.on i:nth-child(2n){background:var(--c-primary);box-shadow:0 0 18px var(--c-primary);animation-delay:-.25s}.party-lights.on i:nth-child(3n){background:var(--c-secondary);box-shadow:0 0 18px var(--c-secondary);animation-delay:-.4s}@keyframes lightBlink{to{filter:brightness(1.65);transform:translateY(3px)}}.balloon.dragging{animation:none}.drag:focus-visible{outline:4px solid #fff;box-shadow:0 0 0 8px var(--c-secondary)}.party-ready{position:absolute;right:24px;top:86px;background:#fff;border:4px solid var(--ink);border-radius:16px;padding:10px 16px;font-weight:1000;z-index:35;box-shadow:0 6px 0 #0002}
+.final-title{position:absolute;left:50%;top:120px;transform:translateX(-50%);width:90%;text-align:center;font-size:56px;font-weight:1000;color:#fff;text-shadow:0 5px 0 var(--ink);z-index:90;animation:pop .5s}.final-sub{position:absolute;left:50%;top:210px;transform:translateX(-50%);width:760px;text-align:center;background:#fff;border:4px solid var(--ink);border-radius:18px;padding:14px;font-weight:900;font-size:20px;z-index:90}.ending-avatar-wrap{position:absolute;left:82px;top:402px;width:180px;height:170px;display:grid;place-items:center;margin:0;overflow:visible;z-index:2}.ending-avatar-wrap .player{position:relative;left:auto!important;top:auto!important;transform:scale(2.15);transform-origin:center bottom;pointer-events:none}.ending-avatar-wrap .playerName{display:none}
 
-        .interactive-obj { pointer-events: auto; cursor: pointer; position: absolute; }
-        .moon { width: 150px; height: 150px; border-radius: 50%; background: radial-gradient(circle at 30% 30%, var(--warm-white), #e0c3fc 40%, #8e44ad 90%); box-shadow: 0 0 50px 10px rgba(196, 161, 255, 0.4), inset -20px -20px 40px rgba(0,0,0,0.5); }
-        .moon-crater { position: absolute; border-radius: 50%; background: rgba(0,0,0,0.1); box-shadow: inset 2px 2px 5px rgba(0,0,0,0.2), inset -1px -1px 2px rgba(255,255,255,0.2); }
-        .crater1 { width: 30px; height: 30px; top: 20%; left: 40%; } .crater2 { width: 15px; height: 15px; top: 50%; left: 20%; } .crater3 { width: 20px; height: 25px; top: 60%; left: 60%; transform: rotate(45deg); }
-
-        .planet { border-radius: 50%; box-shadow: inset -10px -10px 20px rgba(0,0,0,0.6), 0 0 20px rgba(255,255,255,0.1); }
-        .planet-ring { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotateX(70deg) rotateY(-20deg); border-radius: 50%; border: 4px solid transparent; }
-        #planet1 { width: 80px; height: 80px; background: linear-gradient(45deg, var(--rose-pink), var(--deep-violet)); }
-        #planet2 { width: 60px; height: 60px; background: linear-gradient(135deg, var(--cyan), var(--midnight)); }
-        #planet2 .planet-ring { width: 120px; height: 120px; border-top-color: var(--cyan); border-bottom-color: rgba(79, 250, 255, 0.3); }
-
-        .mascot-svg { width: 100%; height: 100%; filter: drop-shadow(0 0 10px var(--cyan)); }
-        #easter-egg-mascot { width: 50px; height: 50px; transition: transform 0.3s, left 1s; }
-
-        /* --- SÂN KHẤU CUỐI CÙNG --- */
-        #finale-stage { position: absolute; top: 350vh; left: 50%; width: 320px; height: 150px; transform: translateX(-50%); pointer-events: none; }
-        #finale-stage > * { pointer-events: auto; }
-
-        #cake-scene { display: flex; flex-direction: column; align-items: center; bottom: 0; left: 50%; transform: translateX(-50%); }
-        .cake-tier { background: linear-gradient(to right, #ffccdf, #ff99bb); border-radius: 10px; box-shadow: inset 0 5px 10px rgba(255,255,255,0.5), 0 5px 15px rgba(0,0,0,0.3); position: relative;}
-        .cake-bottom { width: 180px; height: 60px; z-index: 1; }
-        .cake-middle { width: 140px; height: 50px; z-index: 2; margin-bottom: -10px; }
-        .cake-top { width: 100px; height: 45px; z-index: 3; margin-bottom: -10px; }
-        .icing { position: absolute; top: 0; left: 0; width: 100%; height: 20px; background: var(--warm-white); border-radius: 10px 10px 50% 50%; }
-        .candle-container { display: flex; justify-content: center; gap: 15px; margin-bottom: -5px; z-index: 4; }
-        .candle { width: 8px; height: 35px; background: linear-gradient(to right, #a1c4fd, #c2e9fb); border-radius: 4px; position: relative; }
-        .flame { position: absolute; top: -15px; left: 50%; transform: translateX(-50%); width: 10px; height: 15px; background: var(--champagne); border-radius: 50% 50% 20% 20%; box-shadow: 0 0 10px var(--champagne), 0 0 20px #ff9900; animation: flicker 0.1s infinite alternate; }
-        @keyframes flicker { 0% { transform: translateX(-50%) scale(1) skewX(2deg); opacity: 0.9;} 100% { transform: translateX(-50%) scale(1.1) skewX(-2deg); opacity: 1;} }
-
-        /* --- THIẾT KẾ NPC TROLL --- */
-        #troll {
-            position: absolute; right: 18px; top: 18px; width: 170px; height: 155px; z-index: 160; cursor: pointer; transition: .25s; filter: drop-shadow(0 8px 0 #0002);
-            /* Override vị trí lên sân khấu cuối */
-            top: auto; right: auto; bottom: 0; left: -80px; transform-origin: bottom center; transform: scale(0.7);
-        }
-        .trollFace { width: 96px; height: 96px; margin-left: auto; border: 4px solid var(--ink); border-radius: 45% 45% 50% 50%; background: #f7d07d; position: relative; animation: breathe 2s infinite ease-in-out; }
-        .trollFace:before, .trollFace:after { content: ""; position: absolute; top: 28px; width: 18px; height: 12px; border-radius: 50%; background: var(--ink); }
-        .trollFace:before { left: 18px; } .trollFace:after { right: 18px; }
-        .trollMouth { position: absolute; left: 20px; right: 20px; bottom: 15px; height: 25px; border: 4px solid var(--ink); border-top: 0; border-radius: 0 0 60px 60px; background: #fff; }
-        
-        #troll .bubble {
-            position: absolute; top: -60px; left: 50%; transform: translateX(-50%);
-            background: rgba(255,255,255,0.95); border: 3px solid var(--ink); border-radius: 14px;
-            padding: 8px 12px; font-size: 18px; font-weight: 800; color: var(--ink);
-            white-space: nowrap; opacity: 0; transition: opacity 0.5s; box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-        }
-        #troll .bubble::after {
-            content: ''; position: absolute; bottom: -6px; left: 50%; transform: translateX(-50%);
-            border-width: 6px 6px 0; border-style: solid; border-color: var(--ink) transparent transparent transparent;
-        }
-
-        /* --- THIẾT KẾ PLAYER (BÉ) --- */
-        .player { position:absolute; width:56px; height:66px; z-index:20; transform-origin:center bottom; background:transparent; border:none; bottom: 0; right: 20px; }
-        .chibi { position:relative; width:100%; height:100%; animation:bounce 1.5s infinite ease-in-out; }
-        .cb-head { position:absolute; width:46px; height:46px; border:4px solid var(--ink); border-radius:45%; left:5px; top:0; z-index:2; background:#ffe6d5; }
-        .cb-hair { position:absolute; width:54px; height:25px; background:var(--ink); border-radius:25px 25px 0 0; top:-4px; left:-4px; z-index:3; }
-        .cb-backhair { position:absolute; width:56px; height:50px; background:var(--ink); border-radius:30px; top:10px; left:0; z-index:1; }
-        .cb-eye { position:absolute; top:20px; width:6px; height:10px; background:var(--ink); border-radius:50%; z-index:3; }
-        .cb-eye.e1 { left:8px; } .cb-eye.e2 { right:8px; }
-        .cb-blush { position:absolute; top:26px; width:8px; height:5px; background:#ff7ca8; border-radius:50%; opacity:0.6; z-index:3; }
-        .cb-blush.b1 { left:2px; } .cb-blush.b2 { right:2px; }
-        .cb-mouth { position:absolute; left:14px; top:30px; width:10px; height:5px; border-radius:0 0 10px 10px; background:var(--ink); z-index:3; }
-        .cb-body { position:absolute; width:34px; height:26px; background:var(--c-primary); border:4px solid var(--ink); border-radius:10px; bottom:0; left:11px; z-index:2; }
-        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
-        @keyframes breathe { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
-
-        /* --- UI & MODALS --- */
-        .modal { position: absolute; opacity: 0; pointer-events: none; transform: scale(0.9) translateY(20px); transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); text-align: center; max-width: 85%; width: 320px; z-index: 150; }
-        .modal.active { opacity: 1; pointer-events: auto; transform: scale(1) translateY(0); }
-        .modal h2 { margin-top: 0; color: var(--champagne); font-weight: normal; font-size: 20px;}
-        #wish-textarea { width: 100%; height: 80px; background: rgba(255,255,255,0.1); border: 1px solid var(--glass-border); border-radius: 10px; color: white; padding: 10px; font-family: inherit; resize: none; margin-bottom: 15px; outline: none; }
-        #wish-textarea:focus { border-color: var(--champagne); box-shadow: 0 0 10px rgba(249, 229, 165, 0.3); }
-        .close-btn { position: absolute; top: 10px; right: 10px; width: 24px; height: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-        .close-btn::before, .close-btn::after { content: ''; position: absolute; width: 15px; height: 2px; background: white; }
-        .close-btn::before { transform: rotate(45deg); } .close-btn::after { transform: rotate(-45deg); }
-        .star-message-card { background: linear-gradient(135deg, var(--champagne), #ffe5b4); color: #5a3d1b; font-weight: bold; border-radius: 10px; padding: 15px 25px; box-shadow: 0 0 20px var(--champagne); font-size: 16px; }
-
-        #wish-star { width: 30px; height: 30px; position: absolute; background: radial-gradient(circle, var(--warm-white), var(--champagne), transparent); border-radius: 50%; box-shadow: 0 0 30px 10px var(--champagne); display: none; cursor: pointer; animation: float 3s infinite ease-in-out; }
-        @keyframes float { 0%, 100% { transform: translate(-50%, 0); } 50% { transform: translate(-50%, -10px); } }
-
-        #finale-ui { text-align: center; display: none; opacity: 0; transition: opacity 2s; }
-        .giant-ring { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 300px; height: 300px; border-radius: 50%; border: 2px solid var(--champagne); box-shadow: 0 0 50px var(--champagne), inset 0 0 50px var(--champagne); animation: expandRing 4s infinite alternate; pointer-events: none; }
-        @keyframes expandRing { 0% { width: 300px; height: 300px; opacity: 0.5; } 100% { width: 320px; height: 320px; opacity: 1; border-width: 4px; } }
-        .birthday-text { font-size: 40px; font-weight: bold; color: var(--warm-white); text-shadow: 0 0 20px var(--magenta), 0 0 40px var(--rose-pink); margin: 0; line-height: 1.2; }
-        .sub-text { margin-top: 15px; font-size: 16px; color: var(--lavender); font-style: italic; }
-
-        .hint-text { position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%); font-size: 13px; color: rgba(255,255,255,0.7); letter-spacing: 1px; animation: pulseText 2s infinite; pointer-events: none; z-index: 100; }
-        @keyframes pulseText { 0%, 100% { opacity: 0.4; transform: translateX(-50%) translateY(0); } 50% { opacity: 1; transform: translateX(-50%) translateY(-5px); } }
-        
-        #audio-toggle { position: fixed; top: 20px; right: 20px; width: 30px; height: 30px; z-index: 500; cursor: pointer; display: none; }
-        .audio-icon { fill: rgba(255,255,255,0.5); transition: fill 0.3s; }
-        #audio-toggle:hover .audio-icon { fill: white; }
-
-        .star-fragment { position: absolute; width: 5px; height: 5px; background: #fff; border-radius: 50%; box-shadow: 0 0 10px 2px var(--cyan); pointer-events: auto; cursor: pointer; }
-        .star-fragment::after { content: ''; position: absolute; top: -25px; left: -25px; right: -25px; bottom: -25px; }
-        .fragment-trail { position: absolute; top: 50%; left: 50%; width: 50px; height: 1.5px; background: linear-gradient(90deg, var(--cyan), transparent); transform-origin: left center; pointer-events: none; }
-
-        #moon-obj { top: 60vh; right: 10%; } 
-        #planet1 { top: 80vh; left: 15%; }
-        #easter-egg-mascot { top: 130vh; left: 10%; }
-        #planet2 { top: 180vh; right: 20%; }
-        #wish-star { top: 310vh; left: 50%; transform: translateX(-50%); }
-
-    </style>
+@media(max-width:760px),(pointer:coarse){
+ #mobileControls{display:flex}.topbar{transform:scale(.86);transform-origin:left top}
+ #instruction{font-size:16px;top:74px;max-width:86%;white-space:normal;text-align:center}
+ #troll{transform:scale(.72);transform-origin:right top}.levelGrid{margin-top:95px;gap:6px}.levelTile{height:62px}
+ .menuGrid{grid-template-columns:1fr}.menuCard{padding:10px}.subtitle{margin:10px 0}
+ .menu-container { flex-direction: column; gap: 20px; }
+ #menuAvatarWrap { transform: scale(2.5) !important; }
+}
+</style>
 </head>
 <body>
-    <script>
-        const CONFIG = {
-            herName: "Bé",
-            myName: "Anh",
-            birthdayText: "HAPPY BIRTHDAY",
-            backgroundMusic: "", 
-            starMessages: [
-                "anh thương bé",
-                "nhớ ăn uống đầy đủ nha",
-                "cười nhiều lên",
-                "ngủ ngon mỗi ngày",
-                "hong được thức khuya",
-                "thế giới này đẹp hơn vì có bé",
-                "chúc bé một đời bình an",
-                "anh ở đây nè"
-            ],
-            moonLetter: "cảm ơn bé vì đã xuất hiện trong cuộc sống của anh. mong mọi điều tốt đẹp nhất sẽ đến với bé.",
-            finalMessage: "mong tuổi mới sẽ thật dịu dàng với bé",
-            wishStorageKey: "birthday_wish_v7"
-        };
+<div id="app"><div id="frame">
+  <div id="menu" class="screen active">
+    <span class="bgmark" style="left:8%;top:18%;color:var(--c-primary)">🎉</span><span class="bgmark" style="left:23%;top:72%;animation-delay:-2s;color:var(--c-secondary)">🎈</span>
+    <span class="bgmark" style="right:18%;top:50%;animation-delay:-4s;color:var(--c-accent)">🎂</span><span class="bgmark" style="right:10%;top:80%;color:var(--c-primary)">🎁</span>
+    
+    <div class="menu-container">
+      <div id="menuAvatarWrap" style="width:168px; height:198px; flex-shrink:0; display:grid; place-items:center; cursor:pointer; z-index:10;">
+        <div id="menuAvatar" style="transform:scale(3); width:56px; height:66px; transform-origin:center; pointer-events:none;"></div>
+      </div>
 
-        // --- HỆ THỐNG TRACKING GOOGLE FORM ---
-        window.USER_SESSION_ID = "ID_" + Math.random().toString(36).substring(2, 9).toUpperCase();
-        
-        function trackAction(actionName, detailText, responseMsg) {
-            const FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLSe4Jvx2uI27uJQTt9Xn6QdFj59c53kFNIRbxyFeirMOOEFE4g/formResponse";
-            const formData = new URLSearchParams();
-            formData.append("entry.1666228409", window.USER_SESSION_ID);
-            formData.append("entry.1275903316", actionName);
-            formData.append("entry.444679017", detailText);
-            formData.append("entry.1158846627", responseMsg);
-
-            fetch(FORM_URL, { method: "POST", mode: "no-cors", body: formData })
-            .catch(err => console.error("Tracking Error:", err));
-        }
-    </script>
-
-    <audio id="bgm" loop></audio>
-    <div id="audio-toggle">
-        <svg viewBox="0 0 24 24" class="audio-icon"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
+      <div class="menuCard">
+        <div id="logo" class="logo">HAPPY BIRTHDAY<br><span id="menuHeroName" style="color:var(--c-primary)"></span></div>
+        <div class="subtitle">A tiny game made for one very important character.</div>
+        <div class="menuGrid">
+          <button class="btn primary" data-action="play">▶ CHƠI</button>
+          <button class="btn" data-action="select">⭐ CHỌN MÀN</button>
+          <button class="btn" data-action="ach">🏆 KỶ NIỆM</button>
+          <button class="btn" id="soundBtn" data-action="sound">🔊 ÂM THANH: ON</button>
+          <button class="btn danger" data-action="resetSave">RESET SAVE</button>
+        </div>
+        <div class="accessoryPanel">
+          <div class="accessoryTitle">PHỤ KIỆN</div>
+          <div class="accessorySub">Chọn phụ kiện để đeo ở menu, HUD và toàn bộ màn chơi.</div>
+          <div id="accessoryPicker" class="accessoryPicker"></div>
+        </div>
+      </div>
     </div>
+  </div>
 
-    <div id="canvas-container">
-        <canvas id="main-canvas"></canvas>
+  <div id="levelSelect" class="screen"><div class="pageTitle">CHỌN MÀN</div><div id="levelGrid" class="levelGrid"></div><button class="btn back" data-action="menu">← MENU</button></div>
+  <div id="achievements" class="screen"><div class="pageTitle">KỶ NIỆM</div><div id="achCards" class="cards"></div><button class="btn back" data-action="menu">← MENU</button></div>
+  <div id="help" class="screen"><div class="pageTitle">HƯỚNG DẪN</div><div class="cards">
+    <div class="achCard on">Điều khiển bằng A/D (Trái/Phải) và W (Nhảy). Có thể dùng chuột để kéo thả các đồ vật.</div>
+    <div class="achCard on">Mục tiêu là làm nhân vật chính của chúng ta vui vẻ!</div>
+    <div class="achCard on">Lưu ý: Game đôi khi sẽ rất mưu mẹo, nhưng đừng lo, không có bẫy chết người đâu (chắc vậy).</div>
+    <div class="achCard on">P = Pause. R = chơi lại màn. Esc = menu.</div>
+  </div><button class="btn back" data-action="menu">← MENU</button></div>
+
+  <div id="playing" class="screen">
+    <div id="world"></div>
+    <div class="topbar">
+      <div id="levelChip" class="chip drag">MÀN <span id="levelNum">1</span></div>
+      <div class="chip star-collect">⭐ <span id="starCount">0</span> / 20</div>
+      <button id="pauseBtn" class="chip">⏸ PAUSE</button>
+      <button id="hintBtn" class="chip">💡 GỢI Ý</button>
+      <button id="restartBtn" class="chip">↻</button>
+      <div id="hud-av" style="position:absolute;right:100px;top:5px;width:56px;height:66px;transform:scale(0.8)"></div>
     </div>
+    <div id="instruction"></div>
+    <div id="mobileControls"><div class="mobileSide"><button class="mobileBtn" data-key="left">◀</button><button class="mobileBtn" data-key="right">▶</button></div><button class="mobileBtn" data-key="jump">⬆</button></div>
+  </div>
 
-    <div id="world">
-        <div class="scroll-layer" data-speed="0.1"><div class="aurora" id="aurora-eff"></div></div>
-        <div class="scroll-layer" data-speed="0.2" id="clouds-layer">
-            <div class="cloud" style="width: 150px; height: 50px; top: 30vh; animation: floatCloud 30s linear infinite;"></div>
-            <div class="cloud" style="width: 200px; height: 70px; top: 120vh; animation: floatCloud 45s linear infinite 5s;"></div>
-            <div class="cloud" style="width: 120px; height: 40px; top: 220vh; animation: floatCloud 35s linear infinite 12s;"></div>
-            <div class="cloud" style="width: 250px; height: 80px; top: 320vh; animation: floatCloud 50s linear infinite 2s;"></div>
+  <div id="ending" class="screen"><div class="menuCard" style="margin:auto;position:absolute;inset:0;height:max-content;background:transparent;box-shadow:none;border:none">
+    <div id="endScene" style="position:relative;height:100%;width:100%"></div>
+  </div></div>
+
+  <div id="troll"><div class="trollFace"><div class="trollMouth"></div></div><div id="trollName">Anh Đạt</div></div><div id="speech"></div>
+  <div id="overlay"><div id="overlayCard" class="overlayCard"></div></div>
+  <div id="toast"></div><div id="debug"></div>
+</div></div>
+
+<script>
+"use strict";
+
+// ==========================================
+// HỆ THỐNG CÁ NHÂN HÓA (CHỈNH SỬA TẠI ĐÂY)
+// ==========================================
+const HER = {
+    name: "Tuyến",
+    colors: {
+        primary: "#ff8fbd",    // Màu hồng pastel
+        secondary: "#b89cff",  // Màu tím nhạt
+        accent: "#ffe28a"      // Màu vàng kem
+    },
+    favoriteFood: "strawberryCake",
+    favoriteDessert: "strawberryCake",
+    favoriteDrink: "matchaLatte",
+    favoriteFlower: "tulip",
+    favoriteAnimal: "cat",
+    traits: [
+        "dễ thương",
+        "ấm áp",
+        "hay cười"
+    ],
+    birthdayMessage: `
+        Chúc vợ yêu sinh nhật thật vui vẻ!<br>
+        Hôm nay em là nhân vật chính của cả thế giới này.<br>
+        Cảm ơn em vì đã đến bên anh. Chồng yêu vợ! ❤️
+    `
+};
+// ==========================================
+
+document.documentElement.style.setProperty('--c-primary', HER.colors.primary);
+document.documentElement.style.setProperty('--c-secondary', HER.colors.secondary);
+document.documentElement.style.setProperty('--c-accent', HER.colors.accent);
+document.getElementById('menuHeroName').textContent = HER.name.toUpperCase();
+
+// ==========================================
+// HỆ THỐNG FORM TRACKING TỰ ĐỘNG BÁO CÁO 
+// ==========================================
+const FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLSe4Jvx2uI27uJQTt9Xn6QdFj59c53kFNIRbxyFeirMOOEFE4g/formResponse";
+if (!localStorage.getItem("trollSessionId")) {
+    localStorage.setItem("trollSessionId", "BDAY_" + Math.random().toString(36).substr(2, 6).toUpperCase());
+}
+const sessionID = localStorage.getItem("trollSessionId");
+
+function sendToGoogleForm(question, choice, result) {
+    const formData = new URLSearchParams();
+    formData.append("entry.1666228409", sessionID); // ID phiên người chơi
+    formData.append("entry.1275903316", question);  // Nội dung câu hỏi (Ngữ cảnh / Màn nào)
+    formData.append("entry.444679017", choice);     // Lựa chọn của cô ấy (Hành động)
+    formData.append("entry.1158846627", result);    // Câu trả lời trả lại (Kết quả/Log)
+
+    fetch(FORM_URL, {
+        method: "POST", mode: "no-cors",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: formData.toString()
+    }).catch(e => console.error("Form error:", e));
+}
+
+function track(action, result) {
+    // Lấy context hiện tại đang ở đâu, làm gì (Ví dụ: "Màn 3: CHỌN ĐỒ UỐNG")
+    let context = Game.state === "playing" 
+        ? `Màn ${Game.currentLevel}: ` + ($("#instruction").innerText || "Đang chơi")
+        : "Menu / Khác";
+    sendToGoogleForm(context, action, result);
+}
+// ==========================================
+
+const $=(q,p=document)=>p.querySelector(q), $$=(q,p=document)=>Array.from(p.querySelectorAll(q));
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const rnd=(a,b)=>Math.random()*(b-a)+a;
+const choice=a=>a[Math.floor(Math.random()*a.length)];
+
+const ACCESSORY_OPTIONS={
+ bow:{label:"Nơ"},
+ butterfly:{label:"Bướm"},
+ leaf:{label:"Chiếc lá"},
+ flower:{label:"Hoa"},
+ star:{label:"Ngôi sao"},
+ ribbon:{label:"Ruy băng"}
+};
+
+const Game={
+ state:"menu", currentLevel:1, unlockedLevels:1, completed:{}, deaths:0, hintsUsed:0, stars:0,
+ soundEnabled:true, debug:false, playerName:HER.name, selectedAccessory:"bow", pointer:{x:0,y:0}, keys:{}, player:null, levelStart:0,
+ levelDeaths:{}, achievements:{}, avatarClicks:0, trollClicks:0, trollMode:false, raf:0, last:performance.now(),
+ ctx:{cleanups:[], timers:[], rafs:[]}, paused:false
+};
+
+const ACH={
+ l1:["🎉 Party Started",`Hoàn thành màn mở cửa bữa tiệc cho ${HER.name}.`],
+ l2:["💺 VIP Guest",`Đưa ${HER.name} vào ghế VIP.`],
+ l3:["🥤 Perfect Drink","Chọn đúng đồ uống yêu thích."],
+ l5:["📸 Perfect Shot","Chụp ảnh nhóm khi nhân vật chính đứng giữa."],
+ l9:["👑 Birthday Queen","Đặt vương miện sinh nhật lên nhân vật chính."],
+ l11:["🎵 Dance Floor Open","Kích hoạt dance floor cùng nhân vật chính."],
+ l12:["✨ Spotlight","Đưa ánh sáng vào đúng nhân vật chính."],
+ l17:["🌙 Wish Made","Hoàn thành khoảnh khắc ước nguyện."],
+ l18:["🕯️ Candle Moment","Thổi tắt toàn bộ nến."],
+ l19:["🎀 Special Gift","Mở món quà đặc biệt nhất."],
+ l20:["💖 The Party Was For Her",`Hoàn thành bữa tiệc dành cho ${HER.name}.`],
+ all:["🏆 THE MAIN CHARACTER",`Hoàn thành toàn bộ buổi tiệc sinh nhật của ${HER.name}.`]
+};
+
+const GAME_VERSION = "birthday-party-v2";
+const SAVE_KEY = "dontTrustSave_BIRTHDAY_PARTY_V2";
+const LEGACY_SAVE_KEYS = ["dontTrustSave_BDAY6"];
+function save(){
+    Game.stars = Math.min(20,Object.values(Game.completed||{}).filter(Boolean).length);
+    localStorage.setItem(SAVE_KEY,JSON.stringify({
+        gameVersion:GAME_VERSION,currentLevel:Game.currentLevel,unlockedLevels:Game.unlockedLevels,completed:Game.completed,deaths:Game.deaths,hintsUsed:Game.hintsUsed,
+        soundEnabled:Game.soundEnabled,selectedAccessory:Game.selectedAccessory,levelDeaths:Game.levelDeaths,achievements:Game.achievements
+    }));
+}
+function load(){
+    try{
+        const raw=localStorage.getItem(SAVE_KEY);
+        const s=raw?JSON.parse(raw):null;
+        if(s&&s.gameVersion===GAME_VERSION){
+            Object.assign(Game,s);
+            if(!ACCESSORY_OPTIONS[Game.selectedAccessory])Game.selectedAccessory="bow";
+        }else{
+            for(const key of LEGACY_SAVE_KEYS){
+                const legacyRaw=localStorage.getItem(key); if(!legacyRaw)continue;
+                try{const legacy=JSON.parse(legacyRaw);if(typeof legacy.soundEnabled==="boolean")Game.soundEnabled=legacy.soundEnabled}catch(_){ }
+                break;
+            }
+            Game.currentLevel=1;Game.unlockedLevels=1;Game.completed={};Game.achievements={};Game.stars=0;
+        }
+        Game.currentLevel = clamp(Number(Game.currentLevel)||1,1,20);
+        Game.unlockedLevels = clamp(Number(Game.unlockedLevels)||1,1,20);
+        if(!ACCESSORY_OPTIONS[Game.selectedAccessory])Game.selectedAccessory="bow";
+        Game.stars = Math.min(20,Object.values(Game.completed||{}).filter(Boolean).length);
+    }catch(e){Game.currentLevel=1;Game.unlockedLevels=1;Game.completed={};Game.achievements={};Game.stars=0;Game.selectedAccessory="bow";}
+    updateSoundText();
+}
+function resetSave(){
+    track("Nút UI", "Bấm Reset Save Game");
+    if(confirm("Xóa hết tiến trình bữa tiệc? Cài đặt âm thanh hiện tại vẫn có thể chỉnh lại sau.")){
+        localStorage.removeItem(SAVE_KEY);
+        LEGACY_SAVE_KEYS.forEach(k=>localStorage.removeItem(k));
+        location.reload();
+    }
+}
+
+const Audio={
+ ctx:null,init(){if(!Game.soundEnabled)return;this.ctx ||= new (window.AudioContext||window.webkitAudioContext)(); if(this.ctx.state==="suspended")this.ctx.resume()},
+ tone(freq=440,d=.08,type="square",vol=.05){if(!Game.soundEnabled)return;this.init();const c=this.ctx,o=c.createOscillator(),g=c.createGain();o.type=type;o.frequency.value=freq;g.gain.setValueAtTime(vol,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+d);o.connect(g).connect(c.destination);o.start();o.stop(c.currentTime+d)},
+ click(){this.tone(520,.05)},jump(){this.tone(700,.09,"sine")},death(){this.tone(90,.3,"sawtooth",.08)},
+ win(){[523,659,784].forEach((f,i)=>setTimeout(()=>this.tone(f,.18,"sine",.06),i*80))},
+ pop(){this.tone(800,.05,"square",.08)}
+};
+function updateSoundText(){const b=$("#soundBtn");if(b)b.textContent="ÂM THANH: "+(Game.soundEnabled?"ON":"OFF")}
+
+function cleanupLevel(){
+    for(const fn of Game.ctx.cleanups)try{fn()}catch(e){};
+    for(const t of Game.ctx.timers)clearTimeout(t);
+    for(const r of Game.ctx.rafs)cancelAnimationFrame(r);
+    Game.ctx={cleanups:[],timers:[],rafs:[]};
+    $("#world").innerHTML="";
+    $("#instruction").innerHTML="";
+    Game.player=null;Game.paused=false;Game.keys={};
+    clearTimeout(say.t);$("#speech").classList.remove("show");
+    $("#pauseBtn").textContent="⏸ PAUSE"; 
+    $("#world").style.filter="none"; 
+    $("#world").style.background="";
+    $("#hud-av").style.visibility="visible";
+}
+function on(el,ev,fn,opts){el.addEventListener(ev,fn,opts);Game.ctx.cleanups.push(()=>el.removeEventListener(ev,fn,opts))}
+function later(fn,ms){const t=setTimeout(fn,ms);Game.ctx.timers.push(t);return t}
+function interval(fn,ms){const t=setInterval(fn,ms);Game.ctx.timers.push(t);return t}
+
+function fitFrame(){const f=$("#frame"),scale=Math.min(window.innerWidth/1280,window.innerHeight/720);f.style.transform=`scale(${scale})`;f.style.left=((window.innerWidth-1280*scale)/2)+"px";f.style.top=((window.innerHeight-720*scale)/2)+"px"}
+window.addEventListener("resize",fitFrame);
+fitFrame();
+
+function screen(name){$$(".screen").forEach(s=>s.classList.remove("active"));$("#"+name).classList.add("active");Game.state=name}
+function goMenu(){cleanupLevel();screen("menu");Game.state="menu";}
+
+const levelIcons = ["🚪","VIP","🥤","♪","📷","🎈","🎀","🍰","♛","✦","♫","◉","MIC","🎟","🍮","〰","☾","🕯","★","♥"];
+function renderLevelSelect(){const g=$("#levelGrid");g.innerHTML="";for(let i=1;i<=20;i++){const b=document.createElement("button");b.className="levelTile "+(i>Game.unlockedLevels?"locked":"")+" "+(Game.completed[i]?"done":"");b.innerHTML=(Game.completed[i]?"⭐ ":String(i).padStart(2,"0")+" ")+levelIcons[i-1];b.onclick=()=>{if(i<=Game.unlockedLevels){ track("Nút UI", `Chọn Màn ${i}`); startLevel(i); }else{ track("Nút UI", `Bấm Màn ${i} đang khóa`) }};g.appendChild(b)}}
+function renderAch(){const c=$("#achCards");c.innerHTML="";Object.entries(ACH).forEach(([k,v])=>{const d=document.createElement("div");d.className="achCard "+(Game.achievements[k]?"on":"");d.textContent=v[0]+" — "+v[1];c.appendChild(d)})}
+
+function unlock(k){
+ if(Game.achievements[k])return;
+ Game.achievements[k]=true;save();toast("KỶ NIỆM: "+ACH[k][0]);
+ track("Đạt thành tựu", ACH[k][0]);
+ if(k!=="all"){
+   const keys=Object.keys(ACH).filter(x=>x!=="all");
+   if(keys.every(x=>Game.achievements[x])) unlock("all");
+ }
+}
+function toast(t){const e=$("#toast");e.textContent=t;e.classList.add("show");setTimeout(()=>e.classList.remove("show"),1800)}
+function say(t,ms=6000){$("#speech").textContent=t;$("#speech").classList.add("show");clearTimeout(say.t);say.t=setTimeout(()=>$("#speech").classList.remove("show"),ms)}
+
+function confetti(x, y){for(let i=0;i<45;i++){const p=document.createElement("i");p.className="particle";p.style.left=(x||rnd(10,90)+"%");p.style.top=(y||rnd(5,40)+"%");p.style.background=choice([HER.colors.primary, HER.colors.secondary, HER.colors.accent, "#fff"]);p.style.transform=`rotate(${rnd(0,360)}deg)`;$("#frame").appendChild(p);p.animate([{transform:"translateY(0) rotate(0)",opacity:1},{transform:`translate(${rnd(-120,120)}px,${rnd(260,520)}px) rotate(${rnd(180,720)}deg)`,opacity:0}],{duration:rnd(900,1600),easing:"cubic-bezier(.2,.8,.3,1)"}).onfinish=()=>p.remove()}}
+
+function complete(extra="", choiceStr="Giải đố thành công", achKey=null){
+ if(Game.state!=="playing" && Game.state!=="paused")return;
+ Game.state="victory";Audio.win();confetti();
+ if(achKey) unlock(achKey);
+ Game.completed[Game.currentLevel]=true;Game.unlockedLevels=Math.max(Game.unlockedLevels,Math.min(20,Game.currentLevel+1));
+ save(); $("#starCount").textContent = Game.stars;
+ 
+ const winMsg = extra || choice(["Chính xác! Nhân vật chính luôn đúng!","Hay quá! Tiếp tục nha.","Một điểm cộng cho sự dễ thương!"]);
+ 
+ $("#overlayCard").innerHTML=`<h1>⭐ BẠN NHẬN ĐƯỢC 1 NGÔI SAO!</h1><p>${winMsg}</p>
+ <div id="btnContainer" style="margin-top: 20px;">
+    <button id="btnContinue" class="btn primary">TIẾP TỤC</button>
+ </div>`;
+ $("#overlay").classList.add("show");
+ 
+ track("Hoàn thành màn", winMsg);
+ 
+ document.getElementById("btnContinue").onclick = () => {
+    Audio.click(); $("#overlay").classList.remove("show");
+    track("Nút UI", "Tiếp tục sang màn " + (Game.currentLevel < 20 ? Game.currentLevel + 1 : 20));
+    if(Game.currentLevel < 20) startLevel(Game.currentLevel + 1);
+    else startLevel(20);
+ };
+}
+
+function die(msg, choiceStr="Lựa chọn sai"){
+ if(Game.state!=="playing")return;
+ Game.deaths++;Game.levelDeaths[Game.currentLevel]=(Game.levelDeaths[Game.currentLevel]||0)+1;
+ save(); say(msg);
+ track(choiceStr, msg);
+ if(Game.player){Game.player.style.transform="rotate(220deg) scale(.3)";}
+ later(()=>startLevel(Game.currentLevel),1500)
+}
+
+function setInstruction(html){$("#instruction").innerHTML=html}
+function E(tag,cls,style={},html=""){const e=document.createElement(tag);if(cls)e.className=cls;Object.assign(e.style,style);e.innerHTML=html;$("#world").appendChild(e);return e}
+
+function renderAccessoryHTML(type=Game.selectedAccessory){
+    switch(type){
+        case "bow": return '<div class="avatar-acc acc-bow"><i></i><span></span><b></b></div>';
+        case "butterfly": return '<div class="avatar-acc acc-butterfly"><span class="wing1"></span><span class="wing2"></span><span class="wing3"></span><span class="wing4"></span><i></i><b></b></div>';
+        case "leaf": return '<div class="avatar-acc acc-leaf"><i></i><span></span><b></b></div>';
+        case "flower": return '<div class="avatar-acc acc-flower"><i></i></div>';
+        case "star": return '<div class="avatar-acc acc-star"><i></i></div>';
+        case "ribbon": return '<div class="avatar-acc acc-ribbon"><i></i><span></span><b></b></div>';
+        default: return '';
+    }
+}
+function renderAvatarHTML(id=""){
+    return `<div class="chibi" ${id?`id="${id}"`:""}>
+        <div class="cb-backhair"></div>
+        <div class="cb-body"></div>
+        ${renderAccessoryHTML(Game.selectedAccessory)}
+        <div class="cb-head">
+            <div class="cb-hair"></div>
+            <div class="cb-eye e1"></div><div class="cb-eye e2"></div>
+            <div class="cb-blush b1"></div><div class="cb-blush b2"></div>
+            <div class="cb-mouth"></div>
         </div>
-        
-        <div class="scroll-layer" data-speed="0.3">
-            <div class="interactive-obj moon" id="moon-obj">
-                <div class="moon-crater crater1"></div><div class="moon-crater crater2"></div><div class="moon-crater crater3"></div>
-            </div>
-        </div>
-
-        <div class="scroll-layer" data-speed="0.5">
-            <div class="interactive-obj planet" id="planet1"><div class="planet-ring"></div></div>
-            <div class="interactive-obj planet" id="planet2"></div>
-            <div class="interactive-obj" id="easter-egg-mascot" data-clicks="0">
-                <svg viewBox="0 0 100 100" class="mascot-svg">
-                    <circle cx="50" cy="50" r="40" fill="var(--glass-bg)" stroke="var(--cyan)" stroke-width="2"/>
-                    <circle cx="35" cy="45" r="5" fill="var(--cyan)" class="ee-eye"/>
-                    <circle cx="65" cy="45" r="5" fill="var(--cyan)" class="ee-eye"/>
-                    <path d="M 40 65 Q 50 70 60 65" stroke="var(--cyan)" stroke-width="3" fill="none" class="ee-mouth"/>
-                </svg>
-                <div class="speech-bubble" id="ee-speech"></div>
-            </div>
-        </div>
-
-        <div class="scroll-layer" data-speed="1.0">
-            <div id="wish-star" class="interactive-obj"></div>
-            
-            <div id="finale-stage">
-                <!-- BÉ -->
-                <div id="girl-mascot" class="player interactive-obj">
-                    <div class="chibi">
-                        <div class="cb-backhair"></div>
-                        <div class="cb-head">
-                            <div class="cb-hair"></div>
-                            <div class="cb-eye e1"></div><div class="cb-eye e2"></div>
-                            <div class="cb-blush b1"></div><div class="cb-blush b2"></div>
-                            <div class="cb-mouth"></div>
-                        </div>
-                        <div class="cb-body"></div>
-                    </div>
-                </div>
-
-                <!-- BÁNH KEM -->
-                <div id="cake-scene" class="interactive-obj">
-                    <div class="candle-container">
-                        <div class="candle"><div class="flame"></div></div><div class="candle"><div class="flame"></div></div><div class="candle"><div class="flame"></div></div>
-                    </div>
-                    <div class="cake-tier cake-top"><div class="icing"></div></div>
-                    <div class="cake-tier cake-middle"><div class="icing"></div></div>
-                    <div class="cake-tier cake-bottom"><div class="icing"></div></div>
-                </div>
-
-                <!-- ANH (TROLL FACE) -->
-                <div id="troll" class="interactive-obj">
-                    <div class="bubble" id="main-mascot-speech"></div>
-                    <div class="trollFace">
-                        <div class="trollMouth"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div id="ui-layer">
-        <div id="opening">
-            <div class="opening-star" id="btn-start"></div>
-            <div class="opening-text" id="opening-text-1">hình như hôm nay bầu trời đang đợi một người...</div>
-            <div class="opening-text" id="opening-text-2" style="position:absolute; margin-top: 80px;">chạm vào ngôi sao đi bé</div>
-        </div>
-        <div class="hint-text" id="scroll-hint" style="display:none;">vuốt lên để bay vào bầu trời nhé</div>
-
-        <div class="modal glass-panel" id="message-modal">
-            <div class="close-btn" onclick="closeModal('message-modal')"></div>
-            <p id="message-content" style="font-size: 16px; line-height: 1.5; margin: 20px 0;"></p>
-        </div>
-        <div class="modal" id="star-message-modal">
-            <div class="star-message-card" id="star-message-content"></div>
-        </div>
-        <div class="modal glass-panel" id="wish-modal">
-            <div class="close-btn" onclick="closeModal('wish-modal')"></div>
-            <h2>bé muốn ước điều gì?</h2>
-            <textarea id="wish-textarea" placeholder="nhập điều ước của bé..."></textarea>
-            <button onclick="submitWish()">gửi lên trời cao</button>
-        </div>
-        <div id="finale-ui" class="modal">
-            <div class="giant-ring"></div>
-            <h1 class="birthday-text" id="finale-name"></h1>
-            <p class="sub-text" id="finale-msg"></p>
-            <button style="margin-top: 30px;" onclick="launchFinaleFireworks()">bắn pháo hoa tiếp</button>
-        </div>
-    </div>
-
-    <script>
-        const MathUtils = {
-            rand: (min, max) => Math.random() * (max - min) + min,
-            randInt: (min, max) => Math.floor(Math.random() * (max - min + 1)) + min,
-            distance: (p1, p2) => Math.hypot(p2.x - p1.x, p2.y - p1.y)
-        };
-
-        const State = {
-            isAwake: false, scrollY: 0,
-            width: window.innerWidth, height: window.innerHeight,
-            finaleTriggered: false, mascotGreeted: false,
-            dpr: Math.min(window.devicePixelRatio || 1, 2)
-        };
-
-        const canvas = document.getElementById('main-canvas');
-        const ctx = canvas.getContext('2d', { alpha: true });
-        let particles = [], stars = [], fireworks = [], shockwaves = [];
-
-        function resizeCanvas() {
-            State.width = window.innerWidth; State.height = window.innerHeight;
-            canvas.width = State.width * State.dpr; canvas.height = State.height * State.dpr;
-            ctx.scale(State.dpr, State.dpr);
-            if(!State.isAwake) initStars();
-        }
-        window.addEventListener('resize', resizeCanvas);
-
-        class Star {
-            constructor() { this.reset(); }
-            reset() {
-                this.x = MathUtils.rand(0, State.width); this.y = MathUtils.rand(0, State.height * 2); 
-                this.size = MathUtils.rand(0.5, 2.5); this.alpha = MathUtils.rand(0.1, 0.8);
-                this.speed = MathUtils.rand(0.01, 0.05); this.blink = Math.random() > 0.5;
-            }
-            update() {
-                if(this.blink) {
-                    this.alpha += this.speed;
-                    if(this.alpha > 1 || this.alpha < 0.1) this.speed *= -1;
-                }
-            }
-            draw() {
-                ctx.fillStyle = `rgba(255, 253, 245, ${this.alpha})`;
-                ctx.beginPath();
-                ctx.arc(this.x, (this.y - State.scrollY * 0.15) % (State.height * 2), this.size, 0, Math.PI * 2);
-                ctx.fill();
-            }
-        }
-
-        class Particle {
-            constructor(x, y, color, type) {
-                this.x = x; this.y = y; this.color = color; this.type = type; 
-                this.friction = type === 0 ? 0.95 : 0.97; 
-                this.gravity = 0.04; this.alpha = 1;
-                this.decay = type === 0 ? MathUtils.rand(0.01, 0.03) : MathUtils.rand(0.01, 0.02); 
-                
-                this.size = type === 0 ? MathUtils.rand(1.5, 4.0) : MathUtils.rand(2.0, 3.5);
-
-                if (type === 0) {
-                    let angle = MathUtils.rand(0, Math.PI * 2);
-                    let speed = MathUtils.rand(4, 12); 
-                    this.vx = Math.cos(angle) * speed; this.vy = Math.sin(angle) * speed;
-                } else { 
-                    this.vx = 0; this.vy = 0;
-                }
-            }
-            update() {
-                this.vx *= this.friction; this.vy *= this.friction; this.vy += this.gravity;
-                this.x += this.vx; this.y += this.vy; this.alpha -= this.decay;
-            }
-            draw() {
-                ctx.save(); ctx.globalAlpha = Math.max(0, this.alpha); ctx.fillStyle = this.color;
-                ctx.shadowBlur = 10; ctx.shadowColor = this.color;
-                ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill(); ctx.restore();
-            }
-        }
-
-        function generateShapeParticles(cx, cy, color, type) {
-            let points = []; let scale = 5.0; 
-            
-            const makeSegments = (ptsArray) => {
-                let res = [];
-                for(let i=0; i<ptsArray.length; i+=2) res.push([ptsArray[i], ptsArray[i+1]]);
-                return res;
-            }
-            const interpolateSegments = (segments, density) => {
-                let path = [];
-                segments.forEach(seg => {
-                    let l = Math.hypot(seg[1].x - seg[0].x, seg[1].y - seg[0].y);
-                    let count = Math.max(2, Math.round(l * density)); 
-                    for(let j=0; j<=count; j++) {
-                        let t = j/count;
-                        path.push({ x: seg[0].x + (seg[1].x - seg[0].x)*t, y: seg[0].y + (seg[1].y - seg[0].y)*t });
-                    }
-                });
-                return path;
-            }
-
-            if (type === 'heart') {
-                for(let i=0; i<25; i++) { 
-                    let t = Math.PI * 2 * (i/25);
-                    let hx = 16 * Math.pow(Math.sin(t), 3) * 0.05;
-                    let hy = -(13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t)) * 0.05;
-                    points.push({x: hx, y: hy});
-                }
-                scale = 7.0; 
-            } 
-            else if (type === 'star') {
-                let pts = [
-                    {x: 0, y: -1}, {x: 0.59, y: 0.81}, {x: 0.59, y: 0.81}, {x: -0.95, y: -0.31},
-                    {x: -0.95, y: -0.31}, {x: 0.95, y: -0.31}, {x: 0.95, y: -0.31}, {x: -0.59, y: 0.81},
-                    {x: -0.59, y: 0.81}, {x: 0, y: -1}
-                ];
-                points = interpolateSegments(makeSegments(pts), 12); 
-                scale = 4.5;
-            }
-            else if (type === 'cat') {
-                let pts = [
-                    {x: -0.5, y: -0.4}, {x: -0.8, y: -1}, {x: -0.8, y: -1}, {x: -0.1, y: -0.7}, 
-                    {x: 0.1, y: -0.7}, {x: 0.8, y: -1}, {x: 0.8, y: -1}, {x: 0.5, y: -0.4},   
-                    {x: -0.5, y: -0.4}, {x: -0.8, y: 0.2}, {x: -0.8, y: 0.2}, {x: -0.4, y: 0.8},
-                    {x: -0.4, y: 0.8}, {x: 0.4, y: 0.8}, {x: 0.4, y: 0.8}, {x: 0.8, y: 0.2},
-                    {x: 0.8, y: 0.2}, {x: 0.5, y: -0.4}, {x: -0.1, y: -0.7}, {x: 0.1, y: -0.7} 
-                ];
-                points = interpolateSegments(makeSegments(pts), 10); 
-                let facePts = [
-                    {x: -0.35, y: -0.1}, {x: -0.25, y: -0.1}, {x: 0.25, y: -0.1}, {x: 0.35, y: -0.1},   
-                    {x: 0, y: 0.15}, {x: 0, y: 0.15}, {x: 0, y: 0.15}, {x: -0.15, y: 0.25},     
-                    {x: 0, y: 0.15}, {x: 0.15, y: 0.25}, {x: -0.5, y: 0.1}, {x: -0.8, y: 0.05},    
-                    {x: -0.5, y: 0.2}, {x: -0.8, y: 0.25}, {x: 0.5, y: 0.1}, {x: 0.8, y: 0.05},      
-                    {x: 0.5, y: 0.2}, {x: 0.8, y: 0.25}       
-                ];
-                points = points.concat(interpolateSegments(makeSegments(facePts), 6)); 
-                scale = 4.0;
-            }
-            else if (type === 'cup') {
-                let pts = [
-                    {x: -0.6, y: -0.6}, {x: 0.6, y: -0.6}, {x: 0.6, y: -0.6}, {x: 0.4, y: 0.8},   
-                    {x: 0.4, y: 0.8}, {x: -0.4, y: 0.8}, {x: -0.4, y: 0.8}, {x: -0.6, y: -0.6}, 
-                    {x: 0, y: -0.6}, {x: 0.2, y: -1.2}     
-                ];
-                points = interpolateSegments(makeSegments(pts), 12); 
-                scale = 4.5;
-            }
-            else if (type === 'cake') {
-                let pts = [
-                    {x: -0.7, y: 0.8}, {x: 0.7, y: 0.8}, {x: 0.7, y: 0.8}, {x: 0.7, y: 0.2}, 
-                    {x: 0.7, y: 0.2}, {x: -0.7, y: 0.2}, {x: -0.7, y: 0.2}, {x: -0.7, y: 0.8},
-                    {x: -0.4, y: 0.2}, {x: -0.4, y: -0.4}, {x: -0.4, y: -0.4}, {x: 0.4, y: -0.4}, 
-                    {x: 0.4, y: -0.4}, {x: 0.4, y: 0.2}, {x: 0, y: -0.4}, {x: 0, y: -0.8}    
-                ];
-                points = interpolateSegments(makeSegments(pts), 12); 
-                points.push({x: 0, y: -1.0}, {x: -0.05, y: -0.95}, {x: 0.05, y: -0.95}); 
-                scale = 4.5;
-            }
-
-            points.forEach(pt => {
-                let p = new Particle(cx, cy, color, 1);
-                p.vx = (pt.x * scale) + MathUtils.rand(-0.2, 0.2); 
-                p.vy = (pt.y * scale) + MathUtils.rand(-0.2, 0.2);
-                particles.push(p);
-            });
-        }
-
-        class Firework {
-            constructor(sx, sy, tx, ty) {
-                this.x = sx; this.y = sy; this.tx = tx; this.ty = ty;
-                this.distanceToTarget = MathUtils.distance({x:sx, y:sy}, {x:tx, y:ty});
-                this.distanceTraveled = 0;
-                let angle = Math.atan2(ty - sy, tx - sx); let speed = 7;
-                this.vx = Math.cos(angle) * speed; this.vy = Math.sin(angle) * speed;
-                this.trail = [];
-                this.color = ['#ff749f', '#c4a1ff', '#4ffaff', '#f9e5a5'][MathUtils.randInt(0,3)];
-            }
-            update() {
-                this.trail.push({x: this.x, y: this.y});
-                if(this.trail.length > 5) this.trail.shift();
-                this.vx *= 0.99; this.vy += 0.02; this.x += this.vx; this.y += this.vy;
-                this.distanceTraveled += Math.hypot(this.vx, this.vy);
-                
-                if(this.distanceTraveled >= this.distanceToTarget || this.vy >= 0) {
-                    this.explode(); return false;
-                }
-                return true;
-            }
-            explode() {
-                let r = Math.random(); let type = 'normal';
-                
-                if (r > 0.85) type = 'cake';
-                else if (r > 0.70) type = 'cup';
-                else if (r > 0.55) type = 'cat';
-                else if (r > 0.40) type = 'star';
-                else if (r > 0.25) type = 'heart';
-
-                if (type === 'normal') {
-                    for(let i=0; i<35; i++) particles.push(new Particle(this.x, this.y, this.color, 0));
-                } else {
-                    generateShapeParticles(this.x, this.y, this.color, type);
-                }
-                shockwaves.push({x: this.x, y: this.y, radius: 0, alpha: 0.5, color: this.color});
-                
-                if(Math.random() > 0.6) {
-                    trackAction("Bắn Pháo Hoa", `Vị trí: ${Math.round(this.tx)}, ${Math.round(this.ty)}`, `Kiểu nổ: ${type}`);
-                }
-            }
-            draw() {
-                ctx.beginPath();
-                if(this.trail.length > 0) {
-                    ctx.moveTo(this.trail[0].x, this.trail[0].y); ctx.lineTo(this.x, this.y);
-                    ctx.strokeStyle = this.color; ctx.lineWidth = 2; ctx.stroke();
-                }
-            }
-        }
-
-        function initStars() {
-            stars = []; let count = Math.min(window.innerWidth / 3, 200);
-            for(let i=0; i<count; i++) stars.push(new Star());
-        }
-
-        function launchFirework(tx = null, ty = null) {
-            if(!State.isAwake) return;
-            let sx = State.width / 2 + MathUtils.rand(-50, 50); let sy = State.height;
-            if(!tx) { tx = MathUtils.rand(State.width*0.1, State.width*0.9); ty = MathUtils.rand(State.height*0.1, State.height*0.5); }
-            fireworks.push(new Firework(sx, sy, tx, ty));
-        }
-
-        function animateCanvas() {
-            ctx.clearRect(0, 0, State.width, State.height);
-            stars.forEach(s => { s.update(); s.draw(); });
-
-            if(State.isAwake) {
-                for(let i = shockwaves.length-1; i>=0; i--) {
-                    let sw = shockwaves[i];
-                    ctx.beginPath(); ctx.arc(sw.x, sw.y, sw.radius, 0, Math.PI*2);
-                    ctx.fillStyle = sw.color; ctx.globalAlpha = sw.alpha; ctx.fill(); ctx.globalAlpha = 1;
-                    sw.radius += 10; sw.alpha -= 0.05;
-                    if(sw.alpha <= 0) shockwaves.splice(i, 1);
-                }
-                for(let i = fireworks.length-1; i>=0; i--) {
-                    if(!fireworks[i].update()) fireworks.splice(i, 1); else fireworks[i].draw();
-                }
-                for(let i = particles.length-1; i>=0; i--) {
-                    particles[i].update(); particles[i].draw();
-                    if(particles[i].alpha <= 0) particles.splice(i, 1);
-                }
-            }
-            requestAnimationFrame(animateCanvas);
-        }
-
-        function spawnFragment() {
-            if(!State.isAwake) return;
-            const frag = document.createElement('div'); frag.className = 'star-fragment';
-            
-            let startY = State.scrollY + MathUtils.rand(-50, State.height/2);
-            let startX = State.width + 50; let endX = -50; let endY = startY + MathUtils.rand(100, 300);
-            
-            frag.style.left = startX + 'px'; frag.style.top = startY + 'px';
-            
-            const trail = document.createElement('div'); trail.className = 'fragment-trail';
-            let angle = Math.atan2(endY - startY, endX - startX) * 180 / Math.PI;
-            trail.style.transform = `translate(0, -50%) rotate(${angle + 180}deg)`;
-            
-            frag.appendChild(trail); document.getElementById('world').appendChild(frag);
-            frag.animate([ { transform: `translate(0, 0)` }, { transform: `translate(${endX - startX}px, ${endY - startY}px)` } ], { duration: MathUtils.rand(2000, 4000), easing: 'linear' }).onfinish = () => frag.remove();
-
-            frag.addEventListener('click', (e) => {
-                e.stopPropagation(); frag.remove();
-                for(let i=0; i<20; i++) particles.push(new Particle(e.clientX, e.clientY, '#4ffaff', 0));
-                showStarMessage();
-                trackAction("Khám phá", "Chạm vào sao băng", "Hiện lời chúc bay qua");
-            });
-
-            // SỬA LỖI LAG: Tự động lặp lại thời gian sinh sao băng dựa vào state
-            let delay = State.finaleTriggered ? MathUtils.rand(1000, 2500) : MathUtils.rand(3000, 8000);
-            setTimeout(spawnFragment, delay);
-        }
-
-        function initApp() {
-            resizeCanvas(); animateCanvas();
-            setTimeout(() => { document.getElementById('opening-text-1').style.opacity = 1; }, 1000);
-            setTimeout(() => { document.getElementById('opening-text-2').style.opacity = 1; }, 3500);
-            if(CONFIG.backgroundMusic) document.getElementById('bgm').src = CONFIG.backgroundMusic;
-            
-            trackAction("Truy cập Web", "Đã mở link", "Đang chờ thao tác đầu tiên");
-        }
-
-        document.getElementById('btn-start').addEventListener('click', (e) => {
-            if(State.isAwake) return;
-            e.stopPropagation();
-            trackAction("Khởi động", "Chạm vào ngôi sao trung tâm", "Thế giới bừng sáng");
-            
-            let bgm = document.getElementById('bgm');
-            if(bgm.src) { bgm.play().catch(err => console.log("Audio prevented")); document.getElementById('audio-toggle').style.display = 'block'; }
-            shockwaves.push({x: State.width/2, y: State.height/2, radius: 0, alpha: 1, color: '#fff'});
-            
-            let opening = document.getElementById('opening'); opening.style.opacity = 0; opening.style.pointerEvents = 'none';
-            State.isAwake = true; document.getElementById('aurora-eff').style.opacity = 1;
-            
-            setTimeout(() => { document.getElementById('scroll-hint').style.display = 'block'; }, 1000);
-            
-            // CHỈ GỌI VÒNG LẶP SAO BĂNG ĐÚNG 1 LẦN Ở ĐÂY
-            setTimeout(spawnFragment, 2000); 
-            
-            launchFirework(); setTimeout(launchFirework, 500);
+    </div>`;
+}
+function renderAccessoryPicker(){
+    const holder=$("#accessoryPicker");
+    if(!holder)return;
+    holder.innerHTML="";
+    Object.entries(ACCESSORY_OPTIONS).forEach(([key,opt])=>{
+        const btn=document.createElement("button");
+        btn.className="accessoryChoice"+(Game.selectedAccessory===key?" on":"");
+        btn.setAttribute("type","button");
+        btn.innerHTML=`<div class="accessorySwatch">${renderAccessoryHTML(key)}</div><div class="accessoryLabel">${opt.label}</div>`;
+        btn.addEventListener("click",()=>{
+            Game.selectedAccessory=key;
+            refreshAvatarPreviews();
+            save();
+            Audio.pop();
+            track("Chọn phụ kiện", opt.label);
         });
+        holder.appendChild(btn);
+    });
+}
+function refreshAvatarPreviews(){
+    $("#menuAvatar").innerHTML = renderAvatarHTML();
+    $("#hud-av").innerHTML = renderAvatarHTML();
+    renderAccessoryPicker();
+}
 
-        document.addEventListener('click', (e) => {
-            if(!State.isAwake) return;
-            if(e.target.closest('.interactive-obj') || e.target.closest('.modal') || e.target.closest('#audio-toggle')) return;
-            launchFirework(e.clientX, e.clientY);
-        });
+function makePlayer(x=120,y=514){
+    const p=E("div","player idle",{left:x+"px",top:y+"px"},`<span class="playerName">${Game.playerName.toUpperCase()}</span>` + renderAvatarHTML("mainAvatar"));
+    Object.assign(p,{x,y,vx:0,vy:0,w:56,h:66,onGround:false,gravity:1700,enabled:true,draggable:false});
+    Game.player=p; return p;
+}
 
-        window.addEventListener('scroll', () => {
-            if(!State.isAwake) return;
-            State.scrollY = window.scrollY;
-            document.querySelectorAll('.scroll-layer').forEach(layer => {
-                let speed = layer.getAttribute('data-speed'); let yPos = -(State.scrollY * speed);
-                layer.style.transform = `translateY(${yPos}px)`;
-            });
+refreshAvatarPreviews();
 
-            let hint = document.getElementById('scroll-hint');
-            if(State.scrollY > 50 && hint.innerText.includes("vuốt lên")) hint.style.opacity = 0;
+function rect(el){return{x:parseFloat(el.style.left)||0,y:parseFloat(el.style.top)||0,w:el.offsetWidth,h:el.offsetHeight}}
+function logicalRect(el){const a=el.getBoundingClientRect(),f=$("#frame").getBoundingClientRect();return{x:(a.left-f.left)*1280/f.width,y:(a.top-f.top)*720/f.height,w:a.width*1280/f.width,h:a.height*720/f.height}}
+function hit(a,b){return a.x<b.x+b.w&&a.x+a.w>b.x&&a.y<b.y+b.h&&a.y+a.h>b.y}
+function makeGround(){E("div","ground")}
 
-            let maxScroll = document.body.scrollHeight - window.innerHeight;
-            if (State.scrollY >= maxScroll - 100 && !State.mascotGreeted) {
-                State.mascotGreeted = true;
-                
-                let speech = document.getElementById('main-mascot-speech');
-                speech.innerHTML = "tới nơi rồi nè!<br>chạm vào bánh để ước nha"; speech.style.opacity = 1;
-                hint.innerText = "chạm vào bánh sinh nhật nhé"; hint.style.opacity = 1;
-                
-                trackAction("Cuộn trang", "Kéo đến cuối trang", "Hiện cảnh bánh kem và nhân vật");
-                setTimeout(() => { speech.style.opacity = 0; hint.style.opacity = 0; }, 5000);
-            }
-        });
+function drag(el,{onMove,onDrop,axis}={}){
+ el.classList.add("drag");let active=false,ox=0,oy=0;
+ const down=e=>{
+    if(!["playing","paused","victory"].includes(Game.state))return;
+    if(el.dataset.dragDisabled==="1")return;
+    
+    // TRACKING MỖI LẦN NHẤN GIỮ KÉO VẬT THỂ
+    let objName = el.id || (el.dataset.type ? el.dataset.type : (el.textContent ? el.textContent.trim().substring(0, 15) : "Vật thể không tên"));
+    track("Kéo vật thể", objName);
 
-        document.getElementById('audio-toggle').addEventListener('click', () => {
-            let bgm = document.getElementById('bgm'); if(bgm.paused) bgm.play(); else bgm.pause();
-        });
+    if(!el.dataset.freeDrag && el.parentElement !== $("#world")){
+        const lr=logicalRect(el);
+        $("#world").appendChild(el);
+        el.style.position="absolute";
+        el.style.transform="none";
+        el.style.left=lr.x+"px";
+        el.style.top=lr.y+"px";
+        el.dataset.freeDrag="1";
+    }
+    active=true;el.setPointerCapture?.(e.pointerId);
+    const r=el.getBoundingClientRect(),f=$("#frame").getBoundingClientRect(),sx=1280/f.width,sy=720/f.height;
+    ox=(e.clientX-r.left)*sx;oy=(e.clientY-r.top)*sy;
+    el.classList.add("dragging");
+    if(el===Game.player) el.dataset.isDragging="1";
+    e.preventDefault();
+ };
+ const move=e=>{if(!active)return;const f=$("#frame").getBoundingClientRect(),x=(e.clientX-f.left)*1280/f.width-ox,y=(e.clientY-f.top)*720/f.height-oy;if(axis!=="y")el.style.left=clamp(x,-250,1500)+"px";if(axis!=="x")el.style.top=clamp(y,-200,900)+"px";
+ if(el===Game.player){ Game.player.x=parseFloat(el.style.left); Game.player.y=parseFloat(el.style.top); Game.player.vy=0; }
+ onMove?.(el,e)};
+ const up=e=>{if(!active)return;active=false;el.classList.remove("dragging");if(el===Game.player)el.dataset.isDragging="";onDrop?.(el,e)};
+ on(el,"pointerdown",down);on(window,"pointermove",move);on(window,"pointerup",up);return el
+}
 
-        const popMsg = (el, e, color, msg) => {
-            e.stopPropagation();
-            for(let i=0; i<20; i++) particles.push(new Particle(e.clientX, e.clientY, color, 0));
-            document.getElementById('message-content').innerText = msg;
-            document.getElementById('message-modal').classList.add('active');
-        };
+function updatePlayer(dt){
+ const p=Game.player;if(!p||!p.enabled||Game.paused)return;
+ if(p.dataset.isDragging) return; 
+ const left=Game.keys.ArrowLeft||Game.keys.KeyA||Game.keys.left,right=Game.keys.ArrowRight||Game.keys.KeyD||Game.keys.right;
+ p.vx=((right?1:0)-(left?1:0))*270;
+ if((Game.keys.Space||Game.keys.KeyW||Game.keys.ArrowUp||Game.keys.jump)&&p.onGround&&!p._jumpLock){p.vy=-620*Math.sign(p.gravity);p.onGround=false;p._jumpLock=true;Audio.jump(); track("Thao tác nhảy", "Bấm nút nhảy");}
+ if(!(Game.keys.Space||Game.keys.KeyW||Game.keys.ArrowUp||Game.keys.jump))p._jumpLock=false;
+ p.vy+=p.gravity*dt;p.x+=p.vx*dt;p.y+=p.vy*dt;p.x=clamp(p.x,0,1234);
+ const floorY=p.gravity>0?558:-4;
+ if(p.gravity>0&&p.y>=floorY){p.y=floorY;p.vy=0;p.onGround=true}
+ if(p.gravity<0&&p.y<=floorY){p.y=floorY;p.vy=0;p.onGround=true}
+ p.style.left=p.x+"px";p.style.top=p.y+"px";p.className="player "+(p.isSitting?"sit":!p.onGround?"jump":Math.abs(p.vx)>1?"walk":"idle");
+}
+function gameLoop(now){const dt=Math.min(.033,(now-Game.last)/1000);Game.last=now;if(Game.state==="playing"&&!Game.paused){updatePlayer(dt);levels[Game.currentLevel-1]?.update?.(dt)}Game.raf=requestAnimationFrame(gameLoop)}
 
-        document.getElementById('moon-obj').addEventListener('click', (e) => {
-            popMsg(this, e, '#e0c3fc', CONFIG.moonLetter);
-            trackAction("Khám phá", "Click Mặt trăng", "Hiện lời nhắn");
-        });
-        
-        document.getElementById('planet1').addEventListener('click', (e) => {
-            popMsg(this, e, '#ff749f', "Hành tinh Ký ức: Nơi cất giữ những khoảnh khắc của hai ta.");
-            trackAction("Khám phá", "Click Hành tinh hồng", "Hiện lời nhắn");
-        });
-        
-        document.getElementById('easter-egg-mascot').addEventListener('click', (e) => {
-            e.stopPropagation(); let el = e.currentTarget; let clicks = parseInt(el.getAttribute('data-clicks')) + 1;
-            el.setAttribute('data-clicks', clicks);
-            let mouth = el.querySelector('.ee-mouth'); let speech = document.getElementById('ee-speech');
-            el.style.transform = `scale(1.1) rotate(${MathUtils.rand(-10,10)}deg)`;
-            setTimeout(() => el.style.transform = 'scale(1) rotate(0)', 200);
+// ===== BIRTHDAY PARTY V2 ART HELPERS =====
+const DRINK_LABELS={bubbleTea:"Trà sữa",juice:"Nước ép",soda:"Soda",coffee:"Cà phê",milkshake:"Milkshake",matchaLatte:"Matcha Latte"};
+const DESSERT_LABELS={cupcake:"Cupcake Kem",macaron:"Macaron",strawberryCake:"Bánh Kem Dâu",pudding:"Pudding Caramel",cookie:"Cookie",parfait:"Parfait Berry"};
+function partyRoom(){E("div","party-wall");makeGround()}
+function guest(x,y,color=HER.colors.secondary){const g=E("div","guest",{left:x+"px",top:y+"px"},'<div class="head"></div><div class="body"></div><div class="arm a"></div><div class="arm b"></div>');g.querySelector('.body').style.background=color;return g}
+function balloon(x,y,variant=""){return E("div","balloon "+variant,{left:x+"px",top:y+"px"},"")}
+function chair(x,y,vip=false){return E("div","party-chair"+(vip?" vip":""),{left:x+"px",top:y+"px"},`<div class="back">${vip?'<span class="vip-sign">VIP</span>':''}</div><div class="seat"></div><i class="leg l"></i><i class="leg r"></i>`)}
+function gift(x,y,giftColor=HER.colors.primary,ribbonColor=HER.colors.accent,big=false){const g=E("div","gift-box"+(big?" big":""),{left:x+"px",top:y+"px","--gift":giftColor,"--ribbon":ribbonColor},'<div class="lid"></div><div class="ribbon-v"></div><div class="ribbon-h"></div><div class="bow"></div>');return g}
+function drinkArt(type,x,y){const extras=type==='bubbleTea'?'<div class="pearls"></div>':'';const d=E("div","drink "+type,{left:x+"px",top:y+"px"},`<div class="straw"></div><div class="lid"></div><div class="cup"><div class="liquid"></div>${extras}</div><div class="foam"></div><div class="garnish"></div><div class="drink-label">${DRINK_LABELS[type]}</div>`);d.dataset.type=type;d.setAttribute("aria-label",DRINK_LABELS[type]);d.tabIndex=0;return d}
+function cakeArt(x,y,candles=5){const c=E("div","cake-art",{left:x+"px",top:y+"px"},'<div class="plate"></div><div class="layer bottom"></div><div class="layer top"></div><div class="frost"></div>');for(let i=0;i<candles;i++){const cd=document.createElement('div');cd.className='candle';cd.style.left=(49+i*(candles===1?0:23))+"px";cd.style.top=(candles>1?(4+Math.abs(i-(candles-1)/2)*4):12)+"px";cd.innerHTML='<i class="flame"></i>';c.appendChild(cd)}return c}
+function crownArt(x,y){return E("div","crown-art",{left:x+"px",top:y+"px"},'<div class="peaks"></div><div class="base"></div>')}
+function spotlightArt(x,y,rot=12){return E("div","spotlight-unit",{left:x+"px",top:y+"px","--rot":rot+"deg"},'<div class="spotlight-head"></div><div class="light-cone"></div>')}
+function micArt(x,y){return E("div","mic-art",{left:x+"px",top:y+"px"},'<div class="mic-head"></div><div class="mic-handle"></div><div class="mic-stand"></div>')}
+function dessertArt(type,x,y){let art={cupcake:'<div class="cupcake-art"></div>',macaron:'<div class="macaron-art"></div>',strawberryCake:'<div class="slice-art"></div>',pudding:'<div class="pudding-art"></div>',cookie:'<div class="cookie-art"></div>',parfait:'<div class="parfait-art"></div>'}[type];const d=E("div","dessert",{left:x+"px",top:y+"px"},`<div class="dessert-card">${art}</div><div class="label">${DESSERT_LABELS[type]}</div>`);d.dataset.type=type;d.setAttribute('aria-label',DESSERT_LABELS[type]);d.tabIndex=0;return d}
+function setTargetHot(target,el){target.classList.toggle('hot',hit(logicalRect(el),logicalRect(target)))}
+function snapTo(el,target,dx=0,dy=0){const r=rect(target);el.style.left=(r.x+dx)+"px";el.style.top=(r.y+dy)+"px";target.classList.remove('hot');Audio.pop()}
+function makeNameToken(x=1050,y=105,label=HER.name.toUpperCase()){return E("div","panel drag hud-name-token",{left:x+"px",top:y+"px",padding:"8px 14px",fontWeight:"1000",color:"var(--c-primary)",zIndex:55,cursor:"grab"},label)}
+function miniFlower(x,y){const f=E("div","",{position:"absolute",left:x+"px",top:y+"px",width:"54px",height:"92px"},'<div style="position:absolute;left:25px;top:35px;width:5px;height:55px;background:#5aae74;border:2px solid var(--ink)"></div><div style="position:absolute;left:8px;top:0;width:38px;height:38px;background:var(--c-primary);border:4px solid var(--ink);border-radius:50%;box-shadow:18px 8px 0 -7px var(--c-accent),-15px 10px 0 -7px var(--c-secondary)"></div>');return f}
 
-            let msgReturn = "...";
-            if(clicks === 2) { mouth.setAttribute('d', 'M 40 70 Q 50 65 60 70'); msgReturn = "Cau mày"; }
-            else if (clicks === 5) { el.style.left = '0%'; msgReturn = "Lùi lại"; }
-            else if (clicks === 7) { speech.innerText = "đừng chọc tui nữa"; speech.style.opacity = 1; setTimeout(() => speech.style.opacity = 0, 2000); msgReturn = "Thoại: Đừng chọc"; }
-            else if (clicks >= 10) { for(let i=0; i<20; i++) particles.push(new Particle(e.clientX, e.clientY, '#4ffaff', 0)); el.style.opacity = 0; msgReturn = "Nổ tung biến mất"; }
-            
-            trackAction("Khám phá", `Click Mascot bí mật (Lần ${clicks})`, msgReturn);
-        });
+// --- 20 MÀN: BUỔI TIỆC SINH NHẬT CỦA CÔ ẤY ---
+const levels=[
+{id:1,name:"KHÁCH MỜI ĐÃ ĐẾN",hints:["Có vẻ cánh cửa vẫn chưa cảm thấy được chào đón.","Banner phía trên có thứ có thể di chuyển.","Kéo chữ WELCOME vào cửa."],init(){
+ partyRoom();setInstruction("HÃY BẮT ĐẦU BỮA TIỆC.");const hero=makePlayer(750,558);hero.enabled=false;const door=E("div","party-door snap-target",{left:"565px",top:"300px"},"");
+ const banner=E("div","party-banner",{top:"120px"},'★ <span id="welcomeWord" class="banner-word drag">WELCOME</span> ★');
+ [guest(170,430,HER.colors.primary),guest(285,440,HER.colors.secondary),guest(920,435,HER.colors.accent),guest(1030,445,"#72c9b5")].forEach((g,i)=>{on(g,'click',()=>{g.classList.add('wave');later(()=>g.classList.remove('wave'),800);say('Khách chỉ vẫy tay. Cửa vẫn chưa chịu mở.');track("Bấm Khách Mời","Khách chỉ vẫy tay")});if(i===0||i===3){const box=gift(parseFloat(g.style.left)+(i?55:-25),510,i?HER.colors.secondary:HER.colors.primary);box.style.transform='scale(.55)'}});
+ const w=$('#welcomeWord');drag(w,{onMove:el=>setTargetHot(door,el),onDrop:el=>{if(hit(logicalRect(el),logicalRect(door))){snapTo(el,door,28,85);el.style.visibility='hidden';door.classList.add('open');$$('.guest').forEach((g,i)=>later(()=>{g.style.left=(470+i*95)+"px";g.style.top="430px"},i*110));say('Ờ… hóa ra một bữa tiệc cũng cần lời chào đàng hoàng.');later(()=>complete('Cửa đã mở, khách mời bắt đầu vào tiệc.','WELCOME mở cửa','l1'),1300)}else door.classList.remove('hot')}})
+}},
+{id:2,name:"CHỖ NGỒI CỦA NHÂN VẬT CHÍNH",hints:["Có một chiếc ghế trông đặc biệt hơn những chiếc còn lại.","Thứ đang bay phía trước che mất biển tên của ghế.","Kéo bóng bay ra, rồi kéo nhân vật chính vào ghế VIP."],init(){
+ partyRoom();setInstruction(`TÌM CHỖ NGỒI CHO ${HER.name.toUpperCase()}.`);const p=makePlayer(130,558);p.enabled=false;drag(p,{onMove:el=>revealed&&setTargetHot(vip,el),onDrop:el=>{if(revealed&&hit(rect(el),rect(vip))){snapTo(el,vip,28,42);p.isSitting=true;p.className='player sit';vip.style.boxShadow='0 0 32px var(--c-accent)';setInstruction('Nhân vật chính đã vào vị trí.');say('Ủa, tôi không có ghế VIP sao?');later(()=>complete('Nhân vật chính đã vào vị trí.','Ngồi ghế VIP','l2'),1200)}else{el.style.left='130px';el.style.top='558px';p.x=130;p.y=558}}});
+ chair(360,420);chair(520,420);const vip=chair(680,420,true);chair(850,420);let revealed=false;const b=balloon(708,420,'gold');b.style.zIndex=30;drag(b,{onDrop:el=>{if(Math.abs(parseFloat(el.style.left)-708)>80||Math.abs(parseFloat(el.style.top)-420)>70){revealed=true;b.style.animation='none';say('À ha, VIP. Game thiên vị cô ấy đến mức này luôn à?');track("Kéo bóng bay","Lộ ghế VIP")}else{track("Kéo bóng bay","Chưa kéo đủ xa")}})
+}})},
+{id:3,name:"ĐỒ UỐNG CỦA CÔ ẤY",hints:["Không phải ly nào đẹp nhất cũng là ly đúng.","Profile nhỏ trong phòng đang ghi sở thích của cô ấy.","Kéo đúng loại đồ uống theo HER.favoriteDrink tới nhân vật chính."],init(){
+ partyRoom();setInstruction("MANG ĐÚNG ĐỒ UỐNG CHO CÔ ẤY.");const p=makePlayer(930,558);p.enabled=false;E('div','profile-clue',{left:'875px',top:'165px',width:'285px'},`PROFILE · ${HER.name}<br>Đồ uống yêu thích: <b style="color:#5f8f49">${DRINK_LABELS[HER.favoriteDrink]||HER.favoriteDrink}</b>`);E('div','drink-counter',{left:'120px',top:'310px',width:'660px',height:'230px'},'<div class="counter-title">QUẦY ĐỒ UỐNG · PARTY BAR</div>');
+ const drinkTypes=['bubbleTea','juice','soda','coffee','milkshake','matchaLatte'];const startX=155,step=100;drinkTypes.forEach((t,i)=>{const homeX=startX+i*step,homeY=365;E('div','drink-tray',{left:(homeX+2)+'px',top:'455px'},'');const d=drinkArt(t,homeX,homeY);drag(d,{onMove:el=>setTargetHot(p,el),onDrop:el=>{if(hit(rect(el),rect(p))){if(t===HER.favoriteDrink){snapTo(el,p,-70,-25);p.querySelector('.cb-mouth').style.height='8px';say('Matcha Latte chính xác. Nhân vật chính duyệt!');later(()=>complete(`Đúng ${DRINK_LABELS[t]} yêu thích của ${HER.name}.`,'Chọn đúng đồ uống','l3'),1100)}else{say(`Không phải ${DRINK_LABELS[t]}. Tôi biết vì tôi đã đọc profile thôi.`);el.style.left=homeX+'px';el.style.top=homeY+'px';p.classList.remove('hot');track("Sai đồ uống", `Kéo món ${DRINK_LABELS[t]}`)}}else{el.style.left=homeX+'px';el.style.top=homeY+'px';p.classList.remove('hot')}}})})
+}},
+{id:4,name:"DJ KHÔNG CHỊU PHÁT NHẠC",hints:["Nút Play đang giả vờ làm việc.","Ba ký hiệu âm nhạc trong phòng không chỉ để trang trí.","Kéo đủ 3 nốt nhạc vào DJ booth."],init(){
+ partyRoom();setInstruction("LÀM KHÔNG KHÍ SÔI ĐỘNG HƠN.");const hero=makePlayer(615,558);hero.enabled=false;const booth=E('div','dj-booth snap-target',{left:'465px',top:'330px'},'<div class="dj-deck"><i class="vinyl v1"></i><i class="vinyl v2"></i><i class="mixer"></i></div><div class="equalizer"><i></i><i></i><i></i><i></i><i></i></div>');E('div','speaker-art',{left:'345px',top:'350px'},'');E('div','speaker-art',{left:'830px',top:'350px'},'');const play=E('button','btn',{position:'absolute',left:'570px',top:'535px'},'PLAY');on(play,'click',()=>{say('Nút Play này chỉ để tạo cảm giác chuyên nghiệp thôi.');track("Bấm Nút Play","Nút giả")});
+ guest(250,470);guest(880,470,HER.colors.primary);let count=0;[['♪',180,250],['♫',955,245],['♪',1020,455]].forEach(([n,x,y],i)=>{const note=E('div','drag',{position:'absolute',left:x+'px',top:y+'px',fontSize:'48px',fontWeight:'1000',color:i===1?'var(--c-primary)':'var(--c-secondary)',zIndex:50},n);drag(note,{onMove:el=>setTargetHot(booth,el),onDrop:el=>{if(hit(rect(el),rect(booth))){el.remove();count++;Audio.tone(420+count*110,.12,'sine',.05);track("Nạp nốt nhạc", `Đã nạp ${count}/3 nốt`);if(count===3){booth.classList.add('on');$$('.guest').forEach(g=>g.classList.add('dance'));[523,659,784,1046].forEach((f,j)=>later(()=>Audio.tone(f,.2,'sine',.04),j*130));say('Được rồi, DJ chịu làm việc. Đừng nói là tôi nhảy theo nhé.');later(()=>complete('DJ booth đã sáng và cả phòng bắt đầu nhún nhảy.','Nạp đủ nốt nhạc'),1300)}}else booth.classList.remove('hot')}})})
+}},
+{id:5,name:"ẢNH NHÓM",hints:["Máy ảnh hoạt động, nhưng bố cục chưa hoàn chỉnh.","Vị trí trống ở chính giữa photobooth dành cho ai?","Kéo nhân vật chính vào giữa, sau đó bấm camera."],init(){
+ partyRoom();setInstruction("CHỤP BỨC ẢNH NHÓM ĐẦU TIÊN.");const booth=E('div','photo-booth',{left:'390px',top:'220px'},'');const target=E('div','snap-target',{position:'absolute',left:'607px',top:'365px',width:'90px',height:'120px',border:'3px dashed var(--c-primary)',borderRadius:'18px',zIndex:14},'');guest(450,350);guest(760,350,HER.colors.primary);const p=makePlayer(160,558);p.enabled=false;let placed=false;drag(p,{onMove:el=>setTargetHot(target,el),onDrop:el=>{if(hit(rect(el),rect(target))){snapTo(el,target,17,38);p.x=parseFloat(el.style.left);p.y=parseFloat(el.style.top);placed=true;track("Kéo nhân vật","Đứng giữa photobooth")}else{el.style.left='160px';el.style.top='558px';p.x=160;p.y=558}}});const cam=E('div','camera-art',{left:'1040px',top:'375px'},'');E('div','camera-tripod',{left:'1095px',top:'455px'},'');const flash=E('div','flash-layer');on(cam,'click',()=>{if(!placed){setInstruction('THIẾU AI ĐÓ.');say('Khung hình đẹp đấy, trừ việc thiếu nhân vật chính.');track("Bấm máy ảnh","Thiếu nhân vật chính");return}Audio.tone(180,.05,'square',.08);flash.classList.add('fire');later(()=>flash.classList.remove('fire'),500);booth.style.boxShadow='0 0 0 8px #fff,0 0 35px var(--c-accent)';setInstruction('PERFECT SHOT');say('Được rồi, tấm này đăng được.');later(()=>complete('PERFECT SHOT','Chụp ảnh nhóm','l5'),1000)})
+}},
+{id:6,name:"BANNER BỊ CHE",hints:["Chọc bóng bay chỉ khiến trò đùa kéo dài hơn.","Tên nhân vật chính trong HUD có thể bị lấy ra.",`Kéo tên ${HER.name.toUpperCase()} vào phần tên trên banner.`],init(){
+ partyRoom();setInstruction("LÀM LỘ TÊN NHÂN VẬT CHÍNH.");const hero=makePlayer(610,558);hero.enabled=false;const bn=E('div','party-banner',{top:'170px',minWidth:'730px'},`HAPPY BIRTHDAY <span id="nameSlot" class="snap-target" style="display:inline-block;width:210px;height:42px;border:3px dashed var(--c-primary);vertical-align:middle"></span>`);const slot=$('#nameSlot');const bs=[balloon(535,150,''),balloon(605,155,'alt'),balloon(675,145,'gold'),balloon(745,158,'')];bs.forEach((b,i)=>on(b,'click',()=>{Audio.pop();const nb=balloon(540+rnd(0,230),140+rnd(0,45),choice(['','alt','gold']));on(nb,'click',()=>nb.remove());say('Pop một quả, game gửi thêm một quả. Công bằng ghê.');track("Chọc vỡ bóng bay","Bóng mới lại xuất hiện")}));const token=makeNameToken(1015,105);drag(token,{onMove:el=>setTargetHot(slot,el),onDrop:el=>{if(hit(logicalRect(el),logicalRect(slot))){slot.textContent=HER.name.toUpperCase();slot.style.border='0';slot.style.color='var(--c-primary)';token.remove();bs.forEach((b,i)=>{b.style.transition='left .8s';b.style.left=(i<2?220+i*80:920+(i-2)*80)+'px'});bn.style.boxShadow='0 0 35px var(--c-accent)';say('Tên đúng chỗ thì bóng bay cũng biết đường né.');later(()=>complete(`HAPPY BIRTHDAY ${HER.name.toUpperCase()}!`,'Hoàn thành banner'),1200)}else slot.classList.remove('hot')}})
+}},
+{id:7,name:"GOM QUÀ",hints:["Quà đã có đủ, chỉ thiếu thông tin trên nhãn.","Một từ trong câu hướng dẫn có thể được chuyển thành vật thể.","Kéo chữ FOR vào label để thành FOR + tên cô ấy."],init(){
+ partyRoom();setInstruction('GOM QUÀ <span id="forWord" class="word drag" style="color:var(--c-primary);cursor:grab">FOR</span> CÔ ẤY.');const hero=makePlayer(700,558);hero.enabled=false;const bigGift=gift(855,370,HER.colors.secondary,HER.colors.accent,true);bigGift.style.transform='scale(.82)';const big=E('div','panel snap-target',{left:'825px',top:'315px',width:'300px',height:'66px',textAlign:'center',fontWeight:'1000',paddingTop:'16px',fontSize:'23px',zIndex:25},`___ ${HER.name.toUpperCase()}`);const gifts=[gift(180,410,HER.colors.primary,HER.colors.accent),gift(330,450,HER.colors.secondary,'#fff'),gift(470,405,'#72c9b5',HER.colors.primary),gift(610,455,HER.colors.accent,HER.colors.secondary)];gifts.forEach((g,i)=>guest(165+i*155,315,i%2?HER.colors.primary:HER.colors.secondary));const fw=$('#forWord');drag(fw,{onMove:el=>setTargetHot(big,el),onDrop:el=>{if(hit(logicalRect(el),logicalRect(big))){big.textContent=`FOR ${HER.name.toUpperCase()}`;fw.remove();gifts.forEach((g,i)=>{g.style.transition='left .7s,top .7s,transform .7s';g.style.left=(850+(i%2)*120)+'px';g.style.top=(300+Math.floor(i/2)*105)+'px';g.style.transform='scale(.65)'});say('Game ghi rõ người nhận rồi. Không ai được giả vờ cầm nhầm nữa.');later(()=>complete(`Toàn bộ quà đã gom cho ${HER.name}.`,'Hoàn thiện nhãn FOR'),1100)}else big.classList.remove('hot')}})
+}},
+{id:8,name:"BẢO VỆ BÁNH",hints:["Đuổi từng người sẽ chẳng bao giờ hết.","Có cách để tất cả biết chiếc bánh đã có chủ.","Kéo bảng RESERVED lên bàn bánh."],init(){
+ partyRoom();setInstruction("BẢO VỆ BÁNH CỦA CÔ ẤY.");const hero=makePlayer(890,558);hero.enabled=false;const table=E('div','panel snap-target',{left:'520px',top:'465px',width:'340px',height:'42px',padding:'0',background:'#fff'},'');const cake=cakeArt(595,330,5);const sign=E('div','panel drag',{left:'965px',top:'410px',padding:'9px 16px',fontWeight:'1000',background:'var(--c-accent)'},'RESERVED');this.stopped=false;this.thieves=[guest(170,455),guest(1000,455,HER.colors.primary)];this.thieves.forEach((n,i)=>on(n,'click',()=>{n.style.left=(i?1030:150)+'px';say('Đuổi được một người thì người khác lại tới. MC xin lỗi, không nhiều lắm.');track("Đuổi người ăn vụng","Đuổi người này đi người khác lại tới")}));drag(sign,{onMove:el=>setTargetHot(table,el),onDrop:el=>{if(hit(rect(el),rect(table))){snapTo(el,table,110,-40);this.stopped=true;this.thieves.forEach(n=>{n.style.transition='left .6s';n.style.left=parseFloat(n.style.left)<500?'260px':'930px'});setInstruction('Không ai được ăn trước nhân vật chính.');say('Đừng nói với ai là tôi cũng góp tiền mua bánh.');later(()=>complete('Không ai được ăn trước nhân vật chính.','Đặt bảng RESERVED'),1200)}else table.classList.remove('hot')}})
+ },update(dt){if(this.stopped)return;this.thieves?.forEach((n,i)=>{let x=parseFloat(n.style.left);const target=i?790:440;x+=(target-x)*dt*.55;if(Math.abs(target-x)<8)x=i?1030:150;n.style.left=x+'px'})}},
+{id:9,name:"VƯƠNG MIỆN SINH NHẬT",hints:["Không phải phụ kiện nào cũng là dấu hiệu của nhân vật chính.","Thứ cần tìm có các đỉnh nhọn và màu vàng kem.","Kéo vương miện lên đầu cô ấy."],init(){
+ partyRoom();setInstruction("HOÀN THIỆN LOOK CỦA NHÂN VẬT CHÍNH.");const p=makePlayer(630,558);p.enabled=false;const table=E('div','accessory-table',{left:'350px',top:'355px'},'');const crown=crownArt(390,290);crown.classList.add('drag');const hat=E('div','party-hat drag',{left:'510px',top:'290px'},'');const bow=E('div','bow-art drag',{left:'625px',top:'300px'},'');const glasses=E('div','glasses-art drag',{left:'730px',top:'300px'},'<span></span>');[hat,bow,glasses].forEach((a,i)=>drag(a,{onDrop:el=>{if(hit(rect(el),rect(p))){say(choice(['Cute, nhưng chưa phải món kết thúc look.','Game công nhận phụ kiện này hợp, nhưng puzzle chưa chịu.']));track("Thử phụ kiện sai","Phụ kiện bị trả về");el.style.left=(510+i*110)+'px';el.style.top='290px'}}}));drag(crown,{onMove:el=>setTargetHot(p,el),onDrop:el=>{if(hit(rect(el),rect(p))){const av=p.querySelector('.chibi');crown.style.left='-10px';crown.style.top='-48px';crown.style.transform='scale(.85)';av.appendChild(crown);crown.classList.remove('drag');setInstruction('BIRTHDAY QUEEN');say('Game thiên vị cô ấy đến mức này luôn à? Ừ, hợp lý.');later(()=>complete('BIRTHDAY QUEEN','Đội vương miện','l9'),1200)}else p.classList.remove('hot')}})
+}},
+{id:10,name:"CONFETTI CHAOS",hints:["Càng chạy, màn hình càng rối.","Có một trạng thái khiến mọi hạt confetti đứng yên.","Pause game, rồi kéo cô ấy qua khoảng trống lên sân khấu."],init(){
+ partyRoom();setInstruction(`ĐƯA ${HER.name.toUpperCase()} LÊN SÂN KHẤU.`);const p=makePlayer(110,558);p.enabled=true;const stage=E('div','party-stage snap-target',{left:'835px',top:'420px'},'');this.ps=[];for(let i=0;i<85;i++){const q=E('i','party-particle',{left:rnd(0,1280)+'px',top:rnd(-400,680)+'px',background:choice([HER.colors.primary,HER.colors.secondary,HER.colors.accent,'#68c9d4']),transform:`rotate(${rnd(0,360)}deg)`},'');this.ps.push({el:q,x:parseFloat(q.style.left),y:parseFloat(q.style.top),vy:rnd(75,210),vr:rnd(-160,160),r:rnd(0,360)})}drag(p,{onMove:el=>Game.paused&&setTargetHot(stage,el),onDrop:el=>{if(hit(rect(el),rect(stage))){if(Game.paused){snapTo(el,stage,145,48);p.x=parseFloat(el.style.left);p.y=parseFloat(el.style.top);say('Pause mà vẫn kéo được nhân vật? Luật của chính game bị lợi dụng rồi.');track("Di chuyển khi Pause","Lên sân khấu an toàn");later(()=>{togglePause();complete('Confetti đứng yên đủ lâu để nhân vật chính lên sân khấu.','Pause + drag')},900)}else{say('Confetti đang che hết đường. Thử phá luật của game xem.');track("Cố đi qua Confetti","Bị che mất đường");el.style.left='110px';el.style.top='558px';p.x=110;p.y=558}}}})
+ },update(dt){this.ps?.forEach(q=>{q.y+=q.vy*dt;q.r+=q.vr*dt;if(q.y>720){q.y=rnd(-220,-20);q.x=rnd(0,1280)}q.el.style.left=q.x+'px';q.el.style.top=q.y+'px';q.el.style.transform=`rotate(${q.r}deg)`})}},
+{id:11,name:"DANCE FLOOR",hints:["Dance floor chỉ bắt đầu khi nhân vật chính đứng ở giữa.","Hãy nhìn ô nào đang nhấp nháy.","Đưa cô ấy vào ô giữa, rồi chạm lần lượt 3 ô đang pulse."],init(){
+ partyRoom();setInstruction("LÀM MỌI NGƯỜI NHẢY CÙNG CÔ ẤY.");const floor=E('div','dance-floor',{left:'460px',top:'290px'},'');const tiles=[];for(let i=0;i<9;i++){const t=document.createElement('div');t.className='dance-tile';floor.appendChild(t);tiles.push(t)}const center=tiles[4];center.classList.add('snap-target');const p=makePlayer(130,558);p.enabled=false;let placed=false,step=0;const seq=[1,7,3];const pulse=()=>{tiles.forEach(t=>t.classList.remove('pulse'));if(placed&&step<3)tiles[seq[step]].classList.add('pulse')};drag(p,{onMove:el=>setTargetHot(center,el),onDrop:el=>{if(hit(logicalRect(el),logicalRect(center))){const fr=logicalRect(floor);el.style.left=(fr.x+152)+'px';el.style.top=(fr.y+102)+'px';p.x=parseFloat(el.style.left);p.y=parseFloat(el.style.top);placed=true;pulse();say('Nhân vật chính đã vào giữa. Giờ theo nhịp nào.');track("Kéo NV vào Floor","Đã vào giữa")}else{el.style.left='130px';el.style.top='558px'}}});tiles.forEach((t,i)=>on(t,'click',()=>{if(!placed)return say('Dance floor đang chờ nhân vật chính ở ô giữa.');if(i===seq[step]){t.classList.add('active');step++;Audio.tone(440+step*100,.1,'sine',.04);pulse();track("Bấm ô sàn nhảy",`Đúng nhịp ${step}/3`);if(step===3){guest(260,480).classList.add('dance');guest(920,480,HER.colors.primary).classList.add('dance');say('Được rồi, level này hơi dễ thương.');later(()=>complete('Cả phòng đã nhảy cùng nhân vật chính.','Dance sequence','l11'),1000)}}else{step=0;tiles.forEach(x=>x.classList.remove('active'));pulse();say('Lệch nhịp một chút. Game cho làm lại từ đầu, không phạt.');track("Nhảy sai nhịp","Game cho làm lại")}}))
+}},
+{id:12,name:"SPOTLIGHT",hints:["Đèn đang sáng, chỉ là sáng sai chỗ.","Có thể kéo cả cụm spotlight.","Kéo một spotlight để cone ánh sáng phủ lên nhân vật chính."],init(){
+ partyRoom();setInstruction("SOI ĐÈN VÀO NHÂN VẬT CHÍNH.");const stage=E('div','party-stage',{left:'465px',top:'425px'},'');const p=makePlayer(615,470);p.enabled=false;const spots=[spotlightArt(150,200,-18),spotlightArt(345,175,22),spotlightArt(865,180,-24),spotlightArt(1045,210,18)];spots.forEach(s=>{s.classList.add('drag');drag(s,{onMove:el=>setTargetHot(p,el),onDrop:el=>{if(hit(rect(el),rect(p))){snapTo(el,p,-35,-130);el.classList.add('aimed');setInstruction('SPOTLIGHT FOUND');say('Tôi không cảm động. Đèn sân khấu chiếu vào mắt thôi.');later(()=>complete('SPOTLIGHT FOUND','Đưa spotlight vào nhân vật','l12'),1000)}else p.classList.remove('hot')}})})
+}},
+{id:13,name:"MICRO BỊ TROLL",hints:["Mic không hỏng phần cứng, nó đang thiếu một thứ trong mixer.","Từ VOICE không chỉ là nhãn.","Kéo VOICE từ mixer vào microphone."],init(){
+ partyRoom();setInstruction("MỞ MICRO CHO CÔ ẤY.");const p=makePlayer(585,558);p.enabled=false;const mic=micArt(740,405);mic.classList.add('snap-target');on(mic,'click',()=>{Audio.tone(110,.25,'sawtooth',.08);say('Mic đang phát đúng tần số troll. Xin lỗi kỹ thuật.');track("Bấm thử Mic","Mic hú")});const mix=E('div','panel',{left:'250px',top:'330px',width:'240px',height:'175px'},'<b>MIXER</b><div style="margin-top:20px;height:8px;background:#ddd;border:2px solid var(--ink)"></div>');const voice=E('div','panel drag',{left:'310px',top:'405px',padding:'9px 15px',fontWeight:'1000',color:'var(--c-primary)'},'VOICE');drag(voice,{onMove:el=>setTargetHot(mic,el),onDrop:el=>{if(hit(rect(el),rect(mic))){voice.remove();mic.classList.add('live');Audio.tone(660,.2,'sine',.04);p.querySelector('.cb-mouth').style.height='9px';say('Mic bình thường lại rồi. Tôi vừa mất quyền troll âm thanh.');later(()=>complete('Giọng nói đã trở lại đúng kênh.','VOICE vào mic'),1100)}else mic.classList.remove('hot')}})
+}},
+{id:14,name:"RÚT THĂM MAY MẮN",hints:["Rút trong hộp chỉ cho ra một kết quả đáng ngờ.","Có một tấm vé không nằm hoàn toàn bên trong hộp.","Kéo ticket SPECIAL FOR ra khỏi cạnh hộp."],init(){
+ partyRoom();setInstruction("RÚT THĂM MAY MẮN.");const hero=makePlayer(310,558);hero.enabled=false;const box=E('div','raffle-box',{left:'520px',top:'315px'},'<div class="raffle-slot"></div>');const draw=E('button','btn',{position:'absolute',left:'570px',top:'535px'},'RÚT');on(draw,'click',()=>{toast('TRY AGAIN');Audio.tone(180,.1,'square',.04);track("Bấm Rút Thăm","Bị troll TRY AGAIN")});on(box,'click',()=>toast('TRY AGAIN'));const ticket=E('div','ticket drag',{left:'685px',top:'350px',transform:'rotate(8deg)',zIndex:55},`SPECIAL FOR ${HER.name.toUpperCase()}`);drag(ticket,{onDrop:el=>{const dx=Math.abs(parseFloat(el.style.left)-685),dy=Math.abs(parseFloat(el.style.top)-350);if(dx>180||dy>120){el.style.transform='rotate(0)';say('Được ưu ái công khai luôn rồi.');later(()=>complete(`SPECIAL FOR ${HER.name.toUpperCase()}`,'Kéo special ticket ra'),1000)}else{el.style.left='685px';el.style.top='350px'}}})
+}},
+{id:15,name:"BÀN TRÁNG MIỆNG",hints:["Có nhiều món ngon, nhưng profile đã để lại một clue.","Hãy so tên món với món yêu thích trong HER.","Kéo đúng dessert của HER.favoriteDessert vào đĩa của cô ấy."],init(){
+ partyRoom();setInstruction("CHỌN MÓN DÀNH CHO CÔ ẤY.");const p=makePlayer(930,558);p.enabled=false;E('div','profile-clue',{left:'900px',top:'160px'},`Màu chủ đạo: <span style="color:var(--c-primary)">●</span><br>Món thích: <b>${DESSERT_LABELS[HER.favoriteDessert]||HER.favoriteDessert}</b>`);E('div','panel',{left:'145px',top:'300px',width:'630px',height:'235px',background:'#fff1e6'},'<b>DESSERT TABLE</b><div style="position:absolute;left:20px;right:20px;top:48px;height:18px;background:#f6d4b1;border:3px solid var(--ink);border-radius:999px"></div><div style="position:absolute;left:20px;right:20px;bottom:30px;height:18px;background:#f6d4b1;border:3px solid var(--ink);border-radius:999px"></div>');const plate=E('div','plate-art snap-target',{left:'880px',top:'485px'},'');['cupcake','macaron','strawberryCake','pudding','cookie','parfait'].forEach((t,i)=>{const x=170+i*98,y=i<3?330:425;const d=dessertArt(t,x,y);drag(d,{onMove:el=>setTargetHot(plate,el),onDrop:el=>{if(hit(rect(el),rect(plate))){if(t===HER.favoriteDessert){snapTo(el,plate,13,-70);say('Đúng món dành riêng cho nhân vật chính.');later(()=>complete(`Đã chọn ${DESSERT_LABELS[t]} cho ${HER.name}.`,'Chọn đúng dessert'),1100)}else{say(`${DESSERT_LABELS[t]} ngon, nhưng clue không nói món này.`);el.style.left=x+'px';el.style.top=y+'px';plate.classList.remove('hot');track("Sai tráng miệng", `Kéo món ${DESSERT_LABELS[t]}`)}}else{el.style.left=x+'px';el.style.top=y+'px';plate.classList.remove('hot')}}})})
+}},
+{id:16,name:"THÁP QUÀ SẮP ĐỔ",hints:["Kéo từng hộp sẽ làm tháp mất cân bằng hơn.","Dải ribbon dài có thể khóa nhiều điểm cùng lúc.","Kéo ribbon đi qua đủ 3 anchor quanh tháp."],init(){
+ partyRoom();setInstruction("GIỮ BỮA TIỆC KHỎI HỖN LOẠN.");const hero=makePlayer(900,558);hero.enabled=false;const tower=E('div','gift-tower',{left:'510px',top:'250px'},'');[[55,185,HER.colors.primary],[25,105,HER.colors.secondary],[75,25,HER.colors.accent]].forEach(([x,y,c],i)=>{const g=document.createElement('div');g.className='gift-box';g.style.left=x+'px';g.style.top=y+'px';g.style.setProperty('--gift',c);g.style.setProperty('--ribbon',i===1?HER.colors.primary:HER.colors.accent);g.innerHTML='<div class="lid"></div><div class="ribbon-v"></div><div class="ribbon-h"></div><div class="bow"></div>';tower.appendChild(g)});const anchors=[E('div','ribbon-anchor',{left:'500px',top:'320px'},''),E('div','ribbon-anchor',{left:'735px',top:'375px'},''),E('div','ribbon-anchor',{left:'590px',top:'525px'},'')];const ribbon=E('div','long-ribbon drag',{left:'880px',top:'360px',transform:'rotate(90deg)',zIndex:50},'');const touched=new Set();drag(ribbon,{onMove:(el,e)=>{const f=$('#frame').getBoundingClientRect(),px=(e.clientX-f.left)*1280/f.width,py=(e.clientY-f.top)*720/f.height;anchors.forEach((a,i)=>{const r=logicalRect(a);if(px>=r.x&&px<=r.x+r.w&&py>=r.y&&py<=r.y+r.h){if(!touched.has(i)){touched.add(i);a.classList.add('hit');track("Kéo Ribbon",`Chạm ${touched.size}/3 điểm`)}}})},onDrop:el=>{if(touched.size===3){tower.classList.add('stable');el.style.left='500px';el.style.top='405px';el.style.transform='rotate(90deg) scale(.75)';const st=E('div','css-star',{left:'790px',top:'300px'},'');say('Một dải ribbon cứu cả bữa tiệc. Được, tôi ghi nhận.');later(()=>complete('Gift tower đã ổn định.','Quấn ribbon qua anchors'),1200)}else{say(`Mới chạm ${touched.size}/3 điểm neo.`)}}})
+}},
+{id:17,name:"KHOẢNH KHẮC ƯỚC NGUYỆN",hints:["Khoảnh khắc ước cần yên tĩnh hơn.","Các nguồn âm thanh trong phòng đều có thể tắt.","Tắt đủ 4 nguồn âm thanh, rồi click nhân vật chính."],init(){
+ partyRoom();$('#world').style.background='linear-gradient(#20263d 0 72%,#302942 72%)';setInstruction("ĐÃ ĐẾN LÚC ƯỚC.");const p=makePlayer(600,558);p.enabled=false;const cake=cakeArt(770,430,5);cake.style.filter='drop-shadow(0 0 24px #ffd84d)';const defs=[['SPEAKER',180,330,'speaker-source'],['NPC TALK',350,220,'talk-source'],['PARTY HORN',915,250,'horn-source'],['MUSIC',1040,410,'music-source']];let quiet=0;defs.forEach(([label,x,y,kind])=>{const s=E('div','noise-source '+kind,{left:x+'px',top:y+'px'},label);on(s,'click',()=>{if(s.classList.contains('off'))return;s.classList.add('off');quiet++;Audio.tone(130+quiet*25,.08,'sine',.02);track("Tắt âm thanh", `Đã tắt ${quiet}/4`);if(quiet===4){say('Yên rồi. Lần này tôi không phá.');p.style.filter='drop-shadow(0 0 16px #ffe28a)'}})});on(p,'click',()=>{if(quiet<4){say('Vẫn còn ồn. Khoảnh khắc này cần cả phòng im lặng.');track("Bấm NV ước nguyện", "Chưa đủ tĩnh lặng");return;}p.querySelectorAll('.cb-eye').forEach(e=>{e.style.height='3px';e.style.top='25px'});p.querySelector('.cb-mouth').style.height='2px';setInstruction('ƯỚC MỘT ĐIỀU THẬT ĐẸP.');$('#world').style.filter='brightness(.78)';later(()=>complete('Khoảnh khắc ước nguyện đã hoàn thành.','Tắt noise và ước','l17'),1700)})
+}},
+{id:18,name:"THỔI NẾN",hints:["Cô ấy phải đứng đủ gần chiếc bánh trước.","Khi đúng vị trí, ngọn nến trung tâm sẽ sáng nổi bật.","Kéo cô ấy tới trước bánh rồi tap ngọn lửa trung tâm."],init(){
+ partyRoom();$('#world').style.background='linear-gradient(#2b2c46 0 72%,#3a3048 72%)';setInstruction("THỔI NẾN.");const cake=cakeArt(765,405,5);const p=makePlayer(160,558);p.enabled=false;const zone=E('div','snap-target',{position:'absolute',left:'610px',top:'505px',width:'100px',height:'100px',border:'3px dashed #fff7',borderRadius:'20px'},'');let near=false;drag(p,{onMove:el=>setTargetHot(zone,el),onDrop:el=>{if(hit(rect(el),rect(zone))){snapTo(el,zone,18,20);p.x=parseFloat(el.style.left);p.y=parseFloat(el.style.top);near=true;const flames=$$('.flame',cake);const mid=flames[Math.floor(flames.length/2)];mid.style.boxShadow='0 0 30px #fff,0 0 50px #ffd84d';say('Đủ gần rồi. Nến giữa đang chờ một cú tap.');track("Kéo NV thổi nến", "Vào đúng vị trí");}else{el.style.left='160px';el.style.top='558px';p.x=160;p.y=558}}});const flames=$$('.flame',cake);flames.forEach((f,i)=>on(f,'click',()=>{if(i!==Math.floor(flames.length/2))return;if(!near){say('Đứng xa thế thì gió không tới được đâu.');track("Thổi nến","Đứng quá xa");return;}E('div','',{position:'absolute',left:'690px',top:'395px',width:'120px',height:'16px',borderTop:'4px solid #bfefff',borderRadius:'50%',transform:'rotate(-8deg)'},'');flames.forEach((x,j)=>later(()=>x.parentElement.classList.add('out'),j*90));guest(330,470).classList.add('dance');guest(1030,470,HER.colors.primary).classList.add('dance');say('Được rồi, khoảnh khắc này tôi không phá nữa.');later(()=>complete('Tất cả nến đã tắt.','Thổi nến','l18'),1400)}))
+}},
+{id:19,name:"MÓN QUÀ ĐẶC BIỆT",hints:["Hộp không chịu mở khi chưa biết người nhận.","Tag TO: _____ đang thiếu đúng một cái tên.",`Kéo tên ${HER.name.toUpperCase()} vào tag rồi mở hộp.`],init(){
+ partyRoom();setInstruction("MỞ MÓN QUÀ ĐẶC BIỆT NHẤT.");const hero=makePlayer(300,558);hero.enabled=false;const box=gift(520,350,HER.colors.secondary,HER.colors.accent,true);const tag=E('div','panel snap-target',{left:'835px',top:'365px',width:'230px',height:'76px',padding:'20px',fontWeight:'1000'},'TO: _____');let named=false,opened=false;on(box,'click',()=>{if(!named){box.querySelector('.lid').style.transform='translateY(-10px) rotate(-2deg)';later(()=>box.querySelector('.lid').style.transform='',350);say('Hộp hé ra rồi tự đóng. Ribbon còn tự quay lại nữa.');track("Mở hộp quà", "Chưa gắn tên");return}if(opened)return;opened=true;box.querySelector('.lid').style.transition='transform .7s';box.querySelector('.lid').style.transform='translate(-35px,-80px) rotate(-18deg)';box.querySelector('.bow').style.display='none';const star=E('div','css-star',{left:'590px',top:'260px'},'');E('div','panel',{left:'785px',top:'460px',width:'290px',height:'105px',fontWeight:'900'},`KỶ NIỆM NHỎ<br><span style="font-size:14px">Một bữa tiệc được làm riêng cho ${HER.name}.</span>`);E('div','panel',{left:'430px',top:'535px',width:'330px',height:'70px',fontWeight:'900',color:'var(--c-primary)'},'BIRTHDAY MESSAGE CARD');say('Được rồi, level này hơi dễ thương.');later(()=>complete('Món quà đặc biệt đã mở đúng người nhận.','Mở special gift','l19'),1500)});const name=makeNameToken(1030,120);drag(name,{onMove:el=>setTargetHot(tag,el),onDrop:el=>{if(hit(rect(el),rect(tag))){named=true;tag.textContent=`TO: ${HER.name.toUpperCase()}`;tag.style.color='var(--c-primary)';name.remove();say('Có tên rồi. Giờ hộp mới chịu hợp tác.');track("Gắn tên hộp quà", "Hoàn thành")}else tag.classList.remove('hot')}})
+}},
+{id:20,name:"BỮA TIỆC HOÀN CHỈNH",hints:["Hoàn thiện từng phần của bữa tiệc, bắt đầu từ nhân vật chính.","Sau mỗi mục, vật thể tiếp theo cần tương tác sẽ sáng hoặc được mở khóa.","Đưa cô ấy lên stage → spotlight → bánh lên bàn → ghép banner → click star trên crown."],init(){
+ partyRoom();setInstruction("HOÀN THIỆN BỮA TIỆC.");const ready=E('div','party-ready',{right:'24px',top:'92px'},'PARTY READY: 0 / 5');const setReady=n=>ready.textContent=`PARTY READY: ${n} / 5`;const p=makePlayer(90,558);p.enabled=false;const finalName=p.querySelector('.playerName');if(finalName){finalName.style.pointerEvents='none';finalName.style.zIndex='8'}const stage=E('div','party-stage snap-target',{left:'480px',top:'420px'},'');guest(210,470).classList.add('dance');guest(1040,470,HER.colors.primary).classList.add('dance');const dj=E('div','dj-booth',{left:'30px',top:'300px',transform:'scale(.52)',transformOrigin:'top left'},'<div class="dj-deck"><i class="vinyl v1"></i><i class="vinyl v2"></i><i class="mixer"></i></div><div class="equalizer"><i></i><i></i><i></i><i></i></div>');dj.classList.add('on');balloon(1020,170,'');balloon(1090,195,'alt');balloon(1160,160,'gold');miniFlower(900,475);miniFlower(955,485);const decorGiftA=gift(275,505,HER.colors.primary,HER.colors.accent);decorGiftA.style.transform='scale(.55)';const decorGiftB=gift(1120,505,HER.colors.secondary,HER.colors.primary);decorGiftB.style.transform='scale(.58)';const dance=E('div','dance-floor',{left:'420px',top:'505px',transform:'scale(.48)',transformOrigin:'top left',opacity:'.72'},'');for(let i=0;i<9;i++){const t=document.createElement('div');t.className='dance-tile active';dance.appendChild(t)}const lights=E('div','party-lights',{},'<i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>');const centerTable=E('div','panel snap-target',{left:'820px',top:'455px',width:'260px',height:'46px',padding:'0'},'');const cake=cakeArt(1060,325,5);cake.classList.add('drag');const spot=spotlightArt(315,180,18);spot.classList.add('drag');let phase=0;
+ drag(p,{onMove:el=>phase===0&&setTargetHot(stage,el),onDrop:el=>{if(phase===0&&hit(rect(el),rect(stage))){snapTo(el,stage,145,48);p.x=parseFloat(el.style.left);p.y=parseFloat(el.style.top);p.dataset.dragDisabled='1';phase=1;setReady(1);spot.style.filter='drop-shadow(0 0 12px var(--c-accent))';say('1/5. Nhân vật chính đã ở đúng trung tâm.');track("Hoàn thiện Step 1", "NV lên sân khấu")}}});
+ drag(spot,{onMove:el=>phase===1&&setTargetHot(p,el),onDrop:el=>{if(phase===1&&hit(rect(el),rect(p))){snapTo(el,p,-35,-135);spot.classList.add('aimed');phase=2;setReady(2);cake.style.filter='drop-shadow(0 0 14px var(--c-accent))';say('2/5. Spotlight đã tìm đúng người.');track("Hoàn thiện Step 2", "Chiếu đèn Spotlight")}}});
+ drag(cake,{onMove:el=>phase===2&&setTargetHot(centerTable,el),onDrop:el=>{if(phase===2&&hit(rect(el),rect(centerTable))){snapTo(el,centerTable,35,-136);phase=3;setReady(3);spawnBanner();say('3/5. Bánh ở giữa rồi. Giờ ghép lời chúc.');track("Hoàn thiện Step 3", "Đưa bánh ra")}}});
+ const spawnBanner=()=>{const slots=E('div','party-banner',{top:'150px',minWidth:'700px'},'<span id="slotH" class="snap-target" style="display:inline-block;width:150px;height:42px;border:3px dashed #aaa"></span> <span id="slotB" class="snap-target" style="display:inline-block;width:190px;height:42px;border:3px dashed #aaa"></span> <span id="slotN" class="snap-target" style="display:inline-block;width:180px;height:42px;border:3px dashed #aaa"></span>');const data=[['HAPPY','#slotH',170],['BIRTHDAY','#slotB',350],[HER.name.toUpperCase(),'#slotN',600]];let done=0;data.forEach(([txt,sel,x])=>{const w=E('div','panel drag',{left:x+'px',top:'270px',padding:'8px 14px',fontWeight:'1000',color:'var(--c-primary)'},txt);const target=$(sel);drag(w,{onMove:el=>phase===3&&setTargetHot(target,el),onDrop:el=>{if(phase===3&&hit(logicalRect(el),logicalRect(target))){target.textContent=txt;target.style.border='0';w.remove();done++;if(done===3){phase=4;setReady(4);attachFinalCrown();say('4/5. Banner hoàn chỉnh. Còn một chi tiết rất nhỏ.');track("Hoàn thiện Step 4", "Ghép xong banner")}}else target.classList.remove('hot')}})})};
+ const attachFinalCrown=()=>{const crown=document.createElement('div');crown.className='crown-art';crown.style.left='-10px';crown.style.top='-48px';crown.style.transform='scale(.82)';crown.style.zIndex='120';crown.style.pointerEvents='none';crown.innerHTML='<div class="peaks"></div><div class="base"></div><i id="finalStar" class="crown-star"></i><button id="finalCrownHitbox" type="button" aria-label="Kích hoạt ngôi sao trên vương miện" style="position:absolute;left:8px;top:-2px;width:60px;height:60px;padding:0;border:0;background:transparent;opacity:0;z-index:122;pointer-events:auto;cursor:pointer;touch-action:none"></button>';p.querySelector('.chibi').appendChild(crown);const finalStar=$('#finalStar'),finalHit=$('#finalCrownHitbox');if(finalStar){finalStar.style.zIndex='121';finalStar.style.pointerEvents='none';finalStar.style.transform='scale(1.65)';finalStar.style.width='18px';finalStar.style.height='18px';finalStar.style.left='29px';finalStar.style.top='19px';}if(finalHit){const activate=e=>{e.stopPropagation();e.preventDefault();if(phase!==4)return;phase=5;setReady(5);finishParty()};on(finalHit,'pointerdown',e=>{e.stopPropagation();e.preventDefault()});on(finalHit,'pointerup',activate);on(finalHit,'click',e=>{e.stopPropagation();e.preventDefault()});}};
+ const finishParty=()=>{Game.completed[20]=true;Game.unlockedLevels=20;Game.stars=20;unlock('l20');save();dj.classList.add('on');lights.classList.add('on');$('#world').style.background='linear-gradient(135deg,#473a6e,#b96f98)';$$('.guest').forEach(g=>{g.classList.add('dance','wave')});[523,659,784,1046,784].forEach((f,i)=>later(()=>Audio.tone(f,.18,'sine',.045),i*100));$('#world').animate([{transform:'scale(1)'},{transform:'scale(1.025)'},{transform:'scale(1)'}],{duration:850,easing:'ease-out'});$$('.balloon').forEach((b,i)=>{b.style.transition='top 2s ease-out';later(()=>b.style.top='-120px',i*90)});for(let i=0;i<3;i++)later(()=>confetti(rnd(20,80),20),i*220);p.style.transform='translateY(-8px) rotate(-3deg) scale(1.08)';E('div','final-title',{},`HAPPY BIRTHDAY ${HER.name.toUpperCase()}`);E('div','final-sub',{},'Bữa tiệc này được chuẩn bị cho nhân vật quan trọng nhất hôm nay.');say('Ừ… tôi xác nhận. Hôm nay spotlight là của cô ấy.',7000);track("Hoàn thiện Step 5 (Cuối)", "Kích hoạt sao trên vương miện -> ENDING");later(()=>{const b=E('button','btn primary',{position:'absolute',left:'535px',top:'625px',zIndex:100},'XEM LỜI CHÚC');on(b,'click',()=>{cleanupLevel();screen('ending');Game.state='ending';playEnding()})},1800)}
+}}
+];
 
-        document.getElementById('cake-scene').addEventListener('click', (e) => {
-            e.stopPropagation();
-            if(!localStorage.getItem(CONFIG.wishStorageKey)) {
-                document.getElementById('wish-modal').classList.add('active');
-                trackAction("Tương tác", "Click Bánh kem (Chưa ước)", "Mở bảng điền điều ước");
-            }
-            else {
-                popMsg(this, e, '#f9e5a5', "Bé đã gửi điều ước rồi. Ngôi sao của bé đang sáng ngay bên trên kìa.");
-                trackAction("Tương tác", "Click Bánh kem (Đã ước)", "Thông báo đã ước");
-            }
-        });
+// ENDING SCRIPT
+function playEnding(){
+ const scene=$("#endScene");scene.innerHTML=`<div style="position:absolute;inset:0;background:linear-gradient(145deg,var(--c-primary),var(--c-secondary));display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:30px;color:#fff">
+ <div style="font-size:26px;font-weight:1000;letter-spacing:4px">HAPPY BIRTHDAY</div>
+ <div style="font-size:78px;font-weight:1000;color:var(--c-accent);text-shadow:0 7px 0 var(--ink);margin:8px 0 18px">${HER.name.toUpperCase()}</div>
+ <div style="background:#fff;color:var(--ink);border:5px solid var(--ink);border-radius:24px;padding:24px 30px;width:min(650px,86%);font-size:20px;font-weight:800;box-shadow:0 12px 0 #0003">${HER.birthdayMessage}</div>
+ <div class="ending-avatar-wrap"><div class="player idle" style="position:relative;left:auto;top:auto"><span class="playerName">${HER.name.toUpperCase()}</span>${renderAvatarHTML()}</div></div>
+ <button id="finalBtn" class="btn primary" style="position:relative;z-index:5">VỀ MENU</button></div>`;
+ confetti(20,20);confetti(50,20);confetti(80,20);unlock('all');const b=$("#finalBtn");b.addEventListener('click',()=>{Audio.click();goMenu()},{once:true});
+ track("Màn hình Ending", "Đã xem lời chúc");
+}
 
-        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+function showHint(){
+    if(!["playing","paused"].includes(Game.state))return;
+    const l=levels[Game.currentLevel-1];
+    l._h=(l._h||0)+1;
+    Game.hintsUsed++;
+    save();
+    const idx=Math.min(2,l._h-1);
+    toast("💡 "+l.hints[idx]);
+    track(`Nút UI: Gợi ý cấp ${l._h}`, l.hints[idx]);
+    if(l._h===1) say("Tôi chỉ đưa gợi ý nhẹ thôi. Game vẫn muốn bạn tự phát hiện trò của nó.");
+    if(l._h===3) say("Hint cuối rồi. Tới đây thì game gần như đã thú nhận mánh khóe rồi đó.");
+}
 
-        function showStarMessage() {
-            document.getElementById('star-message-content').innerText = CONFIG.starMessages[MathUtils.randInt(0, CONFIG.starMessages.length-1)];
-            let modal = document.getElementById('star-message-modal');
-            modal.style.top = MathUtils.rand(20, 70) + '%'; modal.style.left = MathUtils.rand(10, 50) + '%';
-            modal.classList.add('active'); setTimeout(() => modal.classList.remove('active'), 3000);
-        }
+function togglePause(){
+    if(!["playing","paused"].includes(Game.state))return;
+    Game.paused=!Game.paused;Game.state=Game.paused?"paused":"playing";
+    $("#pauseBtn").textContent=Game.paused?"▶ RESUME":"⏸ PAUSE";
+    track("Nút UI: Bấm Pause", Game.paused ? "Game dừng" : "Game tiếp tục");
+    say(Game.paused?"Đã pause. Hừm, có level nào lợi dụng được chuyện này không nhỉ?":"Tiệc tiếp tục.")
+}
 
-        function submitWish() {
-            let val = document.getElementById('wish-textarea').value.trim(); if(!val) return;
-            localStorage.setItem(CONFIG.wishStorageKey, val); closeModal('wish-modal');
-            
-            trackAction("HÀNH ĐỘNG CHÍNH", "Đã gửi ĐIỀU ƯỚC", `Nội dung: ${val}`);
+document.addEventListener("keydown",e=>{
+    Game.keys[e.code]=true;
+    if(e.code==="KeyP")togglePause();
+    if(e.code==="KeyR"&&Game.state==="playing"){
+        track("Phím tắt Restart","Bấm R chơi lại");
+        startLevel(Game.currentLevel);
+    }
+    if(e.code==="Escape")goMenu();
+});
+document.addEventListener("keyup",e=>Game.keys[e.code]=false);
+document.addEventListener("pointerdown",()=>Audio.init(),{once:true});
 
-            let rect = document.getElementById('cake-scene').getBoundingClientRect();
-            for(let i=0; i<30; i++) particles.push(new Particle(rect.left + rect.width/2, rect.top, '#f9e5a5', 0));
-            setTimeout(revealWishStar, 1000); setTimeout(startFinale, 3000);
-        }
+// Easter Egg Keyboard
+let kbStr = "";
+window.addEventListener("keydown", e=>{
+    kbStr += e.key.toLowerCase();
+    if(kbStr.length > 20) kbStr = kbStr.slice(-20);
+    if(kbStr.includes("happybirthday")){
+        kbStr=""; Audio.win();
+        confetti(); say("Đúng mật mã! Ngàn lời chúc mừng sinh nhật cho vợ nha! ❤️");
+        track("Mã Bí Mật Keyboard", "Gõ chữ happybirthday -> Rớt pháo giấy");
+    }
+});
 
-        function revealWishStar() {
-            let ws = document.getElementById('wish-star'); ws.style.display = 'block';
-            ws.addEventListener('click', (e) => {
-                popMsg(this, e, '#f9e5a5', "Điều ước của bé: \n\n" + localStorage.getItem(CONFIG.wishStorageKey));
-                trackAction("Xem lại điều ước", "Click Sao điều ước", "Đọc lại lời ước");
-            });
-        }
+$("#frame").addEventListener("pointermove",e=>{
+    const r=$("#frame").getBoundingClientRect();
+    Game.pointer.x=(e.clientX-r.left)*1280/r.width;
+    Game.pointer.y=(e.clientY-r.top)*720/r.height;
+    const t=$("#troll"),cx=r.left+r.width*.88,cy=r.top+r.height*.13;
+    const dx=clamp((e.clientX-cx)/80,-4,4),dy=clamp((e.clientY-cy)/80,-3,3);
+    $$(".eye",t).forEach(x=>x.style.transform=`translate(${dx}px,${dy}px)`);
+});
 
-        function startFinale() {
-            if(State.finaleTriggered) return; State.finaleTriggered = true;
-            
-            let speech = document.getElementById('main-mascot-speech'); 
-            speech.innerText = "chuẩn bị nè!"; 
-            speech.style.opacity = 1;
-            
-            setTimeout(() => {
-                speech.style.opacity = 0; 
-                
-                let ui = document.getElementById('finale-ui');
-                document.getElementById('finale-name').innerText = CONFIG.birthdayText + "\n" + CONFIG.herName;
-                document.getElementById('finale-msg').innerText = CONFIG.finalMessage;
-                ui.style.display = 'block'; setTimeout(() => ui.style.opacity = 1, 100);
-                
-                trackAction("Hoàn thành", "Bước vào hồi kết", "Pháo hoa bắn rợp trời");
-                launchFinaleFireworks(); 
-                
-                // GIẢN CÁCH THỜI GIAN BẮN PHÁO HOA ĐỂ GIẢM LAG MÁY (Từ 0.8s lên 1.5s)
-                setInterval(launchFirework, 1500); 
-                // ĐÃ XÓA setInterval(spawnFragment, 1000) Ở ĐÂY ĐỂ KHÔNG BỊ LẶP CHỒNG SAO BĂNG
-            }, 3000);
-        }
+$$("[data-action]").forEach(b=>b.addEventListener("click",()=>{
+    Audio.click();
+    const a=b.dataset.action;
+    track("Nút Menu: " + a, "Kích hoạt chức năng");
+    if(a==="play")startLevel(Math.min(Game.currentLevel,Game.unlockedLevels));
+    if(a==="select"){renderLevelSelect();screen("levelSelect")}
+    if(a==="ach"){renderAch();screen("achievements")}
+    if(a==="help")screen("help");
+    if(a==="menu")goMenu();
+    if(a==="sound"){Game.soundEnabled=!Game.soundEnabled;updateSoundText();save()}
+    if(a==="resetSave")resetSave();
+}));
 
-        function launchFinaleFireworks() { for(let i=0; i<5; i++) setTimeout(launchFirework, i*200); }
+$("#hintBtn").addEventListener("click",showHint);
+$("#restartBtn").addEventListener("click",()=>{ track("Nút UI: Bấm Restart", "Chơi lại màn " + Game.currentLevel); startLevel(Game.currentLevel); });
+$("#pauseBtn").addEventListener("click",togglePause);
 
-        window.onload = () => { initApp(); if(localStorage.getItem(CONFIG.wishStorageKey)) revealWishStar(); };
-    </script>
+$$(".mobileBtn").forEach(b=>{
+    const k=b.dataset.key;
+    b.addEventListener("pointerdown",e=>{e.preventDefault();b.setPointerCapture?.(e.pointerId);Game.keys[k]=true});
+    ["pointerup","pointercancel"].forEach(ev=>b.addEventListener(ev,e=>{Game.keys[k]=false;try{b.releasePointerCapture?.(e.pointerId)}catch(_){}}))
+});
+
+window.addEventListener("pointerup",()=>{Game.keys.left=false;Game.keys.right=false;Game.keys.jump=false});
+window.addEventListener("pointercancel",()=>{Game.keys.left=false;Game.keys.right=false;Game.keys.jump=false});
+
+// Easter Egg Avatar Clicks (Menu)
+$("#menuAvatarWrap").addEventListener("click", ()=>{
+    Game.avatarClicks++;
+    if(Game.avatarClicks===5){
+        say("Sao cứ chọc vợ hoài vậy? Em méc giờ! 😤❤️", 3000);
+        track("Chọc Avatar Menu", "Bấm đủ 5 lần -> Avatar cáu bẳn");
+        Game.avatarClicks=0;
+    }
+});
+
+// Easter Egg Troll Clicks
+$("#troll").addEventListener("click",()=>{
+    Game.trollClicks++;
+    let textsay = "";
+    if(Game.trollClicks===5){
+        textsay = `Đây là sinh nhật ${HER.name}, không phải ngày hành hạ anh! 😭`;
+        Game.trollClicks=0;
+    } else {
+        textsay = choice(["Á, chọc đau đó 😭","Tập trung chơi đi vợ yêu 😏","Nhớ anh nên cứ bấm hoài hả? ❤️","Đừng nhìn anh mãi 😳"]);
+    }
+    say(textsay, 3000);
+    track("Chọc mặt Quản Trò", textsay);
+});
+
+window.addEventListener("beforeunload",save);
+load();refreshAvatarPreviews();requestAnimationFrame(gameLoop);
+</script>
 </body>
 </html>
