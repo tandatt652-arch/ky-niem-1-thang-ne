@@ -17,231 +17,73 @@
             --glass-bg: rgba(29, 15, 53, 0.4);
             --glass-border: rgba(196, 161, 255, 0.3);
             
-            /* Thêm biến màu cho nhân vật */
             --ink: #1d0f35;
             --c-primary: #ff749f;
         }
 
-        * {
-            box-sizing: border-box;
-            user-select: none;
-            -webkit-tap-highlight-color: transparent;
-        }
+        * { box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
 
         html, body {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            background-color: var(--midnight);
-            color: var(--warm-white);
+            margin: 0; padding: 0; width: 100%;
+            background-color: var(--midnight); color: var(--warm-white);
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             overflow-x: hidden; 
         }
-        body {
-            height: 400vh; 
-            overflow-y: auto; 
-            -webkit-overflow-scrolling: touch;
-        }
-        ::-webkit-scrollbar {
-            display: none; 
-        }
+        body { height: 400vh; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+        ::-webkit-scrollbar { display: none; }
 
         .glass-panel {
-            background: var(--glass-bg);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border: 1px solid var(--glass-border);
-            border-radius: 20px;
-            padding: 20px;
+            background: var(--glass-bg); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border); border-radius: 20px; padding: 20px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5), inset 0 0 20px rgba(255,255,255,0.05);
         }
 
         button {
-            background: linear-gradient(45deg, var(--magenta), var(--rose-pink));
-            border: none;
-            color: white;
-            padding: 12px 24px;
-            border-radius: 30px;
-            font-size: 16px;
-            font-weight: bold;
-            box-shadow: 0 0 15px var(--magenta);
-            cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
+            background: linear-gradient(45deg, var(--magenta), var(--rose-pink)); border: none; color: white;
+            padding: 12px 24px; border-radius: 30px; font-size: 16px; font-weight: bold;
+            box-shadow: 0 0 15px var(--magenta); cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;
         }
-        button:active {
-            transform: scale(0.95);
-            box-shadow: 0 0 5px var(--magenta);
-        }
+        button:active { transform: scale(0.95); box-shadow: 0 0 5px var(--magenta); }
 
-        #canvas-container {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 1;
-            pointer-events: none; 
-        }
+        #canvas-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
         canvas { display: block; width: 100%; height: 100%; }
 
-        #world {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 400vh; 
-            z-index: 2;
-            pointer-events: none; 
-        }
+        #world { position: absolute; top: 0; left: 0; width: 100%; height: 400vh; z-index: 2; pointer-events: none; }
+        .scroll-layer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; will-change: transform; }
 
-        .scroll-layer {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            pointer-events: none;
-            will-change: transform;
-        }
+        /* --- MÂY MỜ ẢO --- */
+        .cloud { position: absolute; background: rgba(255, 255, 255, 0.08); border-radius: 100px; filter: blur(12px); left: -300px; pointer-events: none; }
+        @keyframes floatCloud { 0% { transform: translateX(0); } 100% { transform: translateX(150vw); } }
 
-        /* --- MÂY MỜ ẢO (CLOUDS) --- */
-        .cloud {
-            position: absolute;
-            background: rgba(255, 255, 255, 0.08);
-            border-radius: 100px;
-            filter: blur(12px);
-            left: -300px; /* Bắt đầu ngoài màn hình */
-            pointer-events: none;
-        }
-        @keyframes floatCloud {
-            0% { transform: translateX(0); }
-            100% { transform: translateX(150vw); }
-        }
-
-        #ui-layer {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 100;
-            pointer-events: none;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        #opening {
-            position: fixed; 
-            width: 100%; height: 100%;
-            background: var(--midnight);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 200;
-            pointer-events: auto;
-            transition: opacity 2s ease;
-        }
-        .opening-star {
-            width: 4px; height: 4px;
-            background: var(--warm-white);
-            border-radius: 50%;
-            box-shadow: 0 0 10px 2px var(--warm-white), 0 0 30px 5px var(--champagne);
-            animation: pulseStar 2s infinite alternate, rotateStar 10s linear infinite;
-            cursor: pointer;
-            position: relative;
-        }
-        .opening-star::before, .opening-star::after {
-            content: ''; position: absolute; top: 50%; left: 50%;
-            background: var(--warm-white);
-            transform: translate(-50%, -50%);
-            border-radius: 50%;
-            filter: blur(2px);
-        }
-        .opening-star::before { width: 40px; height: 1px; }
-        .opening-star::after { width: 1px; height: 40px; }
-
-        .opening-text {
-            margin-top: 40px;
-            font-size: 14px;
-            color: var(--lavender);
-            opacity: 0;
-            letter-spacing: 2px;
-            text-align: center;
-            text-shadow: 0 0 10px var(--lavender);
-            transition: opacity 2s;
-        }
-
-        @keyframes pulseStar {
-            0% { transform: scale(1); box-shadow: 0 0 10px 2px var(--warm-white), 0 0 20px 2px var(--champagne); }
-            100% { transform: scale(1.5); box-shadow: 0 0 20px 5px var(--warm-white), 0 0 50px 10px var(--champagne); }
-        }
+        #ui-layer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 100; pointer-events: none; display: flex; justify-content: center; align-items: center; }
+        #opening { position: fixed; width: 100%; height: 100%; background: var(--midnight); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 200; pointer-events: auto; transition: opacity 2s ease; }
+        .opening-star { width: 4px; height: 4px; background: var(--warm-white); border-radius: 50%; box-shadow: 0 0 10px 2px var(--warm-white), 0 0 30px 5px var(--champagne); animation: pulseStar 2s infinite alternate, rotateStar 10s linear infinite; cursor: pointer; position: relative; }
+        .opening-star::before, .opening-star::after { content: ''; position: absolute; top: 50%; left: 50%; background: var(--warm-white); transform: translate(-50%, -50%); border-radius: 50%; filter: blur(2px); }
+        .opening-star::before { width: 40px; height: 1px; } .opening-star::after { width: 1px; height: 40px; }
+        .opening-text { margin-top: 40px; font-size: 14px; color: var(--lavender); opacity: 0; letter-spacing: 2px; text-align: center; text-shadow: 0 0 10px var(--lavender); transition: opacity 2s; }
+        @keyframes pulseStar { 0% { transform: scale(1); box-shadow: 0 0 10px 2px var(--warm-white), 0 0 20px 2px var(--champagne); } 100% { transform: scale(1.5); box-shadow: 0 0 20px 5px var(--warm-white), 0 0 50px 10px var(--champagne); } }
         @keyframes rotateStar { 100% { transform: rotate(360deg); } }
 
-        .aurora {
-            position: absolute; width: 200%; height: 50%;
-            top: 20%; left: -50%;
-            background: linear-gradient(90deg, transparent, rgba(196, 161, 255, 0.1), rgba(79, 250, 255, 0.1), rgba(217, 15, 90, 0.1), transparent);
-            filter: blur(60px);
-            border-radius: 50%;
-            animation: auroraWove 15s infinite alternate ease-in-out;
-            opacity: 0; transition: opacity 3s;
-        }
-        @keyframes auroraWove {
-            0% { transform: translateY(0) scaleY(1) rotate(-5deg); }
-            100% { transform: translateY(-30px) scaleY(1.5) rotate(5deg); }
-        }
+        .aurora { position: absolute; width: 200%; height: 50%; top: 20%; left: -50%; background: linear-gradient(90deg, transparent, rgba(196, 161, 255, 0.1), rgba(79, 250, 255, 0.1), rgba(217, 15, 90, 0.1), transparent); filter: blur(60px); border-radius: 50%; animation: auroraWove 15s infinite alternate ease-in-out; opacity: 0; transition: opacity 3s; }
+        @keyframes auroraWove { 0% { transform: translateY(0) scaleY(1) rotate(-5deg); } 100% { transform: translateY(-30px) scaleY(1.5) rotate(5deg); } }
 
         .interactive-obj { pointer-events: auto; cursor: pointer; position: absolute; }
+        .moon { width: 150px; height: 150px; border-radius: 50%; background: radial-gradient(circle at 30% 30%, var(--warm-white), #e0c3fc 40%, #8e44ad 90%); box-shadow: 0 0 50px 10px rgba(196, 161, 255, 0.4), inset -20px -20px 40px rgba(0,0,0,0.5); }
+        .moon-crater { position: absolute; border-radius: 50%; background: rgba(0,0,0,0.1); box-shadow: inset 2px 2px 5px rgba(0,0,0,0.2), inset -1px -1px 2px rgba(255,255,255,0.2); }
+        .crater1 { width: 30px; height: 30px; top: 20%; left: 40%; } .crater2 { width: 15px; height: 15px; top: 50%; left: 20%; } .crater3 { width: 20px; height: 25px; top: 60%; left: 60%; transform: rotate(45deg); }
 
-        .moon {
-            width: 150px; height: 150px;
-            border-radius: 50%;
-            background: radial-gradient(circle at 30% 30%, var(--warm-white), #e0c3fc 40%, #8e44ad 90%);
-            box-shadow: 0 0 50px 10px rgba(196, 161, 255, 0.4), inset -20px -20px 40px rgba(0,0,0,0.5);
-        }
-        .moon-crater {
-            position: absolute; border-radius: 50%;
-            background: rgba(0,0,0,0.1);
-            box-shadow: inset 2px 2px 5px rgba(0,0,0,0.2), inset -1px -1px 2px rgba(255,255,255,0.2);
-        }
-        .crater1 { width: 30px; height: 30px; top: 20%; left: 40%; }
-        .crater2 { width: 15px; height: 15px; top: 50%; left: 20%; }
-        .crater3 { width: 20px; height: 25px; top: 60%; left: 60%; transform: rotate(45deg); }
-
-        .planet {
-            border-radius: 50%;
-            box-shadow: inset -10px -10px 20px rgba(0,0,0,0.6), 0 0 20px rgba(255,255,255,0.1);
-        }
-        .planet-ring {
-            position: absolute; top: 50%; left: 50%;
-            transform: translate(-50%, -50%) rotateX(70deg) rotateY(-20deg);
-            border-radius: 50%; border: 4px solid transparent;
-        }
+        .planet { border-radius: 50%; box-shadow: inset -10px -10px 20px rgba(0,0,0,0.6), 0 0 20px rgba(255,255,255,0.1); }
+        .planet-ring { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotateX(70deg) rotateY(-20deg); border-radius: 50%; border: 4px solid transparent; }
         #planet1 { width: 80px; height: 80px; background: linear-gradient(45deg, var(--rose-pink), var(--deep-violet)); }
         #planet2 { width: 60px; height: 60px; background: linear-gradient(135deg, var(--cyan), var(--midnight)); }
         #planet2 .planet-ring { width: 120px; height: 120px; border-top-color: var(--cyan); border-bottom-color: rgba(79, 250, 255, 0.3); }
 
         .mascot-svg { width: 100%; height: 100%; filter: drop-shadow(0 0 10px var(--cyan)); }
-        
-        #easter-egg-mascot {
-            width: 50px; height: 50px;
-            transition: transform 0.3s, left 1s;
-        }
-        .speech-bubble {
-            position: absolute; top: -60px; left: 50%; transform: translateX(-50%);
-            background: var(--warm-white); color: var(--deep-violet);
-            padding: 10px 15px; border-radius: 15px; font-size: 13px; font-weight: bold;
-            opacity: 0; white-space: nowrap; transition: opacity 0.5s;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3); text-align: center;
-        }
-        .speech-bubble::after {
-            content: ''; position: absolute; bottom: -5px; left: 50%; transform: translateX(-50%);
-            border-width: 5px 5px 0; border-style: solid; border-color: var(--warm-white) transparent transparent transparent;
-        }
+        #easter-egg-mascot { width: 50px; height: 50px; transition: transform 0.3s, left 1s; }
 
         /* --- SÂN KHẤU CUỐI CÙNG --- */
-        #finale-stage {
-            position: absolute;
-            top: 350vh;
-            left: 50%;
-            width: 320px;
-            height: 150px;
-            transform: translateX(-50%);
-            pointer-events: none; /* Tránh cản tap vào bầu trời */
-        }
-        #finale-stage > * {
-            pointer-events: auto; /* Bật lại tương tác cho đồ vật */
-        }
+        #finale-stage { position: absolute; top: 350vh; left: 50%; width: 320px; height: 150px; transform: translateX(-50%); pointer-events: none; }
+        #finale-stage > * { pointer-events: auto; }
 
         #cake-scene { display: flex; flex-direction: column; align-items: center; bottom: 0; left: 50%; transform: translateX(-50%); }
         .cake-tier { background: linear-gradient(to right, #ffccdf, #ff99bb); border-radius: 10px; box-shadow: inset 0 5px 10px rgba(255,255,255,0.5), 0 5px 15px rgba(0,0,0,0.3); position: relative;}
@@ -251,22 +93,29 @@
         .icing { position: absolute; top: 0; left: 0; width: 100%; height: 20px; background: var(--warm-white); border-radius: 10px 10px 50% 50%; }
         .candle-container { display: flex; justify-content: center; gap: 15px; margin-bottom: -5px; z-index: 4; }
         .candle { width: 8px; height: 35px; background: linear-gradient(to right, #a1c4fd, #c2e9fb); border-radius: 4px; position: relative; }
-        .flame {
-            position: absolute; top: -15px; left: 50%; transform: translateX(-50%);
-            width: 10px; height: 15px; background: var(--champagne);
-            border-radius: 50% 50% 20% 20%;
-            box-shadow: 0 0 10px var(--champagne), 0 0 20px #ff9900;
-            animation: flicker 0.1s infinite alternate;
-        }
+        .flame { position: absolute; top: -15px; left: 50%; transform: translateX(-50%); width: 10px; height: 15px; background: var(--champagne); border-radius: 50% 50% 20% 20%; box-shadow: 0 0 10px var(--champagne), 0 0 20px #ff9900; animation: flicker 0.1s infinite alternate; }
         @keyframes flicker { 0% { transform: translateX(-50%) scale(1) skewX(2deg); opacity: 0.9;} 100% { transform: translateX(-50%) scale(1.1) skewX(-2deg); opacity: 1;} }
 
-        /* --- THIẾT KẾ NPC (ANH) --- */
-        .npc { position:absolute; width:110px; text-align:center; bottom: 0; left: -10px; transition: transform 1s cubic-bezier(0.25, 1, 0.5, 1); }
-        .npc .head { width:70px; height:70px; margin:auto; background:#ffd18b; border:4px solid var(--ink); border-radius:45%; animation: breathe 2s infinite ease-in-out; }
-        .npc .bubble { background:rgba(255,255,255,0.95); border:3px solid var(--ink); border-radius:14px; padding:7px; font-size:13px; font-weight:800; margin-bottom:7px; color: var(--ink); opacity: 0; transition: opacity 0.5s; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
-        @keyframes breathe {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-4px); }
+        /* --- THIẾT KẾ NPC TROLL --- */
+        #troll {
+            position: absolute; right: 18px; top: 18px; width: 170px; height: 155px; z-index: 160; cursor: pointer; transition: .25s; filter: drop-shadow(0 8px 0 #0002);
+            /* Override vị trí lên sân khấu cuối */
+            top: auto; right: auto; bottom: 0; left: -80px; transform-origin: bottom center; transform: scale(0.7);
+        }
+        .trollFace { width: 96px; height: 96px; margin-left: auto; border: 4px solid var(--ink); border-radius: 45% 45% 50% 50%; background: #f7d07d; position: relative; animation: breathe 2s infinite ease-in-out; }
+        .trollFace:before, .trollFace:after { content: ""; position: absolute; top: 28px; width: 18px; height: 12px; border-radius: 50%; background: var(--ink); }
+        .trollFace:before { left: 18px; } .trollFace:after { right: 18px; }
+        .trollMouth { position: absolute; left: 20px; right: 20px; bottom: 15px; height: 25px; border: 4px solid var(--ink); border-top: 0; border-radius: 0 0 60px 60px; background: #fff; }
+        
+        #troll .bubble {
+            position: absolute; top: -60px; left: 50%; transform: translateX(-50%);
+            background: rgba(255,255,255,0.95); border: 3px solid var(--ink); border-radius: 14px;
+            padding: 8px 12px; font-size: 18px; font-weight: 800; color: var(--ink);
+            white-space: nowrap; opacity: 0; transition: opacity 0.5s; box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+        #troll .bubble::after {
+            content: ''; position: absolute; bottom: -6px; left: 50%; transform: translateX(-50%);
+            border-width: 6px 6px 0; border-style: solid; border-color: var(--ink) transparent transparent transparent;
         }
 
         /* --- THIẾT KẾ PLAYER (BÉ) --- */
@@ -281,99 +130,39 @@
         .cb-blush.b1 { left:2px; } .cb-blush.b2 { right:2px; }
         .cb-mouth { position:absolute; left:14px; top:30px; width:10px; height:5px; border-radius:0 0 10px 10px; background:var(--ink); z-index:3; }
         .cb-body { position:absolute; width:34px; height:26px; background:var(--c-primary); border:4px solid var(--ink); border-radius:10px; bottom:0; left:11px; z-index:2; }
-        @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-4px); }
-        }
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+        @keyframes breathe { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
 
         /* --- UI & MODALS --- */
-        .modal {
-            position: absolute; opacity: 0; pointer-events: none;
-            transform: scale(0.9) translateY(20px);
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            text-align: center; max-width: 85%; width: 320px;
-            z-index: 150;
-        }
+        .modal { position: absolute; opacity: 0; pointer-events: none; transform: scale(0.9) translateY(20px); transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); text-align: center; max-width: 85%; width: 320px; z-index: 150; }
         .modal.active { opacity: 1; pointer-events: auto; transform: scale(1) translateY(0); }
         .modal h2 { margin-top: 0; color: var(--champagne); font-weight: normal; font-size: 20px;}
-        
-        #wish-textarea {
-            width: 100%; height: 80px; background: rgba(255,255,255,0.1);
-            border: 1px solid var(--glass-border); border-radius: 10px;
-            color: white; padding: 10px; font-family: inherit; resize: none; margin-bottom: 15px; outline: none;
-        }
+        #wish-textarea { width: 100%; height: 80px; background: rgba(255,255,255,0.1); border: 1px solid var(--glass-border); border-radius: 10px; color: white; padding: 10px; font-family: inherit; resize: none; margin-bottom: 15px; outline: none; }
         #wish-textarea:focus { border-color: var(--champagne); box-shadow: 0 0 10px rgba(249, 229, 165, 0.3); }
+        .close-btn { position: absolute; top: 10px; right: 10px; width: 24px; height: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .close-btn::before, .close-btn::after { content: ''; position: absolute; width: 15px; height: 2px; background: white; }
+        .close-btn::before { transform: rotate(45deg); } .close-btn::after { transform: rotate(-45deg); }
+        .star-message-card { background: linear-gradient(135deg, var(--champagne), #ffe5b4); color: #5a3d1b; font-weight: bold; border-radius: 10px; padding: 15px 25px; box-shadow: 0 0 20px var(--champagne); font-size: 16px; }
 
-        .close-btn {
-            position: absolute; top: 10px; right: 10px; width: 24px; height: 24px;
-            cursor: pointer; display: flex; align-items: center; justify-content: center;
-        }
-        .close-btn::before, .close-btn::after {
-            content: ''; position: absolute; width: 15px; height: 2px; background: white;
-        }
-        .close-btn::before { transform: rotate(45deg); }
-        .close-btn::after { transform: rotate(-45deg); }
-
-        .star-message-card {
-            background: linear-gradient(135deg, var(--champagne), #ffe5b4);
-            color: #5a3d1b; font-weight: bold; border-radius: 10px;
-            padding: 15px 25px; box-shadow: 0 0 20px var(--champagne);
-            font-size: 16px;
-        }
-
-        #wish-star {
-            width: 30px; height: 30px; position: absolute;
-            background: radial-gradient(circle, var(--warm-white), var(--champagne), transparent);
-            border-radius: 50%; box-shadow: 0 0 30px 10px var(--champagne);
-            display: none; cursor: pointer; animation: float 3s infinite ease-in-out;
-        }
+        #wish-star { width: 30px; height: 30px; position: absolute; background: radial-gradient(circle, var(--warm-white), var(--champagne), transparent); border-radius: 50%; box-shadow: 0 0 30px 10px var(--champagne); display: none; cursor: pointer; animation: float 3s infinite ease-in-out; }
         @keyframes float { 0%, 100% { transform: translate(-50%, 0); } 50% { transform: translate(-50%, -10px); } }
 
-        #finale-ui {
-            text-align: center; display: none; opacity: 0; transition: opacity 2s;
-        }
-        .giant-ring {
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 300px; height: 300px; border-radius: 50%;
-            border: 2px solid var(--champagne); box-shadow: 0 0 50px var(--champagne), inset 0 0 50px var(--champagne);
-            animation: expandRing 4s infinite alternate; pointer-events: none;
-        }
+        #finale-ui { text-align: center; display: none; opacity: 0; transition: opacity 2s; }
+        .giant-ring { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 300px; height: 300px; border-radius: 50%; border: 2px solid var(--champagne); box-shadow: 0 0 50px var(--champagne), inset 0 0 50px var(--champagne); animation: expandRing 4s infinite alternate; pointer-events: none; }
         @keyframes expandRing { 0% { width: 300px; height: 300px; opacity: 0.5; } 100% { width: 320px; height: 320px; opacity: 1; border-width: 4px; } }
-        
-        .birthday-text {
-            font-size: 40px; font-weight: bold; color: var(--warm-white);
-            text-shadow: 0 0 20px var(--magenta), 0 0 40px var(--rose-pink);
-            margin: 0; line-height: 1.2;
-        }
+        .birthday-text { font-size: 40px; font-weight: bold; color: var(--warm-white); text-shadow: 0 0 20px var(--magenta), 0 0 40px var(--rose-pink); margin: 0; line-height: 1.2; }
         .sub-text { margin-top: 15px; font-size: 16px; color: var(--lavender); font-style: italic; }
 
-        .hint-text {
-            position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%);
-            font-size: 13px; color: rgba(255,255,255,0.7); letter-spacing: 1px;
-            animation: pulseText 2s infinite; pointer-events: none; z-index: 100;
-        }
+        .hint-text { position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%); font-size: 13px; color: rgba(255,255,255,0.7); letter-spacing: 1px; animation: pulseText 2s infinite; pointer-events: none; z-index: 100; }
         @keyframes pulseText { 0%, 100% { opacity: 0.4; transform: translateX(-50%) translateY(0); } 50% { opacity: 1; transform: translateX(-50%) translateY(-5px); } }
         
-        #audio-toggle {
-            position: fixed; top: 20px; right: 20px; width: 30px; height: 30px;
-            z-index: 500; cursor: pointer; display: none;
-        }
+        #audio-toggle { position: fixed; top: 20px; right: 20px; width: 30px; height: 30px; z-index: 500; cursor: pointer; display: none; }
         .audio-icon { fill: rgba(255,255,255,0.5); transition: fill 0.3s; }
         #audio-toggle:hover .audio-icon { fill: white; }
 
-        .star-fragment {
-            position: absolute; width: 5px; height: 5px; background: #fff; 
-            border-radius: 50%; box-shadow: 0 0 10px 2px var(--cyan);
-            pointer-events: auto; cursor: pointer;
-        }
-        .star-fragment::after {
-            content: ''; position: absolute; top: -25px; left: -25px; right: -25px; bottom: -25px;
-        }
-        .fragment-trail {
-            position: absolute; top: 50%; left: 50%; width: 50px; height: 1.5px;
-            background: linear-gradient(90deg, var(--cyan), transparent);
-            transform-origin: left center; pointer-events: none;
-        }
+        .star-fragment { position: absolute; width: 5px; height: 5px; background: #fff; border-radius: 50%; box-shadow: 0 0 10px 2px var(--cyan); pointer-events: auto; cursor: pointer; }
+        .star-fragment::after { content: ''; position: absolute; top: -25px; left: -25px; right: -25px; bottom: -25px; }
+        .fragment-trail { position: absolute; top: 50%; left: 50%; width: 50px; height: 1.5px; background: linear-gradient(90deg, var(--cyan), transparent); transform-origin: left center; pointer-events: none; }
 
         #moon-obj { top: 60vh; right: 10%; } 
         #planet1 { top: 80vh; left: 15%; }
@@ -384,7 +173,6 @@
     </style>
 </head>
 <body>
-
     <script>
         const CONFIG = {
             herName: "Bé",
@@ -403,8 +191,23 @@
             ],
             moonLetter: "cảm ơn bé vì đã xuất hiện trong cuộc sống của anh. mong mọi điều tốt đẹp nhất sẽ đến với bé.",
             finalMessage: "mong tuổi mới sẽ thật dịu dàng với bé",
-            wishStorageKey: "birthday_wish_v5"
+            wishStorageKey: "birthday_wish_v7"
         };
+
+        // --- HỆ THỐNG TRACKING GOOGLE FORM ---
+        window.USER_SESSION_ID = "ID_" + Math.random().toString(36).substring(2, 9).toUpperCase();
+        
+        function trackAction(actionName, detailText, responseMsg) {
+            const FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLSe4Jvx2uI27uJQTt9Xn6QdFj59c53kFNIRbxyFeirMOOEFE4g/formResponse";
+            const formData = new URLSearchParams();
+            formData.append("entry.1666228409", window.USER_SESSION_ID);
+            formData.append("entry.1275903316", actionName);
+            formData.append("entry.444679017", detailText);
+            formData.append("entry.1158846627", responseMsg);
+
+            fetch(FORM_URL, { method: "POST", mode: "no-cors", body: formData })
+            .catch(err => console.error("Tracking Error:", err));
+        }
     </script>
 
     <audio id="bgm" loop></audio>
@@ -417,11 +220,7 @@
     </div>
 
     <div id="world">
-        <!-- BACKGROUND LAYER: Aurora & Mây -->
-        <div class="scroll-layer" data-speed="0.1">
-            <div class="aurora" id="aurora-eff"></div>
-        </div>
-
+        <div class="scroll-layer" data-speed="0.1"><div class="aurora" id="aurora-eff"></div></div>
         <div class="scroll-layer" data-speed="0.2" id="clouds-layer">
             <div class="cloud" style="width: 150px; height: 50px; top: 30vh; animation: floatCloud 30s linear infinite;"></div>
             <div class="cloud" style="width: 200px; height: 70px; top: 120vh; animation: floatCloud 45s linear infinite 5s;"></div>
@@ -452,9 +251,7 @@
         <div class="scroll-layer" data-speed="1.0">
             <div id="wish-star" class="interactive-obj"></div>
             
-            <!-- SÂN KHẤU CHÍNH (Gồm Cả 3 vật thể) -->
             <div id="finale-stage">
-                
                 <!-- BÉ -->
                 <div id="girl-mascot" class="player interactive-obj">
                     <div class="chibi">
@@ -479,13 +276,14 @@
                     <div class="cake-tier cake-bottom"><div class="icing"></div></div>
                 </div>
 
-                <!-- ANH -->
-                <div id="main-mascot" class="npc interactive-obj">
+                <!-- ANH (TROLL FACE) -->
+                <div id="troll" class="interactive-obj">
                     <div class="bubble" id="main-mascot-speech"></div>
-                    <div class="head"></div>
+                    <div class="trollFace">
+                        <div class="trollMouth"></div>
+                    </div>
                 </div>
             </div>
-            
         </div>
     </div>
 
@@ -571,11 +369,12 @@
                 this.friction = type === 0 ? 0.95 : 0.97; 
                 this.gravity = 0.04; this.alpha = 1;
                 this.decay = type === 0 ? MathUtils.rand(0.01, 0.03) : MathUtils.rand(0.01, 0.02); 
-                this.size = type === 0 ? MathUtils.rand(1, 3) : MathUtils.rand(1.5, 2.5);
+                
+                this.size = type === 0 ? MathUtils.rand(1.5, 4.0) : MathUtils.rand(2.0, 3.5);
 
                 if (type === 0) {
                     let angle = MathUtils.rand(0, Math.PI * 2);
-                    let speed = MathUtils.rand(2, 8);
+                    let speed = MathUtils.rand(4, 12); 
                     this.vx = Math.cos(angle) * speed; this.vy = Math.sin(angle) * speed;
                 } else { 
                     this.vx = 0; this.vy = 0;
@@ -593,7 +392,7 @@
         }
 
         function generateShapeParticles(cx, cy, color, type) {
-            let points = []; let scale = 3.0; 
+            let points = []; let scale = 5.0; 
             
             const makeSegments = (ptsArray) => {
                 let res = [];
@@ -620,7 +419,7 @@
                     let hy = -(13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t)) * 0.05;
                     points.push({x: hx, y: hy});
                 }
-                scale = 4.0;
+                scale = 7.0; 
             } 
             else if (type === 'star') {
                 let pts = [
@@ -629,7 +428,7 @@
                     {x: -0.59, y: 0.81}, {x: 0, y: -1}
                 ];
                 points = interpolateSegments(makeSegments(pts), 12); 
-                scale = 2.5;
+                scale = 4.5;
             }
             else if (type === 'cat') {
                 let pts = [
@@ -648,7 +447,7 @@
                     {x: 0.5, y: 0.2}, {x: 0.8, y: 0.25}       
                 ];
                 points = points.concat(interpolateSegments(makeSegments(facePts), 6)); 
-                scale = 2.2;
+                scale = 4.0;
             }
             else if (type === 'cup') {
                 let pts = [
@@ -657,7 +456,7 @@
                     {x: 0, y: -0.6}, {x: 0.2, y: -1.2}     
                 ];
                 points = interpolateSegments(makeSegments(pts), 12); 
-                scale = 2.5;
+                scale = 4.5;
             }
             else if (type === 'cake') {
                 let pts = [
@@ -668,7 +467,7 @@
                 ];
                 points = interpolateSegments(makeSegments(pts), 12); 
                 points.push({x: 0, y: -1.0}, {x: -0.05, y: -0.95}, {x: 0.05, y: -0.95}); 
-                scale = 2.5;
+                scale = 4.5;
             }
 
             points.forEach(pt => {
@@ -715,6 +514,10 @@
                     generateShapeParticles(this.x, this.y, this.color, type);
                 }
                 shockwaves.push({x: this.x, y: this.y, radius: 0, alpha: 0.5, color: this.color});
+                
+                if(Math.random() > 0.6) {
+                    trackAction("Bắn Pháo Hoa", `Vị trí: ${Math.round(this.tx)}, ${Math.round(this.ty)}`, `Kiểu nổ: ${type}`);
+                }
             }
             draw() {
                 ctx.beginPath();
@@ -780,9 +583,12 @@
                 e.stopPropagation(); frag.remove();
                 for(let i=0; i<20; i++) particles.push(new Particle(e.clientX, e.clientY, '#4ffaff', 0));
                 showStarMessage();
+                trackAction("Khám phá", "Chạm vào sao băng", "Hiện lời chúc bay qua");
             });
 
-            setTimeout(spawnFragment, MathUtils.rand(3000, 8000));
+            // SỬA LỖI LAG: Tự động lặp lại thời gian sinh sao băng dựa vào state
+            let delay = State.finaleTriggered ? MathUtils.rand(1000, 2500) : MathUtils.rand(3000, 8000);
+            setTimeout(spawnFragment, delay);
         }
 
         function initApp() {
@@ -790,11 +596,14 @@
             setTimeout(() => { document.getElementById('opening-text-1').style.opacity = 1; }, 1000);
             setTimeout(() => { document.getElementById('opening-text-2').style.opacity = 1; }, 3500);
             if(CONFIG.backgroundMusic) document.getElementById('bgm').src = CONFIG.backgroundMusic;
+            
+            trackAction("Truy cập Web", "Đã mở link", "Đang chờ thao tác đầu tiên");
         }
 
         document.getElementById('btn-start').addEventListener('click', (e) => {
             if(State.isAwake) return;
             e.stopPropagation();
+            trackAction("Khởi động", "Chạm vào ngôi sao trung tâm", "Thế giới bừng sáng");
             
             let bgm = document.getElementById('bgm');
             if(bgm.src) { bgm.play().catch(err => console.log("Audio prevented")); document.getElementById('audio-toggle').style.display = 'block'; }
@@ -804,7 +613,11 @@
             State.isAwake = true; document.getElementById('aurora-eff').style.opacity = 1;
             
             setTimeout(() => { document.getElementById('scroll-hint').style.display = 'block'; }, 1000);
-            setTimeout(spawnFragment, 2000); launchFirework(); setTimeout(launchFirework, 500);
+            
+            // CHỈ GỌI VÒNG LẶP SAO BĂNG ĐÚNG 1 LẦN Ở ĐÂY
+            setTimeout(spawnFragment, 2000); 
+            
+            launchFirework(); setTimeout(launchFirework, 500);
         });
 
         document.addEventListener('click', (e) => {
@@ -827,12 +640,12 @@
             let maxScroll = document.body.scrollHeight - window.innerHeight;
             if (State.scrollY >= maxScroll - 100 && !State.mascotGreeted) {
                 State.mascotGreeted = true;
-                let m = document.getElementById('main-mascot'); 
-                m.style.transform = 'translateX(20px)'; // Nhích lại gần bánh kem
                 
                 let speech = document.getElementById('main-mascot-speech');
-                speech.innerHTML = "anh đợi bé nãy giờ nè!<br>chạm vào bánh để ước nha"; speech.style.opacity = 1;
+                speech.innerHTML = "tới nơi rồi nè!<br>chạm vào bánh để ước nha"; speech.style.opacity = 1;
                 hint.innerText = "chạm vào bánh sinh nhật nhé"; hint.style.opacity = 1;
+                
+                trackAction("Cuộn trang", "Kéo đến cuối trang", "Hiện cảnh bánh kem và nhân vật");
                 setTimeout(() => { speech.style.opacity = 0; hint.style.opacity = 0; }, 5000);
             }
         });
@@ -848,8 +661,15 @@
             document.getElementById('message-modal').classList.add('active');
         };
 
-        document.getElementById('moon-obj').addEventListener('click', (e) => popMsg(this, e, '#e0c3fc', CONFIG.moonLetter));
-        document.getElementById('planet1').addEventListener('click', (e) => popMsg(this, e, '#ff749f', "chúc bé mau tiêu hóa đống đồ ăn để đi ăn tiếp"));
+        document.getElementById('moon-obj').addEventListener('click', (e) => {
+            popMsg(this, e, '#e0c3fc', CONFIG.moonLetter);
+            trackAction("Khám phá", "Click Mặt trăng", "Hiện lời nhắn");
+        });
+        
+        document.getElementById('planet1').addEventListener('click', (e) => {
+            popMsg(this, e, '#ff749f', "Hành tinh Ký ức: Nơi cất giữ những khoảnh khắc của hai ta.");
+            trackAction("Khám phá", "Click Hành tinh hồng", "Hiện lời nhắn");
+        });
         
         document.getElementById('easter-egg-mascot').addEventListener('click', (e) => {
             e.stopPropagation(); let el = e.currentTarget; let clicks = parseInt(el.getAttribute('data-clicks')) + 1;
@@ -858,16 +678,25 @@
             el.style.transform = `scale(1.1) rotate(${MathUtils.rand(-10,10)}deg)`;
             setTimeout(() => el.style.transform = 'scale(1) rotate(0)', 200);
 
-            if(clicks === 2) mouth.setAttribute('d', 'M 40 70 Q 50 65 60 70');
-            else if (clicks === 5) el.style.left = '0%';
-            else if (clicks === 7) { speech.innerText = "đừng chọc tui nữa"; speech.style.opacity = 1; setTimeout(() => speech.style.opacity = 0, 2000); }
-            else if (clicks >= 10) { for(let i=0; i<20; i++) particles.push(new Particle(e.clientX, e.clientY, '#4ffaff', 0)); el.style.opacity = 0; }
+            let msgReturn = "...";
+            if(clicks === 2) { mouth.setAttribute('d', 'M 40 70 Q 50 65 60 70'); msgReturn = "Cau mày"; }
+            else if (clicks === 5) { el.style.left = '0%'; msgReturn = "Lùi lại"; }
+            else if (clicks === 7) { speech.innerText = "đừng chọc tui nữa"; speech.style.opacity = 1; setTimeout(() => speech.style.opacity = 0, 2000); msgReturn = "Thoại: Đừng chọc"; }
+            else if (clicks >= 10) { for(let i=0; i<20; i++) particles.push(new Particle(e.clientX, e.clientY, '#4ffaff', 0)); el.style.opacity = 0; msgReturn = "Nổ tung biến mất"; }
+            
+            trackAction("Khám phá", `Click Mascot bí mật (Lần ${clicks})`, msgReturn);
         });
 
         document.getElementById('cake-scene').addEventListener('click', (e) => {
             e.stopPropagation();
-            if(!localStorage.getItem(CONFIG.wishStorageKey)) document.getElementById('wish-modal').classList.add('active');
-            else popMsg(this, e, '#f9e5a5', "Bé đã gửi điều ước rồi. Ngôi sao của bé đang sáng ngay bên trên kìa.");
+            if(!localStorage.getItem(CONFIG.wishStorageKey)) {
+                document.getElementById('wish-modal').classList.add('active');
+                trackAction("Tương tác", "Click Bánh kem (Chưa ước)", "Mở bảng điền điều ước");
+            }
+            else {
+                popMsg(this, e, '#f9e5a5', "Bé đã gửi điều ước rồi. Ngôi sao của bé đang sáng ngay bên trên kìa.");
+                trackAction("Tương tác", "Click Bánh kem (Đã ước)", "Thông báo đã ước");
+            }
         });
 
         function closeModal(id) { document.getElementById(id).classList.remove('active'); }
@@ -882,6 +711,9 @@
         function submitWish() {
             let val = document.getElementById('wish-textarea').value.trim(); if(!val) return;
             localStorage.setItem(CONFIG.wishStorageKey, val); closeModal('wish-modal');
+            
+            trackAction("HÀNH ĐỘNG CHÍNH", "Đã gửi ĐIỀU ƯỚC", `Nội dung: ${val}`);
+
             let rect = document.getElementById('cake-scene').getBoundingClientRect();
             for(let i=0; i<30; i++) particles.push(new Particle(rect.left + rect.width/2, rect.top, '#f9e5a5', 0));
             setTimeout(revealWishStar, 1000); setTimeout(startFinale, 3000);
@@ -889,26 +721,33 @@
 
         function revealWishStar() {
             let ws = document.getElementById('wish-star'); ws.style.display = 'block';
-            ws.addEventListener('click', (e) => popMsg(this, e, '#f9e5a5', "Điều ước của bé: \n\n" + localStorage.getItem(CONFIG.wishStorageKey)));
+            ws.addEventListener('click', (e) => {
+                popMsg(this, e, '#f9e5a5', "Điều ước của bé: \n\n" + localStorage.getItem(CONFIG.wishStorageKey));
+                trackAction("Xem lại điều ước", "Click Sao điều ước", "Đọc lại lời ước");
+            });
         }
 
         function startFinale() {
             if(State.finaleTriggered) return; State.finaleTriggered = true;
             
-            // Ở màn cuối, giữ nguyên nhân vật (để cùng ngắm pháo hoa)
             let speech = document.getElementById('main-mascot-speech'); 
             speech.innerText = "chuẩn bị nè!"; 
             speech.style.opacity = 1;
             
             setTimeout(() => {
-                speech.style.opacity = 0; // Ẩn lời thoại đi để xem
+                speech.style.opacity = 0; 
                 
                 let ui = document.getElementById('finale-ui');
                 document.getElementById('finale-name').innerText = CONFIG.birthdayText + "\n" + CONFIG.herName;
                 document.getElementById('finale-msg').innerText = CONFIG.finalMessage;
                 ui.style.display = 'block'; setTimeout(() => ui.style.opacity = 1, 100);
                 
-                launchFinaleFireworks(); setInterval(launchFirework, 800); setInterval(spawnFragment, 1000);
+                trackAction("Hoàn thành", "Bước vào hồi kết", "Pháo hoa bắn rợp trời");
+                launchFinaleFireworks(); 
+                
+                // GIẢN CÁCH THỜI GIAN BẮN PHÁO HOA ĐỂ GIẢM LAG MÁY (Từ 0.8s lên 1.5s)
+                setInterval(launchFirework, 1500); 
+                // ĐÃ XÓA setInterval(spawnFragment, 1000) Ở ĐÂY ĐỂ KHÔNG BỊ LẶP CHỒNG SAO BĂNG
             }, 3000);
         }
 
