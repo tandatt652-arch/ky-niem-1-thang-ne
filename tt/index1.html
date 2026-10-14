@@ -1,869 +1,2546 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Bấm dô ii❤️</title>
-    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght=700&display=swap" rel="stylesheet">
-    <style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>💕Xoa dịu cơn đau của cụng dàng💕</title>
+  <!-- Font chữ nét mảnh & điệu đà (Great Vibes & Alex Brush) hỗ trợ đầy đủ tiếng Việt -->
+  <link href="https://fonts.googleapis.com/css2?family=Alex+Brush&family=Great+Vibes&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+  <style>
+    :root {
+      --ink: #2b2d42;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-user-select: none; }
+    body {
+      background: linear-gradient(135deg, #fff0f5 0%, #e6f7ff 100%);
+      color: #4a4a68;
+      font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 10px;
+      overflow-x: hidden;
+      touch-action: manipulation;
+    }
 
-        body, html {
-            margin: 0; padding: 0; width: 100%; height: 100%;
-            overflow: hidden; user-select: none; -webkit-user-select: none;
-            background-color: #000003; font-family: Arial, sans-serif;
-        }
-        #canvas-container { width: 100%; height: 100%; position: absolute; top: 0; left: 0; z-index: 1; }
-        #crosshair {
-    position: absolute; top: 50%; left: 50%; width: 6px; height: 6px;
-    background: white; border-radius: 50%; transform: translate(-50%, -50%);
-    z-index: 15; pointer-events: none; mix-blend-mode: difference; display: none;
-}
-        #instruction {
-            position: absolute; top: 20px; left: 50%; transform: translateX(-50%);
-            color: rgba(255, 255, 255, 0.9); z-index: 10; text-align: center; pointer-events: none;
-            font-size: 14px; background: rgba(30, 40, 60, 0.6); padding: 10px 20px; border-radius: 20px;
-            box-shadow: 0 0 10px rgba(135, 206, 235, 0.5);
-            width: 85%; max-width: 600px;
-        }
+    /* Thanh kết nối P2P & Điều khiển Âm lượng */
+    #top-bar {
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(10px);
+      border: 2px solid #ffc2d1;
+      border-radius: 16px;
+      padding: 10px 16px;
+      margin-bottom: 10px;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      font-size: 13px;
+      max-width: 900px;
+      width: 100%;
+      box-shadow: 0 6px 20px rgba(255, 117, 140, 0.12);
+    }
+    .conn-group { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .badge {
+      background: #ffe5ec;
+      color: #ff4d6d;
+      padding: 5px 10px;
+      border-radius: 8px;
+      font-weight: 700;
+      user-select: text;
+      -webkit-user-select: text;
+      border: 1px dashed #ff8fa3;
+    }
+    input[type="text"] {
+      background: #fff;
+      border: 2px solid #bde0fe;
+      color: #333;
+      padding: 6px 12px;
+      border-radius: 8px;
+      outline: none;
+      font-size: 13px;
+      transition: border 0.2s;
+      width: 165px;
+    }
+    input[type="text"]:focus { border-color: #ff758c; }
+    button.btn {
+      background: linear-gradient(135deg, #ff758c 0%, #ff7eb3 100%);
+      color: #fff;
+      border: none;
+      padding: 7px 13px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 700;
+      box-shadow: 0 4px 10px rgba(255, 117, 140, 0.3);
+      transition: transform 0.15s, opacity 0.2s, background 0.25s;
+      font-size: 12.5px;
+    }
+    button.btn:hover { opacity: 0.92; transform: translateY(-1px); }
+    button.btn:active { transform: translateY(1px); }
+    button.btn-blue { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); box-shadow: 0 4px 10px rgba(79, 172, 254, 0.3); }
+    button.btn-purple { background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%); color: #2b2d42; }
 
-        /* JOYSTICK */
-        #joystick-zone {
-            position: absolute; bottom: 40px; left: 40px; width: 120px; height: 120px;
-            background: rgba(255, 255, 255, 0.2); border: 2px solid rgba(255, 255, 255, 0.5);
-            border-radius: 50%; z-index: 10; display: none; touch-action: none;
-        }
-        #joystick-knob {
-            position: absolute; top: 35px; left: 35px; width: 50px; height: 50px;
-            background: rgba(255, 255, 255, 0.9); box-shadow: 0 0 15px rgba(0,0,0,0.2); border-radius: 50%;
-        }
+    /* Cụm chỉnh âm lượng nhạc 8-bit */
+    .music-ctrl {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: #fff0f5;
+      border: 1.5px solid #ffc2d1;
+      padding: 4px 10px;
+      border-radius: 10px;
+    }
+    .music-btn {
+      background: none;
+      border: none;
+      font-size: 16px;
+      cursor: pointer;
+      line-height: 1;
+    }
+    #bgm-volume {
+      width: 72px;
+      accent-color: #ff4d6d;
+      cursor: pointer;
+      height: 5px;
+    }
 
-        /* Các nút tương tác cũ */
-        #door-prompt {
-            position: absolute; bottom: 25%; left: 50%; transform: translateX(-50%);
-            color: #fff; background: linear-gradient(45deg, #4caf50, #2196f3);
-            padding: 14px 28px; border-radius: 30px; font-size: 18px; font-weight: bold;
-            display: none; cursor: pointer; z-index: 10;
-            box-shadow: 0 0 20px rgba(33, 150, 243, 0.6);
-            animation: pulse 1.5s infinite alternate;
-        }
+    /* HUD Thông tin trận đấu */
+    #hud {
+      width: 100%;
+      max-width: 900px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      padding: 0 6px;
+    }
+    .hud-box {
+      background: #fff;
+      border: 2px solid #ffc2d1;
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-weight: 800;
+      font-size: 15px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+    #timer-box { color: #ff4d6d; font-size: 18px; }
+    #gift-counter { color: #3a86ff; }
 
-        #curtain-btn {
-            position: absolute; bottom: 25px; right: 25px;
-            color: #fff; background: linear-gradient(45deg, #9c27b0, #3f51b5);
-            padding: 12px 24px; border-radius: 25px; font-size: 16px; font-weight: bold;
-            cursor: pointer; z-index: 10;
-            box-shadow: 0 0 15px rgba(156, 39, 176, 0.6);
-            transition: transform 0.2s;
-        }
-        #curtain-btn:active { transform: scale(0.95); }
+    /* Khung Canvas chính */
+    #game-wrapper {
+      position: relative;
+      width: 100%;
+      max-width: 900px;
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: 0 12px 35px rgba(255, 117, 140, 0.22);
+      border: 4px solid #fff;
+      background: #a8e6cf;
+    }
+    canvas {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
 
-        /* HỆ THỐNG UI TƯƠNG TÁC MỚI (BÒ & CỎ) */
-        #action-prompt {
-            position: absolute; bottom: 30%; left: 50%; transform: translateX(-50%);
-            color: #fff; background: linear-gradient(45deg, #ff9800, #e91e63);
-            padding: 14px 28px; border-radius: 30px; font-size: 18px; font-weight: bold;
-            display: none; cursor: pointer; z-index: 20;
-            box-shadow: 0 0 20px rgba(233, 30, 99, 0.6);
-        }
+    /* Lớp chứa DOM Nhân vật Chibi khớp tọa độ Canvas */
+    #sprite-layer {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 900px;
+      height: 520px;
+      transform-origin: top left;
+      pointer-events: none;
+      z-index: 10;
+      overflow: hidden;
+    }
 
-        #dialogue-box {
-            position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%);
-            width: 90%; max-width: 500px; background: rgba(20, 20, 35, 0.92);
-            border: 3px solid #ff6b8b; border-radius: 20px; padding: 20px;
-            box-shadow: 0 0 25px rgba(255, 107, 139, 0.5);
-            display: none; flex-direction: column; z-index: 30; color: #fff;
-        }
-        #dialogue-text {
-            font-size: 16px; line-height: 1.5; margin-bottom: 20px; text-align: center; font-weight: 500;
-        }
-        .dialogue-options {
-            display: flex; flex-direction: column; gap: 10px; width: 100%;
-        }
-        .option-btn {
-            background: rgba(255, 255, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.3);
-            color: #fff; padding: 12px; border-radius: 12px; font-size: 15px; font-weight: bold;
-            cursor: pointer; transition: all 0.2s; text-align: center;
-        }
-        .option-btn:hover { background: #ff6b8b; border-color: #ff6b8b; }
+    /* =========================================================================
+       MODEL NHÂN VẬT CHIBI (NỮ & NAM)
+       ========================================================================= */
+    @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+    @keyframes walkWobble { 0%, 100% { transform: translateY(0) rotate(-3deg); } 50% { transform: translateY(-5px) rotate(3deg); } }
 
-        @keyframes pulse {
-            0% { transform: translateX(-50%) scale(1); }
-            100% { transform: translateX(-50%) scale(1.08); }
-        }
-    </style>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    .player {
+      position: absolute;
+      width: 56px;
+      height: 66px;
+      z-index: 20;
+      transform-origin: center bottom;
+      background: transparent;
+      border: none;
+      top: 0;
+      left: 0;
+      will-change: transform;
+      pointer-events: none;
+    }
+    .player.female {
+      --c-primary: #ff758c;
+      --c-secondary: #ffb3c6;
+      --c-accent: #ffe066;
+    }
+    .player.male {
+      --c-primary: #4facfe;
+      --c-secondary: #70d6ff;
+      --c-accent: #ffe066;
+    }
+    .player-name-tag {
+      position: absolute;
+      top: -22px;
+      left: 50%;
+      transform: translateX(-50%);
+      white-space: nowrap;
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--ink);
+      background: rgba(255, 255, 255, 0.85);
+      padding: 1px 7px;
+      border-radius: 10px;
+      border: 1.5px solid var(--ink);
+      z-index: 10;
+    }
+    .player-shadow {
+      position: absolute;
+      bottom: -5px;
+      left: 10px;
+      width: 36px;
+      height: 12px;
+      background: rgba(0, 0, 0, 0.16);
+      border-radius: 50%;
+      z-index: 0;
+    }
+
+    .chibi { position: relative; width: 100%; height: 100%; animation: bounce 1.5s infinite ease-in-out; }
+    .player.moving .chibi { animation: walkWobble 0.35s infinite ease-in-out; }
+
+    .cb-head { position: absolute; width: 46px; height: 46px; border: 4px solid var(--ink); border-radius: 45%; left: 5px; top: 0; z-index: 2; background: #ffe6d5; box-sizing: border-box; }
+    .cb-hair { position: absolute; width: 54px; height: 25px; background: var(--ink); border-radius: 25px 25px 0 0; top: -4px; left: -8px; z-index: 3; box-sizing: border-box; }
+    .cb-backhair { position: absolute; width: 56px; height: 50px; background: var(--ink); border-radius: 30px; top: 10px; left: 0; z-index: 1; }
+    .cb-eye { position: absolute; top: 20px; width: 6px; height: 10px; background: var(--ink); border-radius: 50%; z-index: 3; transition: transform 0.1s; }
+    .cb-eye::after { content: ""; position: absolute; top: 2px; left: 1px; width: 2.5px; height: 2.5px; background: #fff; border-radius: 50%; }
+    .cb-eye.e1 { left: 8px; } .cb-eye.e2 { right: 8px; }
+    .cb-blush { position: absolute; top: 26px; width: 8px; height: 5px; background: #ff7ca8; border-radius: 50%; opacity: 0.6; z-index: 3; }
+    .cb-blush.b1 { left: 2px; } .cb-blush.b2 { right: 2px; }
+    .cb-mouth { position: absolute; left: 14px; top: 30px; width: 10px; height: 5px; border-radius: 0 0 10px 10px; background: var(--ink); z-index: 3; }
+    .cb-body { position: absolute; width: 34px; height: 26px; background: var(--c-primary); border: 4px solid var(--ink); border-radius: 10px; bottom: 0; left: 11px; z-index: 2; box-sizing: border-box; overflow: hidden; }
+    .avatar-acc { position: absolute; pointer-events: none; z-index: 6; }
+
+    /* Phụ kiện Nơ của Bạn Gái (P2) */
+    .acc-bow { left: 23px; top: -2px; width: 42px; height: 26px; transform: rotate(6deg); }
+    .acc-bow::before, .acc-bow::after { content: ""; position: absolute; top: 3px; width: 18px; height: 14px; background: var(--c-secondary); border: 3px solid var(--ink); box-shadow: inset 0 3px #ffffffa0; box-sizing: border-box; }
+    .acc-bow::before { left: 1px; border-radius: 80% 25% 65% 30%; transform: rotate(-12deg); }
+    .acc-bow::after { right: 1px; border-radius: 25% 80% 30% 65%; transform: rotate(12deg); }
+    .acc-bow i { position: absolute; left: 16px; top: 6px; width: 10px; height: 10px; background: var(--c-accent); border: 3px solid var(--ink); border-radius: 5px; z-index: 3; box-sizing: border-box; }
+    .acc-bow span, .acc-bow b { position: absolute; display: block; width: 7px; height: 11px; background: var(--c-primary); border: 3px solid var(--ink); border-top: none; border-radius: 0 0 7px 7px; top: 12px; z-index: 2; box-sizing: border-box; }
+    .acc-bow span { left: 10px; transform: rotate(10deg); }
+    .acc-bow b { right: 10px; transform: rotate(-10deg); }
+
+    /* Thiết kế riêng cho Nhân Vật Nam (P1) */
+    .player.male .cb-backhair { width: 50px; height: 22px; top: 8px; left: 3px; border-radius: 12px; }
+    .player.male .cb-hair { width: 52px; height: 19px; top: -5px; left: -7px; border-radius: 20px 20px 6px 6px; }
+    .player.male .cb-hair::before { content: ""; position: absolute; left: 4px; bottom: -6px; width: 16px; height: 10px; background: var(--ink); border-radius: 0 0 12px 4px; transform: rotate(-8deg); }
+    .player.male .cb-hair::after { content: ""; position: absolute; right: 4px; bottom: -5px; width: 18px; height: 9px; background: var(--ink); border-radius: 0 0 4px 12px; transform: rotate(8deg); }
+    .cb-ahoge { position: absolute; top: -13px; left: 18px; width: 14px; height: 11px; border-top: 4px solid var(--ink); border-left: 4px solid var(--ink); border-radius: 100% 0 0 0; transform: rotate(15deg); z-index: 4; }
+    .cb-collar { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 16px; height: 8px; background: #fff; border: 2.5px solid var(--ink); border-top: none; border-radius: 0 0 6px 6px; z-index: 3; }
+    .cb-tie { position: absolute; top: 6px; left: 50%; transform: translateX(-50%); width: 7px; height: 11px; background: #ff4d6d; border: 2px solid var(--ink); border-radius: 2px 2px 5px 5px; z-index: 4; }
+    .acc-cap { left: -4px; top: -8px; width: 38px; height: 20px; transform: rotate(-10deg); }
+    .acc-cap::before { content: ""; position: absolute; top: 2px; left: 2px; width: 32px; height: 15px; background: var(--c-secondary); border: 3px solid var(--ink); border-radius: 20px 20px 6px 6px; box-shadow: inset 0 3px #ffffffa0; box-sizing: border-box; }
+    .acc-cap::after { content: ""; position: absolute; bottom: 1px; left: -4px; width: 22px; height: 7px; background: var(--c-primary); border: 3px solid var(--ink); border-radius: 8px 0 8px 8px; box-sizing: border-box; }
+    .acc-cap i { position: absolute; right: 9px; top: 5px; width: 8px; height: 8px; background: var(--c-accent); border: 2.5px solid var(--ink); border-radius: 50%; z-index: 3; box-sizing: border-box; }
+
+    /* =========================================================================
+       CÁC CỬA SỔ MODAL & MINI-GAME
+       ========================================================================= */
+    .modal-overlay {
+      display: none;
+      position: absolute;
+      inset: 0;
+      background: rgba(25, 20, 35, 0.55);
+      backdrop-filter: blur(5px);
+      z-index: 30;
+      align-items: center;
+      justify-content: center;
+      padding: 14px;
+    }
+    .modal-card {
+      background: #fff;
+      border: 3px solid #ff8fa3;
+      border-radius: 22px;
+      padding: 20px;
+      max-width: 500px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 15px 40px rgba(0,0,0,0.25);
+      animation: popIn 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      position: relative;
+    }
+    @keyframes popIn {
+      from { transform: scale(0.8); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+    .modal-title { font-size: 21px; color: #ff4d6d; margin-bottom: 5px; font-weight: 800; }
+    .modal-desc { font-size: 13px; color: #6c757d; margin-bottom: 12px; line-height: 1.4; }
+
+    /* Khung sân khấu Mê Cung chứa cả Canvas + Chibi DOM + Lớp Sương Mù */
+    #maze-stage {
+      position: relative;
+      width: 100%;
+      max-width: 420px;
+      aspect-ratio: 420 / 300;
+      margin: 0 auto;
+      border: 3px solid var(--ink);
+      border-radius: 14px;
+      overflow: hidden;
+      background: #141824;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.25);
+    }
+    #mazeCanvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+    #maze-sprite-layer {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 420px;
+      height: 300px;
+      transform-origin: top left;
+      pointer-events: none;
+      z-index: 15;
+      overflow: hidden;
+    }
+    #mazeFogCanvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 25;
+    }
+
+    /* Giao diện Mini-game Simon */
+    .simon-header {
+      display: flex; justify-content: space-between; align-items: center;
+      background: #fff0f5; padding: 8px 14px; border-radius: 12px; margin-bottom: 10px;
+      border: 1.5px solid #ffc2d1; font-weight: 800; font-size: 13.5px;
+    }
+    .simon-turn-banner {
+      padding: 8px 12px; border-radius: 10px; font-weight: 800; font-size: 14px;
+      margin-bottom: 12px; transition: all 0.2s;
+    }
+    .simon-grid {
+      display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;
+      max-width: 280px; margin: 0 auto 12px;
+    }
+    .simon-pad {
+      height: 86px; border-radius: 18px; border: 4px solid var(--ink);
+      font-size: 32px; display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: transform 0.1s, filter 0.15s, box-shadow 0.15s;
+      box-shadow: 0 6px 0 var(--ink);
+      opacity: 0.75;
+    }
+    .simon-pad:active { transform: translateY(4px); box-shadow: 0 2px 0 var(--ink); }
+    .simon-pad.lit {
+      opacity: 1;
+      filter: brightness(1.25);
+      transform: scale(1.06);
+      box-shadow: 0 0 24px currentColor, 0 4px 0 var(--ink);
+    }
+    .simon-pad-0 { background: #ff758c; color: #ff758c; }
+    .simon-pad-1 { background: #4facfe; color: #4facfe; }
+    .simon-pad-2 { background: #ffd166; color: #ffd166; }
+    .simon-pad-3 { background: #b388eb; color: #b388eb; }
+
+    .simon-steps-dots { display: flex; gap: 6px; justify-content: center; margin-top: 6px; min-height: 22px; }
+    .step-dot {
+      width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--ink);
+      font-size: 10px; display: flex; align-items: center; justify-content: center;
+      font-weight: bold; color: #fff; opacity: 0.35;
+    }
+    .step-dot.done { opacity: 1; transform: scale(1.1); }
+    .step-dot.current { opacity: 1; outline: 3px solid #ffe066; }
+
+    /* Giao diện Mini-game Lật Thẻ Bài 16 Ô */
+    .memory-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      max-width: 310px;
+      margin: 0 auto 8px;
+    }
+    .mem-card {
+      height: 60px;
+      border-radius: 12px;
+      border: 3px solid var(--ink);
+      background: linear-gradient(135deg, #ffc2d1 0%, #ffe5ec 100%);
+      box-shadow: 0 4px 0 var(--ink);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 26px;
+      cursor: pointer;
+      transition: transform 0.25s, opacity 0.3s, background 0.2s;
+      position: relative;
+    }
+    .mem-card:active { transform: translateY(2px); }
+    .mem-card.up { background: #ffffff; transform: scale(1.04); }
+    .mem-card.up.by-p1 { border-color: #4facfe; box-shadow: 0 4px 0 #4facfe; }
+    .mem-card.up.by-p2 { border-color: #ff4d6d; box-shadow: 0 4px 0 #ff4d6d; }
+    .mem-card.matched { opacity: 0; transform: scale(0); pointer-events: none; }
+
+    /* Nút bấm xen kẽ Xanh - Hồng cho Bức Thư Tình */
+    .mash-alt-btn {
+      width: 100%;
+      padding: 15px;
+      font-size: 17px;
+      font-weight: 900;
+      border-radius: 16px;
+      color: #fff;
+      cursor: pointer;
+      border: 4px solid var(--ink);
+      box-shadow: 0 6px 0 var(--ink);
+      transition: background 0.15s, transform 0.08s;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .mash-alt-btn:active { transform: translateY(4px); box-shadow: 0 2px 0 var(--ink); }
+    .mash-alt-btn.turn-blue { background: linear-gradient(135deg, #00b4db 0%, #4facfe 100%); }
+    .mash-alt-btn.turn-pink { background: linear-gradient(135deg, #ff4d6d 0%, #ff758c 100%); }
+
+    .sync-bar-bg {
+      width: 100%; height: 28px; background: #f1f3f5; border-radius: 14px;
+      position: relative; overflow: hidden; margin: 14px 0; border: 2px solid #dee2e6;
+    }
+
+    /* Hộp quà mở thành công */
+    .gift-preview-img {
+      width: 130px; height: 130px; object-fit: contain;
+      border-radius: 16px; border: 3px solid #ffe5ec; padding: 8px;
+      background: #fff9fb; margin: 10px auto; display: block;
+      box-shadow: 0 6px 16px rgba(255, 117, 140, 0.15);
+    }
+    .gallery-grid { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin: 14px 0; }
+    .gallery-item {
+      width: 68px; height: 68px; border-radius: 12px; border: 2px solid #ff8fa3;
+      padding: 4px; background: #fff0f3; object-fit: contain;
+    }
+
+    /* =========================================================================
+       MÀN HÌNH PHÁO HOA & KIỂU CHỮ MỎNG ĐIỆU ĐÀ 20/10
+       ========================================================================= */
+    #fireworks-overlay {
+      display: none;
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at center, #1b0a2e 0%, #090314 100%);
+      z-index: 50;
+      overflow: hidden;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    #fwCanvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+    .finale-content {
+      position: relative;
+      z-index: 55;
+      text-align: center;
+      padding: 20px;
+      pointer-events: auto;
+    }
+    @keyframes delicateFloat {
+      0%, 100% {
+        transform: translateY(0) scale(1);
+        filter: drop-shadow(0 0 10px rgba(255, 143, 163, 0.85)) drop-shadow(0 0 24px rgba(255, 229, 236, 0.45));
+      }
+      50% {
+        transform: translateY(-7px) scale(1.03);
+        filter: drop-shadow(0 0 16px rgba(255, 224, 102, 0.9)) drop-shadow(0 0 34px rgba(255, 117, 140, 0.8));
+      }
+    }
+    @keyframes shimmerFlow {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    .romantic-title {
+      font-family: 'Great Vibes', 'Alex Brush', cursive;
+      font-weight: 400;
+      font-size: clamp(40px, 6.5vw, 68px);
+      letter-spacing: 1.5px;
+      background: linear-gradient(270deg, #ffdde1, #fff6cc, #ffffff, #ffc2d1, #e0c3fc);
+      background-size: 300% 300%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: shimmerFlow 5s ease infinite, delicateFloat 3.4s ease-in-out infinite;
+      line-height: 1.4;
+      margin-bottom: 10px;
+      padding: 4px 16px;
+    }
+    .romantic-sub {
+      color: #ffe5ec;
+      font-size: 15px;
+      font-weight: 400;
+      letter-spacing: 1.5px;
+      opacity: 0.92;
+      text-shadow: 0 2px 10px rgba(255, 77, 109, 0.8);
+      margin-bottom: 24px;
+    }
+
+    /* Phím ảo Điện thoại */
+    #touch-controls {
+      display: none;
+      justify-content: space-between;
+      width: 100%;
+      max-width: 900px;
+      margin-top: 12px;
+      padding: 0 10px;
+      z-index: 40;
+    }
+    .dpad {
+      display: grid;
+      grid-template-columns: repeat(3, 50px);
+      grid-template-rows: repeat(2, 50px);
+      gap: 6px;
+    }
+    .t-btn {
+      background: #fff;
+      border: 2px solid #ffc2d1;
+      border-radius: 14px;
+      color: #ff4d6d;
+      font-weight: bold;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+      touch-action: none;
+    }
+    .t-btn.active { background: #ff758c; color: #fff; transform: scale(0.93); }
+    .action-btn-mobile {
+      width: 110px; height: 106px; border-radius: 24px;
+      background: linear-gradient(135deg, #ff758c 0%, #ff7eb3 100%);
+      color: #fff; font-size: 15px; border: none;
+    }
+
+    #guide { margin-top: 8px; font-size: 12.5px; color: #6c757d; text-align: center; }
+  </style>
 </head>
 <body>
-    <div id="door-prompt">Mở cửa ra đi nèe🚪</div>
-    <div id="curtain-btn">Chạm Mở/Đóng Rèm</div>
-    <div id="crosshair"></div>
-    <div id="action-prompt">Tương tác</div>
-    <div id="dialogue-box">
-        <div id="dialogue-text">Lời thoại của bò hiển thị ở đây...</div>
-        <div class="dialogue-options" id="options-container"></div>
+
+  <!-- Thanh Kết nối Online & Điều chỉnh Nhạc nền 8-bit -->
+  <div id="top-bar">
+    <div class="conn-group">
+      <span>Mã: <span id="my-id" class="badge">Đang tạo...</span></span>
+      <input type="text" id="target-id" placeholder="Dán mã cho ăm chã" />
+      <button id="btn-connect" class="btn">Ghép Đôi 💕</button>
+    </div>
+    <div class="conn-group">
+      <!-- Cụm Nút & Thanh trượt Âm lượng Nhạc 8-bit -->
+      <div class="music-ctrl" title="Điều chỉnh âm lượng nhạc nền 8-bit">
+        <button id="btn-bgm-toggle" class="music-btn">🎵</button>
+        <input type="range" id="bgm-volume" min="0" max="100" value="45" />
+      </div>
+      <span id="status" style="font-weight: 700; color: #ff758c;">Chưa ghép với ăm chã</span>
+      <button id="btn-toggle-map" class="btn btn-purple">🗺️ Ẩn Map</button>
+      <button id="btn-toggle-touch" class="btn btn-blue">📱 Phím Ảo</button>
+    </div>
+  </div>
+
+  <!-- Thanh Thông số Trận đấu -->
+  <div id="hud">
+    <div class="hud-box" id="gift-counter">🎁 Trò chơi: <span id="gift-count-text">0 / 5</span></div>
+    <div class="hud-box" id="timer-box">⏳ <span id="time-text">60:00</span></div>
+    <div class="hud-box">
+      <span style="color:#4facfe;">● Đạt</span> &amp; <span style="color:#ff758c;">● Tuyến</span>
+    </div>
+  </div>
+
+  <!-- Khung Màn hình Game -->
+  <div id="game-wrapper">
+    <canvas id="gameCanvas" width="900" height="520"></canvas>
+
+    <!-- LỚP HIỂN THỊ MODEL CHIBI CSS TRÊN BẢN ĐỒ CHÍNH -->
+    <div id="sprite-layer">
+      <!-- Nhân vật Nam (P1 - Anh) -->
+      <div id="dom-p1" class="player male">
+        <div class="player-name-tag">Đạt 💙</div>
+        <div class="player-shadow"></div>
+        <div class="chibi">
+          <div class="cb-backhair"></div>
+          <div class="cb-head">
+            <div class="cb-ahoge"></div>
+            <div class="cb-hair"></div>
+            <div class="cb-eye e1"></div>
+            <div class="cb-eye e2"></div>
+            <div class="cb-blush b1"></div>
+            <div class="cb-blush b2"></div>
+            <div class="cb-mouth"></div>
+          </div>
+          <div class="cb-body">
+            <div class="cb-collar"></div>
+            <div class="cb-tie"></div>
+          </div>
+          <div class="avatar-acc acc-cap"><i></i></div>
+        </div>
+      </div>
+
+      <!-- Nhân vật Bạn Gái (P2 - Em) -->
+      <div id="dom-p2" class="player female">
+        <div class="player-name-tag">Tuyến 💖</div>
+        <div class="player-shadow"></div>
+        <div class="chibi">
+          <div class="cb-backhair"></div>
+          <div class="cb-head">
+            <div class="cb-hair"></div>
+            <div class="cb-eye e1"></div>
+            <div class="cb-eye e2"></div>
+            <div class="cb-blush b1"></div>
+            <div class="cb-blush b2"></div>
+            <div class="cb-mouth"></div>
+          </div>
+          <div class="cb-body"></div>
+          <div class="avatar-acc acc-bow"><i></i><span></span><b></b></div>
+        </div>
+      </div>
     </div>
 
-    <div id="joystick-zone"><div id="joystick-knob"></div></div>
-    <div id="canvas-container"></div>
-
-    <script>
-        // --- CẤU HÌNH LIÊN KẾT THEO DÕI GOOGLE FORM CHÍNH XÁC CỦA BẠN ---
-        const GOOGLE_FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLSe4Jvx2uI27uJQTt9Xn6QdFj59c53kFNIRbxyFeirMOOEFE4g/formResponse";
-        
-        const FORM_ENTRY_IDS = {
-            playerId: "entry.1666228409",      // test1 -> Lưu mã người chơi
-            cowScale: "entry.992038501",       // test2 -> Lưu kích thước bò
-            questionText: "entry.1275903316",   // test3 -> Lời thoại/Ngữ cảnh
-            playerChoice: "entry.444679017"    // test4 -> Lựa chọn của người dùng
-        };
-
-        // Tạo ID ngẫu nhiên cho mỗi lượt tải trang để phân biệt giữa các người chơi khác nhau
-        const randomPlayerId = "User-" + Math.random().toString(36).substring(2, 9).toUpperCase();
-
-        // Hàm xử lý gửi dữ liệu chạy ngầm không gây lag game
-        function sendTrackingData(cowScale, questionText, playerChoice) {
-            const formData = new FormData();
-            formData.append(FORM_ENTRY_IDS.playerId, randomPlayerId);
-            formData.append(FORM_ENTRY_IDS.cowScale, cowScale);
-            formData.append(FORM_ENTRY_IDS.questionText, questionText);
-            formData.append(FORM_ENTRY_IDS.playerChoice, playerChoice);
-
-            fetch(GOOGLE_FORM_URL, {
-                method: "POST",
-                mode: "no-cors",
-                body: formData
-            }).then(() => {
-                console.log("Đã lưu lựa chọn:", {cowScale, questionText, playerChoice});
-            }).catch(err => console.error("Lỗi đồng bộ hệ thống:", err));
-        }
-
-        // --- KHỞI TẠO HỆ THỐNG MÔI TRƯỜNG NGÀY ---
-        const container = document.getElementById('canvas-container');
-        const scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x7ec0ee);
-        scene.fog = new THREE.FogExp2(0x7ec0ee, 0.005);
-
-        const playerGroup = new THREE.Group();
-        playerGroup.position.set(-3, 1.8, 3); 
-        scene.add(playerGroup);
-
-        const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 2000);
-        playerGroup.add(camera);
-
-        const renderer = new THREE.WebGLRenderer({ antialias: true });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setPixelRatio(window.devicePixelRatio);
-        renderer.shadowMap.enabled = true;
-        container.appendChild(renderer.domElement);
-
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
-        scene.add(ambientLight);
-
-        const sunLight = new THREE.DirectionalLight(0xfffaed, 0.9);
-        sunLight.position.set(120, 150, 100);
-        scene.add(sunLight);
-
-        const roomLight = new THREE.PointLight(0xffeedd, 1.0, 15);
-        roomLight.position.set(0, 3.2, 1);
-        scene.add(roomLight);
-
-        function createMat(color, roughness = 0.7) {
-            return new THREE.MeshStandardMaterial({ color: color, roughness: roughness, side: THREE.FrontSide });
-        }
-
-        // --- ĐỔI SÀN THẾ GIỚI THÀNH NỀN CỎ RỘNG VÔ TẬN ---
-        const grassMat = new THREE.MeshStandardMaterial({ color: 0x557a46, roughness: 0.9, metalness: 0.1 }); 
-        const floor = new THREE.Mesh(new THREE.PlaneGeometry(10000, 10000), grassMat);
-        floor.rotation.x = -Math.PI / 2; 
-        floor.receiveShadow = true;
-        floor.position.y = 0; 
-        scene.add(floor); 
-
-        // --- CĂN PHÒNG ---
-        const roomGroup = new THREE.Group();
-        scene.add(roomGroup);
-
-        const wallMat = new THREE.MeshStandardMaterial({ color: 0xf29cbc, roughness: 1.0, metalness: 0.0, side: THREE.DoubleSide }); 
-        const roomFloorMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.25, metalness: 0.15 }); 
-
-        const roomFloor = new THREE.Mesh(new THREE.PlaneGeometry(12, 12), roomFloorMat);
-        roomFloor.rotation.x = -Math.PI / 2; 
-        roomFloor.position.y = 0.005; // Đã sửa khoảng cách để triệt tiêu lỗi chồng lấp đổi màu nền
-        roomFloor.receiveShadow = true; 
-        roomGroup.add(roomFloor);
-
-        function createWallMesh(geo, mat) {
-            const mesh = new THREE.Mesh(geo, mat);
-            mesh.castShadow = true; mesh.receiveShadow = true;
-            return mesh;
-        }
-
-        const ceiling = createWallMesh(new THREE.PlaneGeometry(12, 12), wallMat);
-        ceiling.rotation.x = Math.PI / 2; ceiling.position.y = 5; roomGroup.add(ceiling);
-
-        const leftWall = createWallMesh(new THREE.PlaneGeometry(12, 5), wallMat);
-        leftWall.position.set(-6, 2.5, 0); leftWall.rotation.y = Math.PI / 2; roomGroup.add(leftWall);
-
-        const rightWall = createWallMesh(new THREE.PlaneGeometry(12, 5), wallMat);
-        rightWall.position.set(6, 2.5, 0); rightWall.rotation.y = -Math.PI / 2; roomGroup.add(rightWall);
-
-        const frontWallLeft = createWallMesh(new THREE.PlaneGeometry(4.5, 5), wallMat); frontWallLeft.position.set(-3.75, 2.5, -6); roomGroup.add(frontWallLeft);
-
-        const frontWallRight = createWallMesh(new THREE.PlaneGeometry(4.5, 5), wallMat); frontWallRight.position.set(3.75, 2.5, -6); roomGroup.add(frontWallRight);
-
-        const frontWallTop = createWallMesh(new THREE.PlaneGeometry(3, 1.4), wallMat); frontWallTop.position.set(0, 4.3, -6); roomGroup.add(frontWallTop);
-
-        const backWallBottom = createWallMesh(new THREE.PlaneGeometry(12, 1.25), wallMat); backWallBottom.position.set(0, 0.625, 6); backWallBottom.rotation.y = Math.PI; roomGroup.add(backWallBottom);
-
-        const backWallTop = createWallMesh(new THREE.PlaneGeometry(12, 1.35), wallMat); backWallTop.position.set(0, 4.325, 6); backWallTop.rotation.y = Math.PI; roomGroup.add(backWallTop);
-
-        const backWallLeft = createWallMesh(new THREE.PlaneGeometry(2.5, 2.4), wallMat); backWallLeft.position.set(-4.75, 2.45, 6); backWallLeft.rotation.y = Math.PI; roomGroup.add(backWallLeft);
-
-        const backWallRight = createWallMesh(new THREE.PlaneGeometry(2.5, 2.4), wallMat); backWallRight.position.set(4.75, 2.45, 6); backWallRight.rotation.y = Math.PI; roomGroup.add(backWallRight);
-
-        // --- KHUNG NHÔM CỬA SỔ ---
-        const aluMat = new THREE.MeshStandardMaterial({ color: 0xdddddd, metalness: 0.8, roughness: 0.2 });
-        const frames = [
-            { w: 7.0, h: 0.1, d: 0.15, x: 0, y: 3.6, z: 5.95 }, { w: 7.0, h: 0.1, d: 0.15, x: 0, y: 1.3, z: 5.95 }, 
-            { w: 0.1, h: 2.4, d: 0.15, x: -3.45, y: 2.45, z: 5.95 }, { w: 0.1, h: 2.4, d: 0.15, x: 3.45, y: 2.45, z: 5.95 }, 
-            { w: 7.0, h: 0.08, d: 0.15, x: 0, y: 2.45, z: 5.95 }, { w: 0.08, h: 2.4, d: 0.15, x: 0, y: 2.45, z: 5.95 }  
-        ];
-        frames.forEach(f => {
-            const bar = new THREE.Mesh(new THREE.BoxGeometry(f.w, f.h, f.d), aluMat);
-            bar.position.set(f.x, f.y, f.z); bar.castShadow = true; roomGroup.add(bar);
-        });
-
-        const glassMat = new THREE.MeshStandardMaterial({ color: 0xffffff, transparent: true, opacity: 0.08, roughness: 0.0, metalness: 1.0, depthWrite: false });
-        const windowGlass = new THREE.Mesh(new THREE.PlaneGeometry(7.0, 2.4), glassMat);
-        windowGlass.position.set(0, 2.45, 5.92); windowGlass.rotation.y = Math.PI; roomGroup.add(windowGlass);
-
-        // --- RÈM VẢI (CURTAINS) ---
-        const curtainMat = new THREE.MeshStandardMaterial({ color: 0xff0000, roughness: 0.9, side: THREE.DoubleSide });
-        const curtainGeo = new THREE.PlaneGeometry(3.6, 2.6, 10, 1);
-        
-        const curtainLeft = new THREE.Mesh(curtainGeo, curtainMat); curtainLeft.position.set(-1.75, 2.45, 5.85); curtainLeft.castShadow = true;
-        const curtainRight = new THREE.Mesh(curtainGeo, curtainMat); curtainRight.position.set(1.75, 2.45, 5.85); curtainRight.castShadow = true;
-        roomGroup.add(curtainLeft, curtainRight);
-
-        // --- CÁNH CỬA PHÒNG ---
-        const doorWidth = 3.0, doorHeight = 3.6;
-        const doorCanvas = document.createElement('canvas'); doorCanvas.width = 256; doorCanvas.height = 512;
-        const dCtx = doorCanvas.getContext('2d');
-        dCtx.fillStyle = '#2b190e'; dCtx.fillRect(0,0,256,512);
-        dCtx.strokeStyle = '#1a0f08'; dCtx.lineWidth = 14;
-        dCtx.strokeRect(20, 20, 216, 472); dCtx.strokeRect(20, 20, 216, 220);
-        dCtx.fillStyle = '#ffcc00'; dCtx.beginPath(); dCtx.arc(40, 256, 12, 0, Math.PI*2); dCtx.fill();
-
-        const doorTex = new THREE.CanvasTexture(doorCanvas);
-        const doorMesh = new THREE.Mesh(new THREE.BoxGeometry(doorWidth, doorHeight, 0.15), new THREE.MeshStandardMaterial({ map: doorTex }));
-        doorMesh.position.set(doorWidth/2, doorHeight/2, 0);
-
-        const doorPivot = new THREE.Group(); doorPivot.position.set(-doorWidth/2, 0, -6);
-        doorPivot.add(doorMesh); scene.add(doorPivot);
-
-        // --- TRANG TRÍ TRONG PHÒNG ---
-        const bedGroup = new THREE.Group(); bedGroup.position.set(-4.2, 0, 3.0);
-        const bedBase = new THREE.Mesh(new THREE.BoxGeometry(2.8, 0.5, 4), createMat(0xf2b8d1)); bedBase.castShadow = true; bedBase.receiveShadow = true;
-        const bedMattress = new THREE.Mesh(new THREE.BoxGeometry(2.6, 0.4, 3.8), createMat(0xf29cbc, 0.8)); bedMattress.position.y = 0.4; bedMattress.castShadow = true;
-        const pillow = new THREE.Mesh(new THREE.BoxGeometry(2.0, 0.2, 0.8), createMat(0xbd3a6d)); pillow.position.set(0, 0.65, 1.3); pillow.castShadow = true;
-        const blanket = new THREE.Mesh(new THREE.BoxGeometry(2.62, 0.42, 2.5), createMat(0xbd3a6d, 0.7)); blanket.position.set(0, 0.42, -0.6); blanket.castShadow = true;
-        bedGroup.add(bedBase, bedMattress, pillow, blanket); roomGroup.add(bedGroup);
-
-        // --- ĐỂ TRANG TRÍ TƯỜNG CỦA CĂN PHÒNG ---
-        function taoTextureTrangTri(loai) {
-            const canvas = document.createElement('canvas'); canvas.width = 128; canvas.height = 128;
-            const ctx = canvas.getContext('2d');
-            ctx.clearRect(0, 0, 128, 128);
-
-            if (loai === 'hoa') {
-                const hue = Math.random() * 360; ctx.fillStyle = `hsl(${hue}, 80%, 50%)`;
-                for(let i = 0; i < 5; i++) {
-                    const angle = (i * Math.PI * 2) / 5;
-                    ctx.beginPath(); ctx.arc(64 + Math.cos(angle) * 22, 64 + Math.sin(angle) * 22, 20, 0, Math.PI * 2); ctx.fill();
-                }
-                ctx.fillStyle = '#ffd700'; ctx.beginPath(); ctx.arc(64, 64, 10, 0, Math.PI * 2); ctx.fill();
-            } else if (loai === 'buom') {
-                ctx.fillStyle = '#e040fb';
-                ctx.beginPath(); ctx.ellipse(44, 48, 24, 16, Math.PI/6, 0, Math.PI*2); ctx.fill();
-                ctx.beginPath(); ctx.ellipse(84, 48, 24, 16, -Math.PI/6, 0, Math.PI*2); ctx.fill();
-                ctx.beginPath(); ctx.ellipse(50, 80, 16, 12, -Math.PI/6, 0, Math.PI*2); ctx.fill();
-                ctx.beginPath(); ctx.ellipse(78, 80, 16, 12, Math.PI/6, 0, Math.PI*2); ctx.fill();
-                ctx.fillStyle = '#333'; ctx.beginPath(); ctx.ellipse(64, 64, 6, 28, 0, 0, Math.PI*2); ctx.fill();
-            } else if (loai === 'no') {
-                ctx.fillStyle = '#ff4081';
-                ctx.beginPath(); ctx.moveTo(64, 64); ctx.lineTo(24, 34); ctx.lineTo(24, 94); ctx.closePath(); ctx.fill();
-                ctx.beginPath(); ctx.moveTo(64, 64); ctx.lineTo(104, 34); ctx.lineTo(104, 94); ctx.closePath(); ctx.fill();
-                ctx.fillStyle = '#ff80ab'; ctx.beginPath(); ctx.arc(64, 64, 14, 0, Math.PI*2); ctx.fill();
-                ctx.strokeStyle = '#ff4081'; ctx.lineWidth = 8;
-                ctx.beginPath(); ctx.moveTo(54, 74); ctx.lineTo(34, 114); ctx.stroke();
-                ctx.beginPath(); ctx.moveTo(74, 74); ctx.lineTo(94, 114); ctx.stroke();
-            }
-            return new THREE.CanvasTexture(canvas);
-        }
-
-        function hienThiTrangTriTuong(loai, x, y, z, scale, rotY=0) {
-            const mat = new THREE.MeshStandardMaterial({ map: taoTextureTrangTri(loai), transparent: true, side: THREE.DoubleSide, roughness: 0.5 });
-            const mesh = new THREE.Mesh(new THREE.PlaneGeometry(0.5 * scale, 0.5 * scale), mat);
-            mesh.position.set(x, y, z); mesh.rotation.y = rotY; roomGroup.add(mesh);
-        }
-
-        const cacLoaiDecor = ['hoa', 'buom', 'no'];
-        for (let i = 0; i < 35; i++) { 
-            let loaiRandom = cacLoaiDecor[Math.floor(Math.random() * cacLoaiDecor.length)];
-            let viTriNgauNhien = (Math.random() - 0.5) * 11.2, chieuCaoNgauNhien = 0.5 + Math.random() * 4.0;
-            let tyLeKichThuoc = 0.8 + Math.random() * 1.0, chonTuong = Math.floor(Math.random() * 4);
-            if (chonTuong === 0) hienThiTrangTriTuong(loaiRandom, -5.93, chieuCaoNgauNhien, viTriNgauNhien, tyLeKichThuoc, Math.PI / 2);
-            else if (chonTuong === 1) hienThiTrangTriTuong(loaiRandom, 5.93, chieuCaoNgauNhien, viTriNgauNhien, tyLeKichThuoc, -Math.PI / 2);
-            else if (chonTuong === 2 && (Math.abs(viTriNgauNhien) > 3.6 || chieuCaoNgauNhien < 1.2 || chieuCaoNgauNhien > 3.8)) hienThiTrangTriTuong(loaiRandom, viTriNgauNhien, chieuCaoNgauNhien, 5.93, tyLeKichThuoc, Math.PI);
-            else if (chonTuong === 3 && Math.abs(viTriNgauNhien) > 1.7) hienThiTrangTriTuong(loaiRandom, viTriNgauNhien, chieuCaoNgauNhien, -5.93, tyLeKichThuoc, 0);
-        }
-
-        // --- CHỮ THÔNG ĐIỆP BỔ SUNG ---
-        const messages = [ "", "", "", "" ];
-        const textPlanes = [];
-
-        function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
-            const words = text.split(' ');
-            let line = '';
-            let lines = [];
-            for (let n = 0; n < words.length; n++) {
-                let testLine = line + words[n] + ' ';
-                let metrics = ctx.measureText(testLine);
-                if (metrics.width > maxWidth && n > 0) {
-                    lines.push(line);
-                    line = words[n] + ' ';
-                } else { line = testLine; }
-            }
-            lines.push(line);
-            let currentY = y - ((lines.length - 1) * lineHeight) / 2;
-            for (let i = 0; i < lines.length; i++) {
-                ctx.fillText(lines[i].trim(), x, currentY);
-                currentY += lineHeight;
-            }
-            return currentY; 
-        }
-
-        function createSignText(text, index, posX, posZ, rotY) {
-            const canvas = document.createElement('canvas');
-            canvas.width = 2048; canvas.height = 1024; 
-            const ctx = canvas.getContext('2d');
-            const tex = new THREE.CanvasTexture(canvas);
-
-            document.fonts.load('10pt "Dancing Script"').then(() => {
-                ctx.font = 'bold 95px "Dancing Script", cursive'; 
-                ctx.fillStyle = '#ffccd5'; 
-                ctx.textAlign = 'center';
-                ctx.shadowColor = '#ff6b8b'; 
-                ctx.shadowBlur = 40;
-                let nextY = wrapText(ctx, text, 1024, 400, 1700, 120); 
-                ctx.font = '100px Arial'; 
-                ctx.fillStyle = '#ff6b8b'; 
-                ctx.fillText('', 1024, Math.max(nextY + 40, 620));
-                tex.needsUpdate = true;
-            });
-
-            const plane = new THREE.Mesh(new THREE.PlaneGeometry(24, 10.5), new THREE.MeshBasicMaterial({ map: tex, transparent: true, side: THREE.DoubleSide }));
-            plane.position.set(posX, 5.8, posZ); plane.rotation.y = rotY;
-            scene.add(plane);
-            textPlanes.push(plane);
-        }
-        createSignText(messages[0], 0, 0, -25, 0);           
-        createSignText(messages[1], 1, 25, 0, -Math.PI/2);   
-        createSignText(messages[2], 2, 0, 25, Math.PI);      
-        createSignText(messages[3], 3, -25, 0, Math.PI/2);   
-
-        // --- HỆ THỐNG MÂY KHỐI ---
-        const cloudsGroup = new THREE.Group();
-        scene.add(cloudsGroup);
-        const cloudMat = new THREE.MeshLambertMaterial({ color: 0xffffff, transparent: true, opacity: 0.85, side: THREE.DoubleSide });
-
-        function createMinecraftCloud(startX, startY, startZ) {
-            const cluster = new THREE.Group();
-            const blocksCount = 3 + Math.floor(Math.random() * 5); 
-            for(let i=0; i<blocksCount; i++) {
-                const w = 15 + Math.floor(Math.random() * 20); const h = 4 + Math.floor(Math.random() * 4); const d = 15 + Math.floor(Math.random() * 20);
-                const cloudBlock = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), cloudMat);
-                cloudBlock.position.set((i * 12) - (blocksCount * 4), (Math.random() - 0.5) * 2, (Math.random() - 0.5) * 10);
-                cluster.add(cloudBlock);
-            }
-            cluster.position.set(startX, startY, startZ); cloudsGroup.add(cluster);
-        }
-        for(let i=0; i<18; i++) {
-            createMinecraftCloud((Math.random() - 0.5) * 500, 80 + Math.random() * 40, (Math.random() - 0.5) * 500);
-        }
-
-        const moonGroup = new THREE.Group();
-        moonGroup.add(new THREE.Mesh(new THREE.CircleGeometry(32, 48), new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: 0xffffff, emissiveIntensity: 4.8, side: THREE.DoubleSide, roughness: 1.0 })));
-        const moonFlare = new THREE.Mesh(new THREE.CircleGeometry(38, 48), new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.32, side: THREE.DoubleSide }));
-        moonFlare.position.z = -0.1; moonGroup.add(moonFlare);
-        moonGroup.position.set(-80.38, 100, 300); moonGroup.lookAt(0, 0, 0); scene.add(moonGroup);
-
-        // --- XÂY DỰNG CHUỒNG HÀNG RÀO GỖ ---
-        const fenceGroup = new THREE.Group();
-        fenceGroup.position.set(0, 0, -18); 
-        scene.add(fenceGroup);
-
-        const woodMat = new THREE.MeshStandardMaterial({ color: 0x8b5a2b, roughness: 0.9 });
-        function buildFenceBar(w, h, d, x, y, z, rotY = 0) {
-            const bar = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), woodMat);
-            bar.position.set(x, y, z); bar.rotation.y = rotY; bar.castShadow = true; fenceGroup.add(bar);
-        }
-        for(let i = -6; i <= 6; i += 3) {
-            if(i !== 0) buildFenceBar(0.3, 1.8, 0.3, -6, 0.9, i);
-            buildFenceBar(0.3, 1.8, 0.3, 6, 0.9, i); buildFenceBar(0.3, 1.8, 0.3, i, 0.9, -6);
-            if(Math.abs(i) > 2) buildFenceBar(0.3, 1.8, 0.3, i, 0.9, 6); 
-        }
-        buildFenceBar(0.15, 0.2, 12, -6, 1.3, 0); buildFenceBar(0.15, 0.2, 12, -6, 0.5, 0);
-        buildFenceBar(0.15, 0.2, 12, 6, 1.3, 0);  buildFenceBar(0.15, 0.2, 12, 6, 0.5, 0);
-        buildFenceBar(12, 0.2, 0.15, 0, 1.3, -6); buildFenceBar(12, 0.2, 0.15, 0, 0.5, -6);
-        buildFenceBar(3.5, 0.2, 0.15, -4.25, 1.3, 6); buildFenceBar(3.5, 0.2, 0.15, -4.25, 0.5, 6);
-        buildFenceBar(3.5, 0.2, 0.15, 4.25, 1.3, 6);  buildFenceBar(3.5, 0.2, 0.15, 4.25, 0.5, 6);
-
-        // --- ĐỐNG CỎ/RƠM Ở GÓC CHUỒNG ---
-        const strawGroup = new THREE.Group();
-        strawGroup.position.set(4.5, 0, -4.5); fenceGroup.add(strawGroup);
-        const strawMat = new THREE.MeshStandardMaterial({ color: 0xd2b48c, roughness: 1.0 });
-        for(let i=0; i<5; i++) {
-            const sGeo = new THREE.BoxGeometry(1.8 - i*0.3, 0.3, 1.8 - i*0.3);
-            const sMesh = new THREE.Mesh(sGeo, strawMat); sMesh.position.y = 0.15 + i*0.3; sMesh.castShadow = true; strawGroup.add(sMesh);
-        }
-
-        // --- MÔ HÌNH BÒ 3D (ĐÃ THÊM MŨI & MIỆNG NÂU NHẠT) ---
-        const cowGroup = new THREE.Group();
-        cowGroup.position.set(0, 0.1, 0); fenceGroup.add(cowGroup);
-
-        const cowWhiteMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.8 });
-        const cowBlackMat = new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.8 });
-        const cowPinkMat = new THREE.MeshStandardMaterial({ color: 0xffb6c1, roughness: 0.8 });
-        const cowTanMat = new THREE.MeshStandardMaterial({ color: 0xd2b48c, roughness: 0.8 }); 
-
-        const cowBody = new THREE.Mesh(new THREE.BoxGeometry(1.6, 1.2, 2.2), cowWhiteMat); cowBody.position.y = 1.0; cowBody.castShadow = true; cowGroup.add(cowBody);
-        const spot1 = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.5, 0.6), cowBlackMat); spot1.position.set(0.56, 1.2, 0.4); cowGroup.add(spot1);
-        const spot2 = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.7, 0.5), cowBlackMat); spot2.position.set(-0.56, 0.9, -0.4); cowGroup.add(spot2);
-
-        const cowHead = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.9, 0.9), cowWhiteMat); cowHead.position.set(0, 1.6, 1.2); cowHead.castShadow = true; cowGroup.add(cowHead);
-        const cowSnout = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.4, 0.3), cowPinkMat); cowSnout.position.set(0, 1.4, 1.7); cowGroup.add(cowSnout);
-
-        // Đốm lỗ mũi nâu nhạt dán lên bề mặt hồng
-        const nostrilGeo = new THREE.BoxGeometry(0.1, 0.12, 0.01);
-        const nostrilL = new THREE.Mesh(nostrilGeo, cowTanMat); nostrilL.position.set(0.18, 1.45, 1.851); cowGroup.add(nostrilL);
-        const nostrilR = new THREE.Mesh(nostrilGeo, cowTanMat); nostrilR.position.set(-0.18, 1.45, 1.851); cowGroup.add(nostrilR);
-
-        // Miệng bò dẹt dán bên dưới đầu bò
-        const mouthLine = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.06, 0.01), cowTanMat); mouthLine.position.set(0, 1.18, 1.651); cowGroup.add(mouthLine);
-
-        const eyeL = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.15, 0.1), cowBlackMat); eyeL.position.set(0.46, 1.7, 1.6); cowGroup.add(eyeL);
-        const eyeR = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.15, 0.1), cowBlackMat); eyeR.position.set(-0.46, 1.7, 1.6); cowGroup.add(eyeR);
-
-        function createLeg(x, z) {
-            const leg = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.6, 0.35), cowWhiteMat); leg.position.set(x, 0.3, z); leg.castShadow = true; cowGroup.add(leg);
-            const hoof = new THREE.Mesh(new THREE.BoxGeometry(0.37, 0.15, 0.37), cowBlackMat); hoof.position.set(x, 0.05, z); cowGroup.add(hoof);
-        }
-        createLeg(0.5, 0.7); createLeg(-0.5, 0.7); createLeg(0.5, -0.7); createLeg(-0.5, -0.7);
-
-        let currentCowScale = 0.25; cowGroup.scale.set(currentCowScale, currentCowScale, currentCowScale);
-
-        // --- ĐIỀU KHIỂN & CẤU TRÚC ĐỐI THOẠI KHẢO SÁT ---
-        let moveF = false, moveB = false, moveL = false, moveR = false;
-        let isDoorOpen = false, doorRot = 0, isCurtainOpen = false, curtainTargetProg = 0, curtainProg = 0;
-        let yaw = 0, pitch = 0; const moveSpeed = 0.08;
-
-        let feedCount = 0, hasStraw = false, isTalking = false;
-
-        const heThongCauHoi = {
-            // TẦNG 0: CÂU HỎI GỐC
-            cauHoiGoc: {
-                title: "🐮 Nếu hôm nay được tạm gác hết mọi thứ trong 1 ngày, bạn muốn điều gì nhất?", 
-                options: [
-                    { text: "🌙 Được nghỉ ngơi thật nhiều", next: "nhanh1" }, 
-                    { text: "🌱 Mọi thứ trở nên dễ hiểu hơn", next: "nhanh2" }, 
-                    { text: "☀ Có thêm động lực để cố gắng", next: "nhanh3" }  
-                ]
-            },
-
-            // TẦNG 1: 3 NHÁNH CẤP 1
-            nhanh1: {
-                title: "🐮 Điều gì làm bạn mệt nhất?", 
-                options: [
-                    { text: "📚 Việc học và trách nhiệm", next: "nhanh1_1" }, 
-                    { text: "🧠 Suy nghĩ trong đầu", next: "nhanh1_2" },
-                    { text: "💬 Các mối quan hệ", next: "nhanh1_3" }
-                ]
-            },
-            nhanh2: {
-                title: "🐮 Bạn đang muốn hiểu rõ điều gì nhất?", 
-                options: [
-                    { text: "Muốn hiểu chính bản thân mình", next: "nhanh2_1" }, 
-                    { text: "Muốn hiểu người khác", next: "nhanh2_2" },
-                    { text: "Muốn hiểu tương lai", next: "nhanh2_3" }
-                ]
-            },
-            nhanh3: {
-                title: "🐮 Động lực nào quan trọng với bạn lúc này?", 
-                options: [
-                    { text: "Muốn được công nhận", next: "nhanh3_1" }, 
-                    { text: "Muốn được quan tâm", next: "nhanh3_2" },
-                    { text: "Muốn đạt mục tiêu", next: "nhanh3_3" }
-                ]
-            },
-
-            // TẦNG 2: 9 NHÁNH CẤP 2 (Chứa 27 kết quả cuối cùng)
-            
-            // --- Cụm của Hướng 1 ---
-            nhanh1_1: {
-                title: "🐮 Nếu được nghỉ một chút, bạn sẽ...", 
-                options: [
-                    { text: "Ngủ một giấc thật dài", textEnd: "Bạn đã cố gắng nhiều hơn bản thân nghĩ đó." }, 
-                    { text: "Đi đâu đó thật yên tĩnh", textEnd: "Không phải lúc nào mạnh mẽ cũng là cố gắng liên tục." },
-                    { text: "Làm điều mình thích", textEnd: "Niềm vui nhỏ cũng là năng lượng." }
-                ]
-            },
-            nhanh1_2: {
-                title: "🐮 Khi suy nghĩ quá nhiều bạn thường...", 
-                options: [
-                    { text: "Tự giải quyết", textEnd: "Không sao nếu đôi lúc bạn chưa tìm ra đáp án." }, 
-                    { text: "Viết ra", textEnd: "Những cảm xúc được viết ra thường nhẹ hơn." },
-                    { text: "Mong ai đó hiểu", textEnd: "Có người hiểu mình là một điều rất đáng quý." }
-                ]
-            },
-            nhanh1_3: {
-                title: "🐮 Khi buồn vì ai đó bạn thường...", 
-                options: [
-                    { text: "Im lặng", textEnd: "Im lặng đôi khi cũng là một cách bảo vệ bản thân." }, 
-                    { text: "Nói thẳng", textEnd: "Can đảm nói ra cảm xúc không hề dễ." },
-                    { text: "Chờ người đó hiểu", textEnd: "Ai cũng mong được thấu hiểu mà không cần giải thích quá nhiều." }
-                ]
-            },
-
-            // --- Cụm của Hướng 2 ---
-            nhanh2_1: {
-                title: "🐮 Về bản thân, bạn thường hay cảm thấy thế nào?", 
-                options: [
-                    { text: "Hay tự trách", textEnd: "Có những chuyện xảy ra không phải vì bạn chưa đủ tốt. Đôi khi bạn đã cố hết sức rồi, chỉ là kết quả không như mong muốn thôi. Đừng nhận hết lỗi về phía mình nha." }, 
-                    { text: "Hay suy nghĩ nhiều", textEnd: "Mình thấy bạn đang cố tìm đáp án cho rất nhiều chuyện. Nhưng không phải chuyện nào cũng cần giải quyết ngay hôm nay. Có những câu trả lời phải chờ thêm một chút mới xuất hiện." },
-                    { text: "Hay giấu cảm xúc", textEnd: "Mình biết bạn mạnh mẽ lắm nên thường giữ mọi thứ trong lòng. Nhưng nếu một ngày nào đó bạn thấy mệt thì cũng không sao đâu. Không ai bắt bạn phải gồng mãi cả." }
-                ]
-            },
-            nhanh2_2: {
-                title: "🐮 Về người khác, bạn muốn biết điều gì nhất?", 
-                options: [
-                    { text: "Biết người khác có đang buồn không", textEnd: "Người biết lo cho cảm xúc của người khác thường là người rất tốt bụng. Nhưng đừng quên hỏi xem chính mình có đang buồn không nha." }, 
-                    { text: "Biết người khác có hiểu mình không", textEnd: "Mình nghĩ ai cũng từng có cảm giác muốn được hiểu mà không biết phải giải thích thế nào. Nếu có người chịu lắng nghe bạn thật lòng thì đó đã là một điều rất đáng quý rồi." },
-                    { text: "Biết người khác có thật lòng không", textEnd: "Có những người không giỏi thể hiện bằng lời. Đôi khi sự chân thành nằm trong những điều rất nhỏ mà họ làm mỗi ngày. Chỉ là mình thường không nhận ra ngay thôi." }
-                ]
-            },
-            nhanh2_3: {
-                title: "🐮 Khi nghĩ về tương lai, bạn lo lắng điều gì?", 
-                options: [
-                    { text: "Lo làm không tốt", textEnd: "Bạn đang cố gắng nhiều hơn bạn nghĩ đó. Người luôn sợ làm chưa tốt thường là người rất có trách nhiệm. Hãy cho bản thân một chút tín nhiệm nha." }, 
-                    { text: "Lo làm người khác thất vọng", textEnd: "Mình nghĩ bạn đã dành rất nhiều tâm sức cho những người mình quý. Nhưng đôi khi điều quan trọng không phải là làm hài lòng tất cả mọi người. Mà là đừng đánh mất chính mình." },
-                    { text: "Lo đưa ra quyết định sai", textEnd: "Chẳng ai biết trước lựa chọn nào là hoàn hảo cả. Điều duy nhất mình làm được là chọn bằng sự chân thành ở thời điểm hiện tại. Như vậy đã đủ dũng cảm rồi." }
-                ]
-            },
-
-            // --- Cụm của Hướng 3 ---
-            nhanh3_1: {
-                title: "🐮 Lời công nhận nào bạn muốn nghe nhất?", 
-                options: [
-                    { text: "\"Mình làm tốt rồi\"", textEnd: "Có thể hôm nay bạn chưa đạt được điều mình muốn. Nhưng mình thấy bạn đã đi được một đoạn đường rất xa rồi đó. Đừng quên nhìn lại những gì mình đã làm được nha." }, 
-                    { text: "\"Mình đã cố gắng rồi\"", textEnd: "Kết quả rất quan trọng. Nhưng sự cố gắng của bạn cũng đáng được ghi nhận như vậy. Mình tin điều đó." },
-                    { text: "\"Mình quan trọng với ai đó\"", textEnd: "Trên thế giới này luôn có những người vui khi thấy bạn xuất hiện. Có thể họ không nói ra nhiều. Nhưng sự tồn tại của bạn thật sự có ý nghĩa với ai đó." }
-                ]
-            },
-            nhanh3_2: {
-                title: "🐮 Bạn muốn được quan tâm theo cách nào?", 
-                options: [
-                    { text: "Có người ở bên cạnh", textEnd: "Có những ngày chẳng cần ai giải quyết vấn đề giúp mình. Chỉ cần biết mình không phải ở một mình là đủ rồi." }, 
-                    { text: "Có người lắng nghe", textEnd: "Cảm giác được lắng nghe thật sự rất dễ chịu nhỉ. Không cần đúng hay sai. Chỉ cần có người chịu ngồi lại nghe mình nói thôi." },
-                    { text: "Có không gian riêng", textEnd: "Muốn ở một mình không có nghĩa là muốn rời xa mọi người. Đôi khi đó chỉ là cách để trái tim được nghỉ ngơi một chút thôi." }
-                ]
-            },
-            nhanh3_3: {
-                title: "🐮 Khi đạt được mục tiêu, bạn sẽ làm gì đầu tiên?", 
-                options: [
-                    { text: "Nghỉ ngơi", textEnd: "Bạn đã đi xa tới đây rồi. Nghỉ một chút không làm bạn tụt lại đâu. Nó chỉ giúp bạn có sức để đi tiếp thôi." }, 
-                    { text: "Chia sẻ với ai đó", textEnd: "Những niềm vui được chia sẻ thường trở nên lớn hơn. Nếu có ai đó mà bạn muốn kể cho họ nghe đầu tiên, thì người đó chắc hẳn rất đặc biệt với bạn." },
-                    { text: "Bắt đầu mục tiêu mới", textEnd: "Mình thích sự dũng cảm của bạn. Vừa hoàn thành một chặng đường lại muốn bước tiếp. Nhưng nhớ tự thưởng cho bản thân một chút trước nha." }
-                ]
-            }
-        };
-
-        // --- XỬ LÝ SỰ KIỆN GIAO DIỆN & HOÀN THIỆN MOBILE TRUNCATION ---
-        if ('ontouchstart' in window) document.getElementById('joystick-zone').style.display = 'block';
-
-        window.addEventListener('keydown', (e) => {
-            if (isTalking) {
-        // Nếu hộp thoại chỉ có duy nhất nút "Đóng", cho phép dùng phím E, Enter hoặc Esc để đóng nhanh
-        if ((e.code === 'KeyE' || e.code === 'Enter' || e.code === 'Escape') && 
-            optionsContainer.children.length === 1 && 
-            optionsContainer.firstChild.innerText === 'Đóng') {
-            optionsContainer.firstChild.click(); // Tự động kích hoạt thao tác bấm nút Đóng
-        }
-        return; // Chặn các phím di chuyển khi đang mở bảng
+    <!-- MODAL MINI-GAME -->
+    <div id="puzzle-modal" class="modal-overlay">
+      <div class="modal-card">
+        <div id="puz-title" class="modal-title">Thử Thách Mở Quà</div>
+        <div id="puz-desc" class="modal-desc">Cùng nhau giải đố để mở hộp quà này nhé!</div>
+        <div id="puz-content"></div>
+        <button id="btn-close-puz" class="btn" style="margin-top: 12px; background: #adb5bd;">Đóng lại</button>
+      </div>
+    </div>
+
+    <!-- MODAL NHẬN QUÀ THÀNH CÔNG -->
+    <div id="reward-modal" class="modal-overlay">
+      <div class="modal-card">
+        <div class="modal-title">🎉 Mở Quà Thành Công! 🎉</div>
+        <img id="reward-img" class="gift-preview-img" src="" alt="Gift" />
+        <h3 id="reward-name" style="color: #3a86ff; margin-bottom: 6px;">Tên Món Quà</h3>
+        <p id="reward-msg" class="modal-desc" style="color: #495057; font-size: 15px;"></p>
+        <button id="btn-close-reward" class="btn">Tiếp tục hành trình 💖</button>
+      </div>
+    </div>
+
+    <!-- MODAL TỔNG KẾT 20/10 -->
+    <div id="end-modal" class="modal-overlay">
+      <div class="modal-card" style="max-width: 540px;">
+        <div id="end-title" class="modal-title" style="font-size: 25px;">🌸 Chúc Mừng 20/10! 🌸</div>
+        <p id="end-desc" class="modal-desc" style="font-size: 15px; color: #333;"></p>
+        <div id="end-gallery" class="gallery-grid"></div>
+        <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 12px;">
+          <button id="btn-show-fireworks" class="btn" style="font-size: 16px; padding: 11px 22px;">
+            🎆 Đã đọc xong - Ngắm Pháo Hoa 20/10 ✨
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MÀN HÌNH ĐÊM PHÁO HOA RỰC RỠ & CHỮ NGHỆ THUẬT NÉT MẢNH -->
+    <div id="fireworks-overlay">
+      <canvas id="fwCanvas" width="900" height="520"></canvas>
+      <div class="finale-content">
+        <div class="romantic-title">Mừng ngày 20/10 cô bé của anh</div>
+        <div class="romantic-sub">✨ Chúc em mãi rạng rỡ, hạnh phúc và luôn mỉm cười bên anh ✨</div>
+        <button id="btn-restart" class="btn" style="font-size: 14px; padding: 8px 20px; opacity: 0.85;">
+          🔄 Chơi Lại Từ Đầu
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cụm điều khiển cảm ứng -->
+  <div id="touch-controls">
+    <div class="dpad">
+      <div></div>
+      <div class="t-btn" data-key="up">▲</div>
+      <div></div>
+      <div class="t-btn" data-key="left">◀</div>
+      <div class="t-btn" data-key="down">▼</div>
+      <div class="t-btn" data-key="right">▶</div>
+    </div>
+    <div class="t-btn action-btn-mobile" data-key="action">MỞ QUÀ /<br/>TƯƠNG TÁC</div>
+  </div>
+
+  <div id="guide">
+    <strong>Di chuyển:</strong> W/A/S/D hoặc Phím Mũi Tên | <strong>Mở quà / Tương tác:</strong> Phím Cách (Space) hoặc Enter | <strong>Đổi nhân vật (Offline):</strong> Phím Tab
+  </div>
+
+  <script>
+    // =========================================================================
+    // 1. HỆ THỐNG ÂM THANH & BỘ PHÁT NHẠC NỀN 8-BIT CHIPTUNE PHIÊU LƯU
+    // =========================================================================
+    let audioCtx = null;
+    let bgmMasterGain = null;
+    let bgmPlaying = false;
+    let bgmMuted = false;
+    let bgmVolume = 0.45; // Mặc định 45%
+    let bgmStep = 0;
+    let bgmIntervalId = null;
+
+    const SIMON_TONES = [
+      { freq: 523.25, wave: "sine" },     // Nút 0 (Hồng 🌸) - C5
+      { freq: 587.33, wave: "triangle" }, // Nút 1 (Xanh 💎) - D5
+      { freq: 659.25, wave: "sine" },     // Nút 2 (Vàng ⭐) - E5
+      { freq: 783.99, wave: "triangle" }  // Nút 3 (Tím 🔮)  - G5
+    ];
+
+    function initAudio() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        bgmMasterGain = audioCtx.createGain();
+        bgmMasterGain.gain.setValueAtTime(bgmMuted ? 0 : bgmVolume * 0.25, audioCtx.currentTime);
+        bgmMasterGain.connect(audioCtx.destination);
+      }
+      if (audioCtx.state === "suspended") audioCtx.resume();
+      if (!bgmPlaying) startChiptuneBGM();
     }
-            if (isTalking) return;
-            switch (e.code) { case 'ArrowUp': case 'KeyW': moveF = true; break; case 'ArrowLeft': case 'KeyA': moveL = true; break; case 'ArrowDown': case 'KeyS': moveB = true; break; case 'ArrowRight': case 'KeyD': moveR = true; break; case 'KeyE': // Phím E để tương tác (thay cho click chuột)
-            if (actionPrompt.style.display === 'block') actionPrompt.click();
-            else if (promptBtn.style.display === 'block') promptBtn.click();
-            break;
-        case 'KeyR': // Phím R để đóng mở rèm
-            toggleCurtain();
-            break;}
-        });
-        window.addEventListener('keyup', (e) => {
-            
-      
-            switch (e.code) { case 'ArrowUp': case 'KeyW': moveF = false; break; case 'ArrowLeft': case 'KeyA': moveL = false; break; case 'ArrowDown': case 'KeyS': moveB = false; break; case 'ArrowRight': case 'KeyD': moveR = false; break; }
-        });
 
-        const crosshair = document.getElementById('crosshair');
+    // Bảng tần số nốt nhạc cho bản 8-bit Adventure Loop
+    const N = {
+      _: 0,
+      A2: 110.00, B2: 123.47, C3: 130.81, D3: 146.83, E3: 164.81, F3: 174.61, G3: 196.00,
+      A3: 220.00, B3: 246.94, C4: 261.63, D4: 293.66, E4: 329.63, F4: 349.23, G4: 392.00,
+      A4: 440.00, B4: 493.88, C5: 523.25, D5: 587.33, E5: 659.25, F5: 698.46, G5: 783.99,
+      A5: 880.00, B5: 987.77, C6: 1046.50
+    };
 
-// Click vào màn hình để khóa chuột (vào chế độ FPS)
-container.addEventListener('click', () => {
-    if (!isTalking && document.pointerLockElement !== document.body) {
-        document.body.requestPointerLock();
-    } else if (document.pointerLockElement === document.body) {
-        // Đang ở chế độ FPS, click chuột trái = Tương tác với sự vật
-        if (actionPrompt.style.display === 'block') actionPrompt.click();
-        else if (promptBtn.style.display === 'block') promptBtn.click();
+    // Giai điệu 8-bit tươi sáng 64 bước (Vòng hòa thanh: Cmaj7 -> Am7 -> Fmaj7 -> G7)
+    const LEAD_MELODY = [
+      // Câu 1 (Cmaj7 -> Am7)
+      N.E5, N._,  N.G5, N.E5, N.C5, N.D5, N.E5, N._,  N.G5, N.A5, N.G5, N.E5, N.D5, N._,  N.C5, N._,
+      N.C5, N.E5, N.A5, N._,  N.G5, N.E5, N.C5, N.D5, N.E5, N._,  N.D5, N._,  N.C5, N._,  N._,  N._,
+      // Câu 2 (Fmaj7 -> G7 -> Cmaj7)
+      N.F5, N._,  N.A5, N.F5, N.C5, N.F5, N.A5, N._,  N.G5, N.A5, N.B5, N.G5, N.E5, N._,  N.D5, N._,
+      N.E5, N.G5, N.C6, N.B5, N.A5, N.G5, N.E5, N.C5, N.D5, N.E5, N.C5, N._,  N._,  N._,  N._,  N._
+    ];
+
+    // Hợp âm rải Chiptune Arpeggio nền
+    const ARP_NOTES = [
+      N.C4, N.E4, N.G4, N.B4, N.C4, N.E4, N.G4, N.B4, N.C4, N.E4, N.G4, N.B4, N.C4, N.E4, N.G4, N.B4,
+      N.A3, N.C4, N.E4, N.G4, N.A3, N.C4, N.E4, N.G4, N.A3, N.C4, N.E4, N.G4, N.A3, N.C4, N.E4, N.G4,
+      N.F3, N.A3, N.C4, N.E4, N.F3, N.A3, N.C4, N.E4, N.G3, N.B3, N.D4, N.F4, N.G3, N.B3, N.D4, N.F4,
+      N.C4, N.E4, N.G4, N.C5, N.F3, N.A3, N.C4, N.D4, N.G3, N.B3, N.D4, N.G4, N.C4, N.G3, N.E4, N.C4
+    ];
+
+    // Bassline 8-bit nảy nhịp nhàng
+    const BASS_NOTES = [
+      N.C3, N._, N.G3, N._, N.C3, N._, N.G3, N._, N.C3, N._, N.G3, N._, N.C3, N._, N.B2, N._,
+      N.A2, N._, N.E3, N._, N.A2, N._, N.E3, N._, N.A2, N._, N.E3, N._, N.A2, N._, N.G3, N._,
+      N.F3, N._, N.C3, N._, N.F3, N._, N.C3, N._, N.G3, N._, N.D3, N._, N.G3, N._, N.D3, N._,
+      N.C3, N._, N.G3, N._, N.F3, N._, N.G3, N._, N.C3, N._, N.G3, N._, N.C3, N._, N._,  N._
+    ];
+
+    function playChiptuneNote(freq, dur, waveType, gainVal) {
+      if (!audioCtx || !bgmMasterGain || freq <= 0) return;
+      const now = audioCtx.currentTime;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      const filter = audioCtx.createBiquadFilter();
+      filter.type = "lowpass";
+      filter.frequency.setValueAtTime(2400, now);
+
+      osc.type = waveType;
+      osc.frequency.setValueAtTime(freq, now);
+
+      gain.gain.setValueAtTime(0.001, now);
+      gain.gain.linearRampToValueAtTime(gainVal, now + 0.012);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + dur);
+
+      osc.connect(filter);
+      filter.connect(gain);
+      gain.connect(bgmMasterGain);
+
+      osc.start(now);
+      osc.stop(now + dur + 0.01);
     }
-});
 
-// Bật/tắt tâm ngắm khi khóa/mở chuột
-document.addEventListener('pointerlockchange', () => {
-    if (document.pointerLockElement === document.body) {
-        crosshair.style.display = 'block';
-    } else {
-        crosshair.style.display = 'none';
+    function startChiptuneBGM() {
+      if (bgmPlaying) return;
+      bgmPlaying = true;
+      const stepDurationMs = 135;
+
+      bgmIntervalId = setInterval(() => {
+        if (!audioCtx || bgmMuted || bgmVolume <= 0.01 || audioCtx.state !== "running") return;
+
+        const leadFreq = LEAD_MELODY[bgmStep];
+        const arpFreq = ARP_NOTES[bgmStep];
+        const bassFreq = BASS_NOTES[bgmStep];
+
+        if (leadFreq > 0) playChiptuneNote(leadFreq, 0.22, "square", 0.22);
+        if (arpFreq > 0) playChiptuneNote(arpFreq, 0.12, "triangle", 0.16);
+        if (bassFreq > 0) playChiptuneNote(bassFreq, 0.18, "triangle", 0.28);
+
+        bgmStep = (bgmStep + 1) % LEAD_MELODY.length;
+      }, stepDurationMs);
     }
-});
 
-// Vuốt xoay góc nhìn mượt mà KHÔNG CẦN GIỮ CHUỘT
-window.addEventListener('mousemove', (e) => {
-    if (isTalking) return;
-    if (document.pointerLockElement === document.body) {
-        yaw -= e.movementX * 0.002; // Tốc độ xoay ngang
-        pitch = Math.max(-Math.PI/3, Math.min(Math.PI/3, pitch - e.movementY * 0.002)); // Tốc độ xoay dọc
+    function updateBgmGain() {
+      if (!audioCtx || !bgmMasterGain) return;
+      const target = bgmMuted ? 0 : bgmVolume * 0.25;
+      bgmMasterGain.gain.setTargetAtTime(target, audioCtx.currentTime, 0.03);
     }
-});
-        let joyId = null, lookId = null, touchStart = { x: 0, y: 0 }, joyStart = { x: 0, y: 0 }, vMove = { x: 0, y: 0 };
-        window.addEventListener('touchstart', (e) => {
-            if (['curtain-btn', 'door-prompt', 'action-prompt'].includes(e.target.id) || isTalking) return;
-            for (let i = 0; i < e.changedTouches.length; i++) {
-                const t = e.changedTouches[i];
-                if (t.clientX < window.innerWidth / 2 && joyId === null) {
-                    joyId = t.identifier; joyStart = { x: t.clientX, y: t.clientY };
-                    document.getElementById('joystick-zone').style.left = (t.clientX - 60) + 'px'; document.getElementById('joystick-zone').style.bottom = (window.innerHeight - t.clientY - 60) + 'px';
-                } else if (t.clientX >= window.innerWidth / 2 && lookId === null) {
-                    lookId = t.identifier; touchStart = { x: t.clientX, y: t.clientY };
-                }
-            }
+
+    document.getElementById("bgm-volume").addEventListener("input", (e) => {
+      initAudio();
+      bgmVolume = parseInt(e.target.value, 10) / 100;
+      if (bgmVolume > 0 && bgmMuted) {
+        bgmMuted = false;
+      }
+      document.getElementById("btn-bgm-toggle").innerText = (bgmMuted || bgmVolume === 0) ? "🔇" : "🎵";
+      updateBgmGain();
+    });
+
+    document.getElementById("btn-bgm-toggle").addEventListener("click", () => {
+      initAudio();
+      bgmMuted = !bgmMuted;
+      document.getElementById("btn-bgm-toggle").innerText = (bgmMuted || bgmVolume === 0) ? "🔇" : "🎵";
+      updateBgmGain();
+    });
+
+    function playTone(freq, duration = 0.22, type = "sine", vol = 0.16) {
+      try {
+        initAudio();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+      } catch (e) {}
+    }
+
+    function playSimonTone(padIndex, duration = 0.3) {
+      try {
+        initAudio();
+        const cfg = SIMON_TONES[padIndex] || SIMON_TONES[0];
+        const now = audioCtx.currentTime;
+
+        const osc = audioCtx.createOscillator();
+        const sub = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+
+        osc.type = cfg.wave;
+        osc.frequency.setValueAtTime(cfg.freq, now);
+
+        sub.type = "sine";
+        sub.frequency.setValueAtTime(cfg.freq * 2, now);
+
+        gain.gain.setValueAtTime(0.001, now);
+        gain.gain.linearRampToValueAtTime(0.2, now + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+
+        osc.connect(gain);
+        sub.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        osc.start(now);
+        sub.start(now);
+        osc.stop(now + duration);
+        sub.stop(now + duration);
+      } catch (e) {}
+    }
+
+    let lastFootstepTime = 0;
+    let stepAlternate = false;
+    function playSoftFootstep(timestamp) {
+      if (timestamp - lastFootstepTime < 230) return;
+      lastFootstepTime = timestamp;
+      stepAlternate = !stepAlternate;
+      try {
+        initAudio();
+        const now = audioCtx.currentTime;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = "triangle";
+        const startFreq = stepAlternate ? 145 : 170;
+        osc.frequency.setValueAtTime(startFreq, now);
+        osc.frequency.exponentialRampToValueAtTime(55, now + 0.055);
+
+        gain.gain.setValueAtTime(0.04, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.055);
+
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(now);
+        osc.stop(now + 0.06);
+      } catch (e) {}
+    }
+
+    // =========================================================================
+    // 2. MA TRẬN MÊ CUNG 30x30 (0 = ĐƯỜNG ĐI, 1 = TƯỜNG)
+    // =========================================================================
+    const MAZE_GRID = [
+      [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+      [0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1],
+      [1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1],
+      [1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1],
+      [1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1],
+      [1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 1],
+      [1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1],
+      [1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 1],
+      [1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1],
+      [1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
+      [1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1],
+      [1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1],
+      [1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1],
+      [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 1],
+      [1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1],
+      [1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
+      [1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1],
+      [1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1],
+      [1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 1],
+      [1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 1],
+      [1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1],
+      [1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1],
+      [1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1],
+      [1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 1],
+      [1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1],
+      [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1],
+      [1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 1],
+      [1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 1],
+      [1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0],
+      [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+    ];
+    const MAZE_ROWS = 30;
+    const MAZE_COLS = 30;
+    const MAZE_TILE = 28; // Kích thước mỗi ô mê cung (px)
+
+    // =========================================================================
+    // 3. KHU VỰC CẤU HÌNH QUÀ TẶNG & HÌNH ẢNH (ĐÃ SỬA LỖI DẤU NGOẶC KÉP)
+    // =========================================================================
+    function createSvgIcon(emoji, bgColor) {
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120">
+        <rect width="120" height="120" rx="24" fill="${bgColor}"/>
+        <circle cx="60" cy="60" r="46" fill="rgba(255,255,255,0.6)"/>
+        <text x="50%" y="54%" dominant-baseline="middle" text-anchor="middle" font-size="56">${emoji}</text>
+      </svg>`;
+      return "data:image/svg+xml;utf8," + encodeURIComponent(svg);
+    }
+
+    const GIFT_CONFIGS = [
+      {
+        id: 0,
+        name: "Trờ chơi 4",
+        x: 360, y: 320,
+        imgUrl: "https://heraflower.vn/wp-content/uploads/2024/10/mau-hoa-1-10.png",
+        fallbackUrl: createSvgIcon("💐", "#ffe5ec"),
+        message: "Tặng em bó hoa tươi thắm nhất! Chúc công chúa của anh luôn rạng rỡ và xinh đẹp như những đóa hoa này.",
+        puzzleType: "PLATES",
+        hint: "Hai bạn hãy cùng đứng vào 2 vòng tròn Xanh & Hồng cạnh hộp quà!"
+      },
+      {
+        id: 1,
+        name: "Trò chơi 1",
+        x: 1240, y: 280,
+        imgUrl: "https://png.pngtree.com/png-clipart/20240626/original/pngtree-maze-games-for-6-year-olds-png-image_15415350.png",
+        fallbackUrl: createSvgIcon("🧸", "#e2ece9"),
+        message: "Vượt mê cung thành công!",
+        puzzleType: "MAZE_ESCAPE",
+        hint: "Dùng phím di chuyển tìm đường tới Cổng Ra . Cả 2 cùng tới lối ra mới qua ải!"
+      },
+      {
+        id: 2,
+        name: "Trò chơi 2",
+        x: 340, y: 920,
+        imgUrl: "https://image.made-in-china.com/155f0j00udpTEhgcRRbf/Memory-Fun-Pad-Simon-Says-Game-Pad.webp",
+        fallbackUrl: createSvgIcon("🍰", "#fff1e6"),
+        message: "Chắc cái này quen lắm.",
+        puzzleType: "SIMON_MEMORY",
+        hint: "Nhớ 8 lượt giai điệu 4. Trong mỗi lượt, Tuyến luôn bấm trước rồi tới Đạt bấm xen kẽ!"
+      },
+      {
+        id: 3,
+        name: "Trò chơi 3",
+        x: 1280, y: 900,
+        imgUrl: "https://ngonngucuabe.com/wp-content/uploads/2023/06/IMG_0085-2048x1536.jpg",
+        fallbackUrl: createSvgIcon("💄", "#f3c4fb"),
+        message: "Tâm đầu ý hợp! ",
+        puzzleType: "MEMORY_CARDS",
+        hint: "16 thẻ (8 cặp): Đạt chọn mở 1 thẻ, Tuyến chọn mở 1 thẻ. Nếu giống nhau 2 thẻ sẽ biến mất!"
+      },
+      {
+        id: 4,
+        name: "Bức thư",
+        x: 800, y: 600,
+        imgUrl: "https://pixnio.com/free-images/2025/05/15/2025-05-15-04-10-53-1152x788.jpeg",
+        fallbackUrl: createSvgIcon("💌", "#ffccd5"),
+        message: "Cảm ơn em đã đến bên anh. Chúc cục dàng của anh một ngày 20/10 thật hạnh phúc. Yêu em rất nhìu! ❤️",
+        puzzleType: "MASH_HEART",
+        hint: "Thanh năng lượng đang tuột dần! Hai người hãy nhấn XEN KẼ nhau để nạp đầy!"
+      }
+    ];
+
+    const loadedGiftImages = {};
+    GIFT_CONFIGS.forEach(g => {
+      const img = new Image();
+      // Nếu đường dẫn không phải file ảnh trực tiếp và bị lỗi, tự động dùng icon dự phòng để không làm đơ bản đồ
+      img.onerror = () => {
+        if (img.src !== g.fallbackUrl) img.src = g.fallbackUrl;
+      };
+      img.src = g.imgUrl;
+      loadedGiftImages[g.id] = img;
+    });
+
+    // =========================================================================
+    // 4. CẬP NHẬT VỊ TRÍ & BIỂU CẢM CHO MODEL CHIBI DOM
+    // =========================================================================
+    const spriteLayer = document.getElementById("sprite-layer");
+    const domP1 = document.getElementById("dom-p1");
+    const domP2 = document.getElementById("dom-p2");
+
+    function updateDomCharacters(camera) {
+      const canvas = document.getElementById("gameCanvas");
+      const scale = canvas.clientWidth / 900;
+      spriteLayer.style.transform = `scale(${scale})`;
+
+      [
+        { p: p1, el: domP1 },
+        { p: p2, el: domP2 }
+      ].forEach(({ p, el }) => {
+        const isMoving = Math.abs(p.vx) > 0.1 || Math.abs(p.vy) > 0.1;
+        el.classList.toggle("moving", isMoving);
+
+        const screenX = p.x - camera.x - 28;
+        const screenY = p.y - camera.y - 46;
+        el.style.transform = `translate3d(${screenX}px, ${screenY}px, 0)`;
+
+        const eyes = el.querySelectorAll(".cb-eye");
+        const lookX = p.dirX * 2.5;
+        const lookY = p.dirY * 1.8;
+        eyes.forEach(eye => {
+          eye.style.transform = `translate(${lookX}px, ${lookY}px)`;
         });
-        window.addEventListener('touchmove', (e) => {
-            if (isTalking) return;
-            for (let i = 0; i < e.changedTouches.length; i++) {
-                const t = e.changedTouches[i];
-                if (t.identifier === joyId) {
-                    let dx = t.clientX - joyStart.x, dy = t.clientY - joyStart.y, d = Math.sqrt(dx*dx + dy*dy);
-                    if(d > 40) { dx = (dx/d)*40; dy = (dy/d)*40; }
-                    document.getElementById('joystick-knob').style.transform = `translate(${dx}px, ${dy}px)`;
-                    vMove.x = dx / 40; vMove.y = -dy / 40;
-                }
-                if (t.identifier === lookId) {
-                    yaw -= (t.clientX - touchStart.x) * 0.005; pitch = Math.max(-Math.PI/3, Math.min(Math.PI/3, pitch - (t.clientY - touchStart.y) * 0.005)); touchStart = { x: t.clientX, y: t.clientY };
-                }
-            }
-        });
-        const endTouch = (e) => {
-            for (let i = 0; i < e.changedTouches.length; i++) {
-                const t = e.changedTouches[i];
-                if (t.identifier === joyId) { joyId = null; vMove = { x: 0, y: 0 }; document.getElementById('joystick-knob').style.transform = 'translate(0px, 0px)'; document.getElementById('joystick-zone').style.left = '40px'; document.getElementById('joystick-zone').style.bottom = '40px'; }
-                if (t.identifier === lookId) lookId = null;
-            }
-        };
-        window.addEventListener('touchend', endTouch); window.addEventListener('touchcancel', endTouch);
+      });
+    }
 
-        const promptBtn = document.getElementById('door-prompt');
-        function openDoor() { isDoorOpen = true; promptBtn.style.display = 'none'; roomLight.intensity = 0.5; }
-        promptBtn.addEventListener('click', openDoor); promptBtn.addEventListener('touchstart', openDoor);
+    // =========================================================================
+    // 5. KHỞI TẠO BẢN ĐỒ MỞ, HOA ĐA SẮC & BƯỚM BAY LƯỢN (THỜI GIAN 1 TIẾNG = 3600s)
+    // =========================================================================
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+    const WORLD_W = 1600;
+    const WORLD_H = 1200;
 
-        const curtainBtn = document.getElementById('curtain-btn');
-        function toggleCurtain() { isCurtainOpen = !isCurtainOpen; }
-        curtainBtn.addEventListener('click', toggleCurtain); curtainBtn.addEventListener('touchstart', (e) => { e.preventDefault(); toggleCurtain(); });
+    let role = "OFFLINE"; // "OFFLINE" | "HOST" | "CLIENT"
+    let offlineActiveId = 1;
+    let timeLeft = 3600; // 1 tiếng = 3600 giây
+    let gameEnded = false;
+    let showMinimap = true;
+    let fireworksActive = false;
 
-        // --- QUẢN LÝ THOẠI & KÍCH HOẠT HỆ THỐNG ĐỒNG BỘ DỮ LIỆU GOOGLE SHEET ---
-        const actionPrompt = document.getElementById('action-prompt');
-        const dialogueBox = document.getElementById('dialogue-box');
-        const dialogueText = document.getElementById('dialogue-text');
-        const optionsContainer = document.getElementById('options-container');
+    const p1 = { id: 1, label: "Ăm chã húi 💙", x: 740, y: 680, vx: 0, vy: 0, dirX: 0, dirY: 1, color: "#4facfe" };
+    const p2 = { id: 2, label: "Bà chã hơm 💖", x: 860, y: 680, vx: 0, vy: 0, dirX: 0, dirY: 1, color: "#ff758c" };
 
-        function hienThiHộpThoai(noiDung, cacPhuongAn = []) {
-            isTalking = true;
-            dialogueText.innerText = noiDung;
-            optionsContainer.innerHTML = '';
-            
-            if (cacPhuongAn.length === 0) {
-                const btn = document.createElement('div'); btn.className = 'option-btn'; btn.innerText = 'Đóng';
-                btn.onclick = () => {
-                    // Đồng bộ nút Đóng câu trả lời cuối
-                    sendTrackingData(currentCowScale.toString(), noiDung, "Bấm kết thúc (Đóng)");
-                    dongHộpThoai();
-                };
-                optionsContainer.appendChild(btn);
+    let giftsState = GIFT_CONFIGS.map(g => ({
+      id: g.id,
+      unlocked: false,
+      plateProgress: 0
+    }));
+
+    const trees = [
+      { x: 200, y: 180, r: 45 }, { x: 520, y: 160, r: 40 }, { x: 1050, y: 160, r: 45 }, { x: 1420, y: 200, r: 50 },
+      { x: 180, y: 600, r: 45 }, { x: 1450, y: 580, r: 42 }, { x: 200, y: 1050, r: 48 }, { x: 1400, y: 1050, r: 45 },
+      { x: 620, y: 420, r: 36 }, { x: 980, y: 420, r: 36 }, { x: 620, y: 780, r: 36 }, { x: 980, y: 780, r: 36 }
+    ];
+
+    const FLOWER_PALETTE = ["#ff758c", "#ffd166", "#b388eb", "#ffffff", "#70d6ff", "#ff9f1c", "#ff4d6d"];
+    const meadowFlowers = [];
+    for (let i = 0; i < 95; i++) {
+      const fx = 60 + Math.random() * (WORLD_W - 120);
+      const fy = 60 + Math.random() * (WORLD_H - 120);
+      if (Math.hypot(fx - 800, fy - 600) < 145) continue;
+      meadowFlowers.push({
+        x: fx,
+        y: fy,
+        color: FLOWER_PALETTE[i % FLOWER_PALETTE.length],
+        centerColor: i % 2 === 0 ? "#ffe066" : "#fff",
+        size: 4.5 + (i % 3) * 1.2,
+        seed: Math.random() * Math.PI * 2
+      });
+    }
+
+    const BUTTERFLY_COLORS = [
+      { wing: "#ff85a1", spot: "#fff0f3" },
+      { wing: "#ffd166", spot: "#ffffff" },
+      { wing: "#70d6ff", spot: "#e0fbfc" },
+      { wing: "#cdb4db", spot: "#fff0f5" },
+      { wing: "#ff9f1c", spot: "#fff3b0" }
+    ];
+    const butterflies = Array.from({ length: 14 }, (_, i) => ({
+      x: 150 + Math.random() * (WORLD_W - 300),
+      y: 150 + Math.random() * (WORLD_H - 300),
+      angle: Math.random() * Math.PI * 2,
+      speed: 1.1 + Math.random() * 0.7,
+      turnSpeed: (Math.random() - 0.5) * 0.03,
+      phase: Math.random() * Math.PI * 2,
+      palette: BUTTERFLY_COLORS[i % BUTTERFLY_COLORS.length]
+    }));
+
+    const particles = [];
+    for (let i = 0; i < 35; i++) {
+      particles.push({
+        type: "petal",
+        x: Math.random() * WORLD_W,
+        y: Math.random() * WORLD_H,
+        vx: 0.4 + Math.random() * 0.5,
+        vy: 0.6 + Math.random() * 0.6,
+        size: 4 + Math.random() * 4,
+        angle: Math.random() * Math.PI * 2
+      });
+    }
+
+    function spawnHeartParticle(x, y) {
+      particles.push({
+        type: "heart",
+        x: x + (Math.random() - 0.5) * 30,
+        y: y - 10,
+        vx: (Math.random() - 0.5) * 1,
+        vy: -1.2 - Math.random() * 1,
+        alpha: 1,
+        size: 12 + Math.random() * 6
+      });
+    }
+
+    document.getElementById("btn-toggle-map").addEventListener("click", () => {
+      if (role === "CLIENT") sendPuzzleEvent({ cmd: "TOGGLE_MAP" });
+      else showMinimap = !showMinimap;
+    });
+
+    // =========================================================================
+    // 6. HỆ THỐNG MINI-GAME ĐỒNG BỘ (MÊ CUNG CHIBI, SIMON, LẬT THẺ, THƯ TÌNH)
+    // =========================================================================
+    let activePuzzle = {
+      giftId: null,
+      type: null,
+      mzP1: { x: 14, y: 42, dx: 1, dy: 0, moving: false },
+      mzP2: { x: 40, y: 42, dx: 1, dy: 0, moving: false },
+      simonRound: 1,
+      simonStep: 0,
+      simonPhase: "WATCH",
+      simonSeq: [],
+      simonLitPad: null,
+      simonSoundTick: 0,
+      cards: [],
+      cardTurn: 1,
+      firstCardIdx: null,
+      secondCardIdx: null,
+      cardLock: false,
+      matchedPairs: 0,
+      mashPower: 20,
+      mashTurn: 1
+    };
+
+    let simonTimers = [];
+    let cardFlipTimer = null;
+    let lastClientSoundTick = 0;
+
+    function clearSimonTimers() {
+      simonTimers.forEach(t => clearTimeout(t));
+      simonTimers = [];
+      if (cardFlipTimer) {
+        clearTimeout(cardFlipTimer);
+        cardFlipTimer = null;
+      }
+    }
+
+    function startSimonWatchSequence() {
+      clearSimonTimers();
+      activePuzzle.simonPhase = "WATCH";
+      activePuzzle.simonStep = 0;
+      activePuzzle.simonLitPad = null;
+
+      const currentRoundLen = activePuzzle.simonRound;
+      let delay = 500;
+
+      for (let i = 0; i < currentRoundLen; i++) {
+        const padIdx = activePuzzle.simonSeq[i];
+        simonTimers.push(setTimeout(() => {
+          activePuzzle.simonLitPad = padIdx;
+          activePuzzle.simonSoundTick++;
+          playSimonTone(padIdx, 0.3);
+        }, delay));
+
+        simonTimers.push(setTimeout(() => {
+          activePuzzle.simonLitPad = null;
+        }, delay + 320));
+
+        delay += 480;
+      }
+
+      simonTimers.push(setTimeout(() => {
+        activePuzzle.simonLitPad = null;
+        activePuzzle.simonPhase = "PLAY";
+        activePuzzle.simonStep = 0;
+      }, delay + 100));
+    }
+
+    function initMemoryCards() {
+      const pairIcons = ["🌹", "🧸", "🍰", "💄", "💌", "💍", "🎀", "🍓"];
+      const deck = [...pairIcons, ...pairIcons];
+      for (let i = deck.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [deck[i], deck[j]] = [deck[j], deck[i]];
+      }
+      activePuzzle.cards = deck.map(icon => ({
+        icon,
+        state: "DOWN",
+        by: 0
+      }));
+      activePuzzle.cardTurn = 1;
+      activePuzzle.firstCardIdx = null;
+      activePuzzle.secondCardIdx = null;
+      activePuzzle.cardLock = false;
+      activePuzzle.matchedPairs = 0;
+    }
+
+    function canMoveInMaze(nx, ny) {
+      const radius = 7;
+      const points = [
+        { x: nx - radius, y: ny - radius },
+        { x: nx + radius, y: ny - radius },
+        { x: nx - radius, y: ny + radius },
+        { x: nx + radius, y: ny + radius }
+      ];
+      for (const pt of points) {
+        const col = Math.floor(pt.x / MAZE_TILE);
+        const row = Math.floor(pt.y / MAZE_TILE);
+        if (row < 0 || row >= MAZE_ROWS || col < 0 || col >= MAZE_COLS) return false;
+        if (MAZE_GRID[row][col] === 1) return false;
+      }
+      return true;
+    }
+
+    function moveMazePlayer(mp, inp, timestamp) {
+      const speed = 2.5;
+      let vx = 0, vy = 0;
+      if (inp.left) { vx -= speed; mp.dx = -1; mp.dy = 0; }
+      if (inp.right) { vx += speed; mp.dx = 1; mp.dy = 0; }
+      if (inp.up) { vy -= speed; mp.dy = -1; if (!inp.left && !inp.right) mp.dx = 0; }
+      if (inp.down) { vy += speed; mp.dy = 1; if (!inp.left && !inp.right) mp.dx = 0; }
+
+      if (vx !== 0 && vy !== 0) {
+        vx *= 0.7071;
+        vy *= 0.7071;
+      }
+
+      if (vx !== 0 && canMoveInMaze(mp.x + vx, mp.y)) mp.x += vx;
+      if (vy !== 0 && canMoveInMaze(mp.x, mp.y + vy)) mp.y += vy;
+
+      mp.moving = (vx !== 0 || vy !== 0);
+      if (mp.moving) {
+        playSoftFootstep(timestamp);
+      }
+    }
+
+    const puzzleModal = document.getElementById("puzzle-modal");
+    const puzTitle = document.getElementById("puz-title");
+    const puzDesc = document.getElementById("puz-desc");
+    const puzContent = document.getElementById("puz-content");
+
+    document.getElementById("btn-close-puz").addEventListener("click", () => {
+      if (role === "CLIENT") sendPuzzleEvent({ cmd: "CLOSE" });
+      else closePuzzleModal();
+    });
+
+    document.getElementById("btn-close-reward").addEventListener("click", () => {
+      document.getElementById("reward-modal").style.display = "none";
+      checkAllGiftsUnlocked();
+    });
+
+    document.getElementById("btn-show-fireworks").addEventListener("click", () => {
+      if (role === "CLIENT") sendPuzzleEvent({ cmd: "START_FIREWORKS" });
+      else triggerFireworksFinale();
+    });
+
+    document.getElementById("btn-restart").addEventListener("click", () => {
+      if (role === "CLIENT") sendPuzzleEvent({ cmd: "RESTART" });
+      else restartFullGame();
+    });
+
+    function triggerFireworksFinale() {
+      fireworksActive = true;
+      document.getElementById("end-modal").style.display = "none";
+      document.getElementById("fireworks-overlay").style.display = "flex";
+    }
+
+    function restartFullGame() {
+      clearSimonTimers();
+      timeLeft = 3600; // Reset về 1 tiếng (3600 giây)
+      gameEnded = false;
+      fireworksActive = false;
+      p1.x = 740; p1.y = 680;
+      p2.x = 860; p2.y = 680;
+      giftsState.forEach(g => { g.unlocked = false; g.plateProgress = 0; });
+      closePuzzleModal();
+      document.getElementById("end-modal").style.display = "none";
+      document.getElementById("reward-modal").style.display = "none";
+      document.getElementById("fireworks-overlay").style.display = "none";
+    }
+
+    function openPuzzle(giftId) {
+      clearSimonTimers();
+      const cfg = GIFT_CONFIGS[giftId];
+      activePuzzle.giftId = giftId;
+      activePuzzle.type = cfg.puzzleType;
+
+      if (cfg.puzzleType === "MAZE_ESCAPE") {
+        activePuzzle.mzP1 = { x: MAZE_TILE * 0.5, y: MAZE_TILE * 1.5, dx: 1, dy: 0, moving: false };
+        activePuzzle.mzP2 = { x: MAZE_TILE * 1.5, y: MAZE_TILE * 1.5, dx: 1, dy: 0, moving: false };
+      } else if (cfg.puzzleType === "SIMON_MEMORY") {
+        activePuzzle.simonRound = 1;
+        activePuzzle.simonStep = 0;
+        activePuzzle.simonSeq = Array.from({ length: 8 }, () => Math.floor(Math.random() * 4));
+        startSimonWatchSequence();
+      } else if (cfg.puzzleType === "MEMORY_CARDS") {
+        initMemoryCards();
+      } else if (cfg.puzzleType === "MASH_HEART") {
+        activePuzzle.mashPower = 20;
+        activePuzzle.mashTurn = 1;
+      }
+
+      renderPuzzleModalUI();
+    }
+
+    function closePuzzleModal() {
+      clearSimonTimers();
+      activePuzzle.giftId = null;
+      activePuzzle.type = null;
+      puzzleModal.style.display = "none";
+    }
+
+    function unlockGiftSuccess(giftId) {
+      clearSimonTimers();
+      if (giftsState[giftId].unlocked) return;
+      giftsState[giftId].unlocked = true;
+      closePuzzleModal();
+      playTone(880, 0.35, "triangle", 0.2);
+
+      const cfg = GIFT_CONFIGS[giftId];
+      const rewardImg = document.getElementById("reward-img");
+      rewardImg.onerror = () => { rewardImg.src = cfg.fallbackUrl; };
+      rewardImg.src = cfg.imgUrl;
+      document.getElementById("reward-name").innerText = cfg.name;
+      document.getElementById("reward-msg").innerText = cfg.message;
+      document.getElementById("reward-modal").style.display = "flex";
+
+      for (let i = 0; i < 20; i++) spawnHeartParticle(cfg.x, cfg.y);
+      if (role === "HOST" && conn && conn.open) {
+        conn.send({ type: "UNLOCK_EVENT", giftId });
+      }
+    }
+
+    function checkAllGiftsUnlocked() {
+      const unlockedCount = giftsState.filter(g => g.unlocked).length;
+      if (unlockedCount >= GIFT_CONFIGS.length && !gameEnded) {
+        showEndModal(true);
+      }
+    }
+
+    function showEndModal(isWin) {
+      gameEnded = true;
+      const endModal = document.getElementById("end-modal");
+      const title = document.getElementById("end-title");
+      const desc = document.getElementById("end-desc");
+      const gallery = document.getElementById("end-gallery");
+
+      if (isWin) {
+        title.innerText = "💖 Trọn Vẹn Yêu Thương 20/10! 💖";
+        desc.innerText = "Tuyệt vời! Hai bạn đã phối hợp ăn ý để mở khóa toàn bộ 5 mục tiêu. Sau khi đọc xong, hãy bấm nút bên dưới để cùng ngắm bầu trời pháo hoa kỷ niệm nhé!";
+      } else {
+        title.innerText = "⏰ Hết Giờ Rồi 💖";
+        desc.innerText = "Dù thời gian thử thách đã khép lại, những món quà và bầu trời pháo hoa rực rỡ nhất ngày 20/10 vẫn luôn dành trọn cho em!";
+      }
+
+      gallery.innerHTML = "";
+      GIFT_CONFIGS.forEach(cfg => {
+        const img = document.createElement("img");
+        img.onerror = () => { img.src = cfg.fallbackUrl; };
+        img.src = cfg.imgUrl;
+        img.className = "gallery-item";
+        img.title = cfg.name;
+        gallery.appendChild(img);
+      });
+
+      endModal.style.display = "flex";
+    }
+
+    // Dựng giao diện HTML cho từng loại Mini-game (Bao gồm Model Chibi trong Mê Cung)
+    function renderPuzzleModalUI() {
+      if (activePuzzle.giftId === null) {
+        puzzleModal.style.display = "none";
+        return;
+      }
+      const cfg = GIFT_CONFIGS[activePuzzle.giftId];
+      puzzleModal.style.display = "flex";
+      puzTitle.innerText = `🎁 ${cfg.name}`;
+      puzDesc.innerText = cfg.hint;
+
+      if (activePuzzle.type === "MAZE_ESCAPE") {
+        puzContent.innerHTML = `
+          <div class="simon-header">
+            <span style="color:#4facfe;">💙 Anh &amp; 💖 Em</span>
+            <span id="maze-status-txt" style="color:#ff4d6d;">Tìm lối ra ở góc dưới phải 🚪</span>
+          </div>
+          <div id="maze-stage">
+            <canvas id="mazeCanvas" width="420" height="300"></canvas>
+            <!-- 2 Model Nhân vật Chibi Nam & Nữ bên trong Mê Cung -->
+            <div id="maze-sprite-layer">
+              <div id="mz-dom-p1" class="player male">
+                <div class="player-shadow"></div>
+                <div class="chibi">
+                  <div class="cb-backhair"></div>
+                  <div class="cb-head">
+                    <div class="cb-ahoge"></div>
+                    <div class="cb-hair"></div>
+                    <div class="cb-eye e1"></div>
+                    <div class="cb-eye e2"></div>
+                    <div class="cb-blush b1"></div>
+                    <div class="cb-blush b2"></div>
+                    <div class="cb-mouth"></div>
+                  </div>
+                  <div class="cb-body">
+                    <div class="cb-collar"></div>
+                    <div class="cb-tie"></div>
+                  </div>
+                  <div class="avatar-acc acc-cap"><i></i></div>
+                </div>
+              </div>
+              <div id="mz-dom-p2" class="player female">
+                <div class="player-shadow"></div>
+                <div class="chibi">
+                  <div class="cb-backhair"></div>
+                  <div class="cb-head">
+                    <div class="cb-hair"></div>
+                    <div class="cb-eye e1"></div>
+                    <div class="cb-eye e2"></div>
+                    <div class="cb-blush b1"></div>
+                    <div class="cb-blush b2"></div>
+                    <div class="cb-mouth"></div>
+                  </div>
+                  <div class="cb-body"></div>
+                  <div class="avatar-acc acc-bow"><i></i><span></span><b></b></div>
+                </div>
+              </div>
+            </div>
+            <!-- Lớp Sương Mù (Fog of War) phủ phía trên -->
+            <canvas id="mazeFogCanvas" width="420" height="300"></canvas>
+          </div>
+          <div style="font-size:11.5px; color:#6c757d; margin-top:6px;">
+            Dùng phím W/A/S/D, Mũi tên hoặc Phím Ảo để đi. (Offline: Bấm Tab để đổi người)
+          </div>
+        `;
+      }
+      else if (activePuzzle.type === "SIMON_MEMORY") {
+        const icons = ["🌸", "💎", "⭐", "🔮"];
+        puzContent.innerHTML = `
+          <div class="simon-header">
+            <span style="color:#ff4d6d;">🎵 Lượt nhớ: <span id="simon-round-txt">1 / 8</span></span>
+            <span style="color:#3a86ff;">Đầu lượt: Tuyến 💖</span>
+          </div>
+          <div id="simon-turn-banner" class="simon-turn-banner">👀 Hãy chú ý thứ tự phát sáng...</div>
+          <div class="simon-grid">
+            ${icons.map((ic, idx) => `
+              <div id="simon-pad-${idx}" class="simon-pad simon-pad-${idx}" onclick="triggerPuzzleInput('SIMON_${idx}')">
+                <span>${ic}</span>
+              </div>
+            `).join("")}
+          </div>
+          <div id="simon-dots" class="simon-steps-dots"></div>
+        `;
+      }
+      else if (activePuzzle.type === "MEMORY_CARDS") {
+        puzContent.innerHTML = `
+          <div class="simon-header">
+            <span style="color:#ff4d6d;">🃏 Đã ghép: <span id="mem-pair-txt">0 / 8</span> cặp</span>
+            <span id="mem-turn-txt" style="color:#4facfe;">Lượt Đạt 💙 chọn thẻ 1</span>
+          </div>
+          <div class="memory-grid">
+            ${Array.from({ length: 16 }, (_, idx) => `
+              <div id="mem-card-${idx}" class="mem-card" onclick="triggerPuzzleInput('CARD_${idx}')">❓</div>
+            `).join("")}
+          </div>
+        `;
+      }
+      else if (activePuzzle.type === "MASH_HEART") {
+        puzContent.innerHTML = `
+          <div style="font-size:44px; margin:4px 0; animation: popIn 0.5s infinite alternate;">💌</div>
+          <div id="mash-turn-hint" style="font-weight:800; font-size:14px; margin-bottom:6px; color:#4facfe;">
+            Nút đang màu XANH: Đến lượt ANH bấm!
+          </div>
+          <div class="sync-bar-bg" style="height:30px;">
+            <div id="mash-fill" style="height:100%; width:20%; background:linear-gradient(90deg, #4facfe, #ff758c); transition:width 0.08s;"></div>
+          </div>
+          <button id="btn-mash" class="mash-alt-btn turn-blue">💙 LƯỢT ANH BẤM! (NÚT XANH) ⚡</button>
+        `;
+        document.getElementById("btn-mash").onclick = () => triggerPuzzleInput("MASH");
+      }
+    }
+
+    window.triggerPuzzleInput = function(actionStr) {
+      if (role === "CLIENT") {
+        sendPuzzleEvent({ cmd: "INPUT", action: actionStr, player: 2 });
+      } else {
+        const pId = role === "OFFLINE" ? offlineActiveId : 1;
+        handlePuzzleInputOnHost(actionStr, pId);
+      }
+    };
+
+    function handlePuzzleInputOnHost(actionStr, playerId) {
+      if (activePuzzle.giftId === null) return;
+
+      if (activePuzzle.type === "SIMON_MEMORY" && actionStr.startsWith("SIMON_")) {
+        if (activePuzzle.simonPhase !== "PLAY") return;
+        const expectedPlayer = (activePuzzle.simonStep % 2 === 0) ? 2 : 1;
+        if (role !== "OFFLINE" && playerId !== expectedPlayer) return;
+
+        const padIdx = parseInt(actionStr.split("_")[1], 10);
+        activePuzzle.simonLitPad = padIdx;
+        activePuzzle.simonSoundTick++;
+        playSimonTone(padIdx, 0.25);
+
+        setTimeout(() => {
+          if (activePuzzle.simonPhase === "PLAY") activePuzzle.simonLitPad = null;
+        }, 200);
+
+        const correctPad = activePuzzle.simonSeq[activePuzzle.simonStep];
+        if (padIdx === correctPad) {
+          activePuzzle.simonStep++;
+          if (activePuzzle.simonStep >= activePuzzle.simonRound) {
+            if (activePuzzle.simonRound >= 8) {
+              unlockGiftSuccess(activePuzzle.giftId);
             } else {
-                cacPhuongAn.forEach(pa => {
-                    const btn = document.createElement('div'); btn.className = 'option-btn'; btn.innerText = pa.text;
-                    btn.onclick = () => {
-                        // Tự động đẩy sự lựa chọn nhánh của người chơi lên dữ liệu đám mây
-                        sendTrackingData(currentCowScale.toString(), noiDung, pa.text);
-
-                        if (pa.next) {
-                            const nodeNhanh = heThongCauHoi[pa.next];
-                            hienThiHộpThoai(nodeNhanh.title, nodeNhanh.options);
-                        } else if (pa.textEnd) {
-                            hienThiHộpThoai(pa.textEnd, []);
-                        } else if (pa.action === 'reset_loop') {
-                            hienThiHộpThoai(heThongCauHoi.cauHoiGoc.title, heThongCauHoi.cauHoiGoc.options);
-                        } else if (pa.action === 'close_happy') {
-                            hienThiHộpThoai('À, vậy chúc bạn 1 ngày vui vẻ.', []);
-                        }
-                    };
-                    optionsContainer.appendChild(btn);
-                });
+              activePuzzle.simonPhase = "ROUND_OK";
+              simonTimers.push(setTimeout(() => {
+                activePuzzle.simonRound++;
+                activePuzzle.simonStep = 0;
+                startSimonWatchSequence();
+              }, 700));
             }
-            dialogueBox.style.display = 'flex'; actionPrompt.style.display = 'none';
+          }
+        } else {
+          activePuzzle.simonPhase = "FAIL";
+          simonTimers.push(setTimeout(() => {
+            activePuzzle.simonStep = 0;
+            startSimonWatchSequence();
+          }, 900));
         }
+      }
+      else if (activePuzzle.type === "MEMORY_CARDS" && actionStr.startsWith("CARD_")) {
+        if (activePuzzle.cardLock) return;
+        if (role !== "OFFLINE" && playerId !== activePuzzle.cardTurn) return;
 
-        function dongHộpThoai() { dialogueBox.style.display = 'none'; isTalking = false; moveF = moveB = moveL = moveR = false; }
+        const idx = parseInt(actionStr.split("_")[1], 10);
+        const card = activePuzzle.cards[idx];
+        if (!card || card.state !== "DOWN") return;
 
-        actionPrompt.addEventListener('click', () => {
-            const pPos = playerGroup.position;
-            const distToCow = pPos.distanceTo(new THREE.Vector3(0, 1.8, -18));
-            const distToStraw = pPos.distanceTo(new THREE.Vector3(4.5, 1.8, -22.5));
+        card.state = "UP";
+        card.by = activePuzzle.cardTurn;
+        playTone(activePuzzle.cardTurn === 1 ? 587.33 : 783.99, 0.15);
 
-            if (distToStraw < 2.5 && !hasStraw && feedCount < 3) {
-                hasStraw = true;
-                sendTrackingData(currentCowScale.toString(), "Tương tác môi trường", "Nhặt rơm tươi từ đống cỏ");
-            
-                return;
-            }
+        if (activePuzzle.firstCardIdx === null) {
+          activePuzzle.firstCardIdx = idx;
+          activePuzzle.cardTurn = 2;
+        } else {
+          activePuzzle.secondCardIdx = idx;
+          activePuzzle.cardLock = true;
 
-            if (distToCow < 3.5) {
-                if (feedCount < 3) {
-                    if (hasStraw) {
-                        feedCount++; hasStraw = false;
-                        if (feedCount === 1) currentCowScale = 0.45;
-                        else if (feedCount === 2) currentCowScale = 0.7;
-                        else if (feedCount === 3) currentCowScale = 1.0;
-                        cowGroup.scale.set(currentCowScale, currentCowScale, currentCowScale);
+          const c1 = activePuzzle.cards[activePuzzle.firstCardIdx];
+          const c2 = activePuzzle.cards[activePuzzle.secondCardIdx];
 
-                        if (feedCount === 1) {
-                            sendTrackingData(currentCowScale.toString(), "Cho ăn lần 1", "Yêu cầu: xin thêm cỏ rơm");
-                            hienThiHộpThoai("Mình thấy vẫn còn đói, bạn cho mình thêm ít cỏ nữa được không ?");
-                        } else if (feedCount === 2) {
-                            sendTrackingData(currentCowScale.toString(), "Cho ăn lần 2", "Yêu cầu: vẫn hơi đói chút xíu");
-                            hienThiHộpThoai("Cảm ơn nha, ngon lắm! Nhưng bụng mình vẫn còn hơi đói chút xíu...");
-                        } else if (feedCount === 3) {
-                            sendTrackingData(currentCowScale.toString(), "Cho ăn lần 3 (Kích hoạt khảo sát)", "Hệ thống hiển thị câu hỏi gốc");
-                            hienThiHộpThoai(heThongCauHoi.cauHoiGoc.title, heThongCauHoi.cauHoiGoc.options);
-                        }
-                    } else {
-                        sendTrackingData(currentCowScale.toString(), "Nói chuyện khi bò đói", "Bò đòi ăn cỏ rơm");
-                        hienThiHộpThoai("Mình đói quá, mình muốn ăn cỏ");
-                    }
-                } else {
-                    sendTrackingData(currentCowScale.toString(), "Yêu cầu khảo sát lại", "Hộp thoại reset vòng lặp khảo sát");
-                    hienThiHộpThoai("Bạn muốn trả lời lại à, vậy mình sẽ hỏi lại", [
-                        { text: "Đúng rồi", action: "reset_loop" },
-                        { text: "Không, mình bấm nhầm", action: "close_happy" }
-                    ]);
-                }
-            }
+          if (c1.icon === c2.icon) {
+            cardFlipTimer = setTimeout(() => {
+              c1.state = "MATCHED";
+              c2.state = "MATCHED";
+              activePuzzle.matchedPairs++;
+              activePuzzle.firstCardIdx = null;
+              activePuzzle.secondCardIdx = null;
+              activePuzzle.cardLock = false;
+              activePuzzle.cardTurn = 1;
+              playTone(987.77, 0.25, "triangle");
+
+              if (activePuzzle.matchedPairs >= 8) {
+                unlockGiftSuccess(activePuzzle.giftId);
+              }
+            }, 480);
+          } else {
+            cardFlipTimer = setTimeout(() => {
+              c1.state = "DOWN";
+              c2.state = "DOWN";
+              c1.by = 0;
+              c2.by = 0;
+              activePuzzle.firstCardIdx = null;
+              activePuzzle.secondCardIdx = null;
+              activePuzzle.cardLock = false;
+              activePuzzle.cardTurn = 1;
+            }, 820);
+          }
+        }
+      }
+      else if (activePuzzle.type === "MASH_HEART" && actionStr === "MASH") {
+        if (role !== "OFFLINE" && playerId !== activePuzzle.mashTurn) return;
+
+        activePuzzle.mashPower = Math.min(100, activePuzzle.mashPower + 9.5);
+        playTone(activePuzzle.mashTurn === 1 ? 523.25 : 659.25, 0.12);
+
+        activePuzzle.mashTurn = activePuzzle.mashTurn === 1 ? 2 : 1;
+
+        if (activePuzzle.mashPower >= 100) {
+          unlockGiftSuccess(activePuzzle.giftId);
+        }
+      }
+    }
+
+    // Vẽ Mê Cung + Cập nhật 2 Model Chibi DOM + Lớp Sương Mù (Fog of War)
+    function renderMazeCanvas(timestamp) {
+      const mCanvas = document.getElementById("mazeCanvas");
+      const fCanvas = document.getElementById("mazeFogCanvas");
+      const mzSpriteLayer = document.getElementById("maze-sprite-layer");
+      if (!mCanvas || !fCanvas || !mzSpriteLayer) return;
+
+      const mCtx = mCanvas.getContext("2d");
+      const fCtx = fCanvas.getContext("2d");
+      const cw = mCanvas.width;
+      const ch = mCanvas.height;
+      const worldSize = MAZE_COLS * MAZE_TILE; // 840x840
+
+      const stageScale = mCanvas.clientWidth / 420;
+      mzSpriteLayer.style.transform = `scale(${stageScale})`;
+
+      const myMazePos = (role === "CLIENT" || (role === "OFFLINE" && offlineActiveId === 2))
+        ? activePuzzle.mzP2
+        : activePuzzle.mzP1;
+
+      const camX = Math.max(0, Math.min(worldSize - cw, myMazePos.x - cw / 2));
+      const camY = Math.max(0, Math.min(worldSize - ch, myMazePos.y - ch / 2));
+
+      mCtx.clearRect(0, 0, cw, ch);
+      mCtx.save();
+      mCtx.translate(-camX, -camY);
+
+      // 1. Vẽ nền đường đi & tường mê cung
+      for (let r = 0; r < MAZE_ROWS; r++) {
+        for (let c = 0; c < MAZE_COLS; c++) {
+          const tx = c * MAZE_TILE;
+          const ty = r * MAZE_TILE;
+          if (tx + MAZE_TILE < camX || tx > camX + cw || ty + MAZE_TILE < camY || ty > camY + ch) continue;
+
+          if (MAZE_GRID[r][c] === 1) {
+            mCtx.fillStyle = "#2d6a4f";
+            mCtx.fillRect(tx, ty, MAZE_TILE, MAZE_TILE);
+            mCtx.fillStyle = "#40916c";
+            mCtx.fillRect(tx + 2, ty + 2, MAZE_TILE - 4, MAZE_TILE - 6);
+          } else {
+            mCtx.fillStyle = (r + c) % 2 === 0 ? "#fff0f3" : "#ffe5ec";
+            mCtx.fillRect(tx, ty, MAZE_TILE, MAZE_TILE);
+          }
+        }
+      }
+
+      // 2. Vẽ Cổng Ra tại (hàng 28, cột 29)
+      const exitX = 29 * MAZE_TILE + MAZE_TILE / 2;
+      const exitY = 28 * MAZE_TILE + MAZE_TILE / 2;
+      const pulse = 9 + Math.sin(timestamp * 0.008) * 3;
+      mCtx.fillStyle = "rgba(46, 213, 115, 0.35)";
+      mCtx.beginPath(); mCtx.arc(exitX, exitY, pulse + 5, 0, Math.PI * 2); mCtx.fill();
+      mCtx.fillStyle = "#2ed573";
+      mCtx.beginPath(); mCtx.arc(exitX, exitY, 8, 0, Math.PI * 2); mCtx.fill();
+      mCtx.font = "bold 10px sans-serif";
+      mCtx.fillStyle = "#1b4332";
+      mCtx.textAlign = "center";
+      mCtx.fillText("LỐI RA", exitX - 10, exitY - 12);
+
+      mCtx.restore();
+
+      // 3. Cập nhật vị trí & biểu cảm cho 2 Model Chibi Nam & Nữ trong Mê Cung
+      const mzEl1 = document.getElementById("mz-dom-p1");
+      const mzEl2 = document.getElementById("mz-dom-p2");
+      [
+        { mp: activePuzzle.mzP1, el: mzEl1 },
+        { mp: activePuzzle.mzP2, el: mzEl2 }
+      ].forEach(({ mp, el }) => {
+        if (!el) return;
+        el.classList.toggle("moving", !!mp.moving);
+        const sx = mp.x - camX - 28;
+        const sy = mp.y - camY - 60;
+        el.style.transform = `translate3d(${sx}px, ${sy}px, 0) scale(0.38)`;
+
+        const eyes = el.querySelectorAll(".cb-eye");
+        const lookX = (mp.dx || 0) * 2.5;
+        const lookY = (mp.dy || 0) * 1.8;
+        eyes.forEach(eye => {
+          eye.style.transform = `translate(${lookX}px, ${lookY}px)`;
         });
+      });
 
-        // --- VÒNG LẶP TIẾN TRÌNH ANIMATION CHÍNH ---
-        const clock = new THREE.Clock();
+      // 4. Vẽ Lớp Sương Mù Giới Hạn Tầm Nhìn (Fog of War) lên trên
+      fCtx.clearRect(0, 0, cw, ch);
+      fCtx.globalCompositeOperation = "source-over";
+      fCtx.fillStyle = "#000000"; // Màn đen đặc 100% theo thiết lập của bạn
+      fCtx.fillRect(0, 0, cw, ch);
 
-        function animate() {
-            requestAnimationFrame(animate); const elapsedTime = clock.getElapsedTime(); 
-            playerGroup.rotation.y = yaw; camera.rotation.x = pitch;
+      fCtx.globalCompositeOperation = "destination-out";
+      const cutLight = (wx, wy, rad) => {
+        const sx = wx - camX;
+        const sy = wy - camY;
+        const grad = fCtx.createRadialGradient(sx, sy, rad * 0.25, sx, sy, rad);
+        grad.addColorStop(0, "rgba(0,0,0,1)");
+        grad.addColorStop(0.7, "rgba(0,0,0,0.65)");
+        grad.addColorStop(1, "rgba(0,0,0,0)");
+        fCtx.fillStyle = grad;
+        fCtx.beginPath();
+        fCtx.arc(sx, sy, rad, 0, Math.PI * 2);
+        fCtx.fill();
+      };
 
-            if (!isTalking) {
-                const cx = (moveL ? -1 : 0) + (moveR ? 1 : 0) + vMove.x, cz = (moveF ? -1 : 0) + (moveB ? 1 : 0) - vMove.y;
-                let nextX = playerGroup.position.x, nextZ = playerGroup.position.z;
-                if (cx !== 0 || cz !== 0) {
-                    const dir = new THREE.Vector3(cx, 0, cz).normalize(); dir.applyQuaternion(playerGroup.quaternion);
-                    nextX += dir.x * moveSpeed; nextZ += dir.z * moveSpeed;
-                }
+      cutLight(myMazePos.x, myMazePos.y, 70);
+      const otherPos = (myMazePos === activePuzzle.mzP1) ? activePuzzle.mzP2 : activePuzzle.mzP1;
+      cutLight(otherPos.x, otherPos.y, 75);
+    }
 
-                // Giới hạn rìa thế giới
-                const worldBound = 495;
-                if (nextX < -worldBound) nextX = -worldBound; if (nextX > worldBound) nextX = worldBound;
-                if (nextZ < -worldBound) nextZ = -worldBound; if (nextZ > worldBound) nextZ = worldBound;
+    function updateActivePuzzle(time, localIn, remoteIn) {
+      if (activePuzzle.giftId === null) return;
 
-                // --- HỆ THỐNG VA CHẠM CÔ LẬP (AABB) ---
-                const pR = 0.4; // Bán kính cơ thể người chơi
-                const walls = [
-                    // Các bức tường của căn phòng [minX, maxX, minZ, maxZ]
-                    [-6.5, -5.5, -6.5, 6.5],   // Tường trái
-                    [5.5, 6.5, -6.5, 6.5],     // Tường phải
-                    [-6.5, 6.5, 5.5, 6.5],     // Tường sau
-                    [-6.5, -1.3, -6.5, -5.5],  // Tường trước (bên trái cửa)
-                    [1.3, 6.5, -6.5, -5.5],    // Tường trước (bên phải cửa)
-                    
-                    // Hàng rào gỗ
-                    [-6.3, -5.7, -24.3, -11.7], // Rào trái
-                    [5.7, 6.3, -24.3, -11.7],   // Rào phải
-                    [-6.3, 6.3, -24.3, -23.7],  // Rào sau (đáy chuồng)
-                    [-6.3, -1.5, -12.3, -11.7], // Rào trước (trái cổng)
-                    [1.5, 6.3, -12.3, -11.7]    // Rào trước (phải cổng)
-                ];
-
-                // Nếu cửa đang đóng, thêm va chạm của cánh cửa vào thế giới
-                if (!isDoorOpen) walls.push([-1.5, 1.5, -6.3, -5.7]);
-
-                // Xử lý trượt dọc theo vách tường (cho phép đi chéo sát tường mà không bị kẹt)
-                let hitX = false, hitZ = false;
-                for (let w of walls) {
-                    if (nextX + pR > w[0] && nextX - pR < w[1] && playerGroup.position.z + pR > w[2] && playerGroup.position.z - pR < w[3]) {
-                        hitX = true;
-                    }
-                    if (playerGroup.position.x + pR > w[0] && playerGroup.position.x - pR < w[1] && nextZ + pR > w[2] && nextZ - pR < w[3]) {
-                        hitZ = true;
-                    }
-                }
-                
-                if (hitX) nextX = playerGroup.position.x;
-                if (hitZ) nextZ = playerGroup.position.z;
-
-                // Cập nhật vị trí cuối cùng
-                playerGroup.position.x = nextX; playerGroup.position.z = nextZ;
+      if (role !== "CLIENT") {
+        if (activePuzzle.type === "MAZE_ESCAPE") {
+          if (role === "OFFLINE") {
+            if (offlineActiveId === 1) {
+              moveMazePlayer(activePuzzle.mzP1, localIn, time);
+              activePuzzle.mzP2.moving = false;
+            } else {
+              moveMazePlayer(activePuzzle.mzP2, localIn, time);
+              activePuzzle.mzP1.moving = false;
             }
+          } else {
+            moveMazePlayer(activePuzzle.mzP1, localIn, time);
+            moveMazePlayer(activePuzzle.mzP2, remoteIn, time);
+          }
 
-            cloudsGroup.children.forEach(cloudCluster => { cloudCluster.position.x += 0.03; if (cloudCluster.position.x > 350) cloudCluster.position.x = -350; });
+          const c1 = Math.floor(activePuzzle.mzP1.x / MAZE_TILE);
+          const r1 = Math.floor(activePuzzle.mzP1.y / MAZE_TILE);
+          const c2 = Math.floor(activePuzzle.mzP2.x / MAZE_TILE);
+          const r2 = Math.floor(activePuzzle.mzP2.y / MAZE_TILE);
 
-            const pPos = playerGroup.position; const distToCow = pPos.distanceTo(new THREE.Vector3(0, 1.8, -18)); const distToStraw = pPos.distanceTo(new THREE.Vector3(4.5, 1.8, -22.5));
+          const p1Out = (r1 === 28 && c1 >= 27);
+          const p2Out = (r2 === 28 && c2 >= 27);
 
-            if (!isDoorOpen && pPos.z <= -4.2 && pPos.z >= -6.0 && Math.abs(pPos.x) < 1.4) { promptBtn.style.display = 'block'; } else { promptBtn.style.display = 'none'; }
+          if (p1Out && p2Out) {
+            unlockGiftSuccess(activePuzzle.giftId);
+            return;
+          }
+        }
+        else if (activePuzzle.type === "MASH_HEART") {
+          activePuzzle.mashPower = Math.max(0, activePuzzle.mashPower - 0.16);
+        }
+      }
 
-            if (!isTalking) {
-                if (distToCow < 3.5) { actionPrompt.style.display = 'block'; actionPrompt.innerText = (hasStraw && feedCount < 3) ? "Cho bò ăn cỏ rơm 🌾" : "Nói chuyện với bò 🐮"; }
-                else if (distToStraw < 2.5 && !hasStraw && feedCount < 3) { actionPrompt.style.display = 'block'; actionPrompt.innerText = "Lấy cỏ rơm ôm tay 🌾"; }
-                else { actionPrompt.style.display = 'none'; }
-            }
-
-            curtainTargetProg = isCurtainOpen ? 1 : 0; curtainProg = THREE.MathUtils.lerp(curtainProg, curtainTargetProg, 0.08);
-            curtainLeft.scale.x = 1 - 0.7 * curtainProg; curtainLeft.position.x = -1.75 - 1.25 * curtainProg;
-            curtainRight.scale.x = 1 - 0.7 * curtainProg; curtainRight.position.x = 1.75 + 1.25 * curtainProg;
-
-            if (isDoorOpen) { doorRot = THREE.MathUtils.lerp(doorRot, -Math.PI / 1.7, 0.04); doorPivot.rotation.y = doorRot; }
-            textPlanes.forEach((plane, index) => { plane.position.y = 5.5 + Math.sin(elapsedTime * 1.2 + index) * 0.15; });
-
-            renderer.render(scene, camera);
+      if (activePuzzle.type === "MAZE_ESCAPE") {
+        renderMazeCanvas(time);
+        const stTxt = document.getElementById("maze-status-txt");
+        if (stTxt) {
+          const c1 = Math.floor(activePuzzle.mzP1.x / MAZE_TILE);
+          const r1 = Math.floor(activePuzzle.mzP1.y / MAZE_TILE);
+          const c2 = Math.floor(activePuzzle.mzP2.x / MAZE_TILE);
+          const r2 = Math.floor(activePuzzle.mzP2.y / MAZE_TILE);
+          const p1Out = (r1 === 28 && c1 >= 27);
+          const p2Out = (r2 === 28 && c2 >= 27);
+          if (p1Out && !p2Out) stTxt.innerText = "💙 Anh đã tới cửa! Đang đợi Em 💖...";
+          else if (!p1Out && p2Out) stTxt.innerText = "💖 Em đã tới cửa! Đang đợi Anh 💙...";
+          else stTxt.innerText = "Cả 2 hãy tìm đường ra.";
+        }
+      }
+      else if (activePuzzle.type === "SIMON_MEMORY") {
+        if (role === "CLIENT" && activePuzzle.simonSoundTick !== lastClientSoundTick) {
+          lastClientSoundTick = activePuzzle.simonSoundTick;
+          if (activePuzzle.simonLitPad !== null) playSimonTone(activePuzzle.simonLitPad, 0.28);
         }
 
-        window.addEventListener('resize', () => { camera.aspect = window.innerWidth / window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth, window.innerHeight); });
-        animate();
-    </script>
+        const rTxt = document.getElementById("simon-round-txt");
+        if (rTxt) rTxt.innerText = `${activePuzzle.simonRound} / 8`;
+
+        for (let i = 0; i < 4; i++) {
+          const padEl = document.getElementById(`simon-pad-${i}`);
+          if (padEl) padEl.classList.toggle("lit", activePuzzle.simonLitPad === i);
+        }
+
+        const banner = document.getElementById("simon-turn-banner");
+        if (banner) {
+          if (activePuzzle.simonPhase === "WATCH") {
+            banner.style.background = "#fff3cd";
+            banner.style.color = "#856404";
+            banner.innerText = `👀 Đang phát giai điệu mẫu (Lượt ${activePuzzle.simonRound}/8)...`;
+          } else if (activePuzzle.simonPhase === "FAIL") {
+            banner.style.background = "#f8d7da";
+            banner.style.color = "#721c24";
+            banner.innerText = "🙈 Nhầm nốt rồi! Cùng nghe lại nhé (Em bấm trước)";
+          } else if (activePuzzle.simonPhase === "ROUND_OK") {
+            banner.style.background = "#d4edda";
+            banner.style.color = "#155724";
+            banner.innerText = "✨ Chuẩn luôn! Chuẩn bị sang lượt tiếp theo...";
+          } else if (activePuzzle.simonPhase === "PLAY") {
+            const isGirlTurn = (activePuzzle.simonStep % 2 === 0);
+            if (isGirlTurn) {
+              banner.style.background = "#ffe5ec";
+              banner.style.color = "#c9184a";
+              banner.innerText = `💖 Đến lượt Tuyến bấm! (Bước ${activePuzzle.simonStep + 1}/${activePuzzle.simonRound})`;
+            } else {
+              banner.style.background = "#e0f2fe";
+              banner.style.color = "#0369a1";
+              banner.innerText = `💙 Đến lượt Đạt bấm! (Bước ${activePuzzle.simonStep + 1}/${activePuzzle.simonRound})`;
+            }
+          }
+        }
+
+        const dotsBox = document.getElementById("simon-dots");
+        if (dotsBox) {
+          let html = "";
+          for (let s = 0; s < activePuzzle.simonRound; s++) {
+            const isGirl = (s % 2 === 0);
+            const bg = isGirl ? "#ff758c" : "#4facfe";
+            const cls = s < activePuzzle.simonStep ? "step-dot done" : (s === activePuzzle.simonStep && activePuzzle.simonPhase === "PLAY" ? "step-dot current" : "step-dot");
+            html += `<div class="${cls}" style="background:${bg};">${s + 1}</div>`;
+          }
+          dotsBox.innerHTML = html;
+        }
+      }
+      else if (activePuzzle.type === "MEMORY_CARDS") {
+        const pairTxt = document.getElementById("mem-pair-txt");
+        if (pairTxt) pairTxt.innerText = `${activePuzzle.matchedPairs} / 8`;
+
+        const turnTxt = document.getElementById("mem-turn-txt");
+        if (turnTxt) {
+          if (activePuzzle.cardTurn === 1) {
+            turnTxt.style.color = "#4facfe";
+            turnTxt.innerText = "💙 Lượt Anh chọn thẻ 1";
+          } else {
+            turnTxt.style.color = "#ff4d6d";
+            turnTxt.innerText = "💖 Lượt Em chọn thẻ 2";
+          }
+        }
+
+        activePuzzle.cards.forEach((c, idx) => {
+          const el = document.getElementById(`mem-card-${idx}`);
+          if (!el) return;
+          el.className = "mem-card";
+          if (c.state === "UP") {
+            el.classList.add("up", c.by === 1 ? "by-p1" : "by-p2");
+            el.innerText = c.icon;
+          } else if (c.state === "MATCHED") {
+            el.classList.add("matched");
+            el.innerText = c.icon;
+          } else {
+            el.innerText = "❓";
+          }
+        });
+      }
+      else if (activePuzzle.type === "MASH_HEART") {
+        const mf = document.getElementById("mash-fill");
+        if (mf) mf.style.width = activePuzzle.mashPower + "%";
+
+        const btn = document.getElementById("btn-mash");
+        const hint = document.getElementById("mash-turn-hint");
+        if (btn && hint) {
+          if (activePuzzle.mashTurn === 1) {
+            btn.className = "mash-alt-btn turn-blue";
+            btn.innerText = "💙 LƯỢT ANH BẤM!  ⚡";
+            hint.style.color = "#4facfe";
+            hint.innerText = " Đến lượt ANH nhấn!";
+          } else {
+            btn.className = "mash-alt-btn turn-pink";
+            btn.innerText = "💖 LƯỢT EM BẤM!  ⚡";
+            hint.style.color = "#ff4d6d";
+            hint.innerText = " Đến lượt EM nhấn!";
+          }
+        }
+      }
+    }
+
+    // =========================================================================
+    // 7. HỆ THỐNG ĐIỀU KHIỂN (BÀN PHÍM + CẢM ỨNG ĐỘNG)
+    // =========================================================================
+    const keys = {};
+    const touchState = { up: false, down: false, left: false, right: false, action: false };
+
+    window.addEventListener("pointerdown", () => initAudio(), { once: true });
+
+    window.addEventListener("keydown", (e) => {
+      initAudio();
+      const k = e.key.toLowerCase();
+      if ([" ", "arrowup", "arrowdown", "arrowleft", "arrowright", "tab"].includes(k)) e.preventDefault();
+      
+      if (k === "tab" && role === "OFFLINE") {
+        offlineActiveId = offlineActiveId === 1 ? 2 : 1;
+      }
+      if ((k === " " || k === "enter") && !keys[k]) {
+        handleActionKeyPress();
+      }
+      keys[k] = true;
+    });
+
+    window.addEventListener("keyup", (e) => {
+      keys[e.key.toLowerCase()] = false;
+    });
+
+    const touchControls = document.getElementById("touch-controls");
+    let touchVisible = false;
+    document.getElementById("btn-toggle-touch").addEventListener("click", () => {
+      touchVisible = !touchVisible;
+      touchControls.style.display = touchVisible ? "flex" : "none";
+    });
+
+    function handleTouches(e) {
+      initAudio();
+      const activeSet = new Set();
+      for (let i = 0; i < e.touches.length; i++) {
+        const t = e.touches[i];
+        const el = document.elementFromPoint(t.clientX, t.clientY);
+        if (el && el.classList.contains("t-btn")) {
+          activeSet.add(el.getAttribute("data-key"));
+        }
+      }
+      ["up", "down", "left", "right", "action"].forEach(k => {
+        const pressed = activeSet.has(k);
+        if (k === "action" && pressed && !touchState.action) handleActionKeyPress();
+        touchState[k] = pressed;
+        const btn = document.querySelector(`.t-btn[data-key="${k}"]`);
+        if (btn) btn.classList.toggle("active", pressed);
+      });
+    }
+
+    touchControls.addEventListener("touchstart", e => { e.preventDefault(); handleTouches(e); }, { passive: false });
+    touchControls.addEventListener("touchmove", e => { e.preventDefault(); handleTouches(e); }, { passive: false });
+    touchControls.addEventListener("touchend", e => { e.preventDefault(); handleTouches(e); }, { passive: false });
+
+    function getLocalPlayerInput() {
+      return {
+        up: !!keys["w"] || !!keys["arrowup"] || touchState.up,
+        down: !!keys["s"] || !!keys["arrowdown"] || touchState.down,
+        left: !!keys["a"] || !!keys["arrowleft"] || touchState.left,
+        right: !!keys["d"] || !!keys["arrowright"] || touchState.right
+      };
+    }
+
+    function handleActionKeyPress() {
+      if (activePuzzle.giftId !== null) {
+        if (activePuzzle.type === "MASH_HEART") triggerPuzzleInput("MASH");
+        return;
+      }
+
+      const myPlayer = (role === "CLIENT" || (role === "OFFLINE" && offlineActiveId === 2)) ? p2 : p1;
+      GIFT_CONFIGS.forEach(cfg => {
+        if (giftsState[cfg.id].unlocked) return;
+        const dist = Math.hypot(myPlayer.x - cfg.x, myPlayer.y - cfg.y);
+        if (dist < 75 && cfg.puzzleType !== "PLATES") {
+          if (role === "CLIENT") sendPuzzleEvent({ cmd: "OPEN", giftId: cfg.id });
+          else openPuzzle(cfg.id);
+        }
+      });
+    }
+
+    // =========================================================================
+    // 8. KẾT NỐI MẠNG P2P PEERJS (TÍCH HỢP SẴN TURN SERVER CỦA BẠN)
+    // =========================================================================
+    let conn = null;
+    let remoteInputs = { up: false, down: false, left: false, right: false };
+
+    const peer = new Peer({
+      config: {
+        iceServers: [
+          { urls: "stun:stun.relay.metered.ca:80" },
+          {
+            urls: "turn:global.relay.metered.ca:80",
+            username: "8a9147e70a62e057ae66290f",
+            credential: "GhlDl9OroRDzeCzf",
+          },
+          {
+            urls: "turn:global.relay.metered.ca:80?transport=tcp",
+            username: "8a9147e70a62e057ae66290f",
+            credential: "GhlDl9OroRDzeCzf",
+          },
+          {
+            urls: "turn:global.relay.metered.ca:443",
+            username: "8a9147e70a62e057ae66290f",
+            credential: "GhlDl9OroRDzeCzf",
+          },
+          {
+            urls: "turns:global.relay.metered.ca:443?transport=tcp",
+            username: "8a9147e70a62e057ae66290f",
+            credential: "GhlDl9OroRDzeCzf",
+          }
+        ],
+        iceCandidatePoolSize: 10
+      }
+    });
+
+    peer.on("open", id => { document.getElementById("my-id").innerText = id; });
+    peer.on("error", err => {
+      document.getElementById("status").innerText = "Lỗi kết nối: " + err.type;
+    });
+
+    peer.on("connection", c => {
+      conn = c;
+      role = "HOST";
+      restartFullGame();
+      conn.on("open", () => {
+        document.getElementById("status").innerText = "💑 Bạn là Đạt";
+        document.getElementById("status").style.color = "#2ed573";
+      });
+      setupConnEvents();
+    });
+
+    document.getElementById("btn-connect").addEventListener("click", () => {
+      initAudio();
+      const target = document.getElementById("target-id").value.trim();
+      if (!target || target === peer.id) return;
+      if (conn) conn.close();
+
+      conn = peer.connect(target);
+      role = "CLIENT";
+      document.getElementById("status").innerText = "Đang kết nối...";
+      conn.on("open", () => {
+        document.getElementById("status").innerText = "💑 Bạn là Tuyến (Bà chã hơm)";
+        document.getElementById("status").style.color = "#ff4d6d";
+        setupConnEvents();
+      });
+    });
+
+    function sendPuzzleEvent(payload) {
+      if (conn && conn.open) conn.send({ type: "PUZ_CMD", payload });
+    }
+
+    function setupConnEvents() {
+      conn.on("data", data => {
+        if (role === "HOST") {
+          if (data.type === "INPUT") remoteInputs = data.inputs;
+          else if (data.type === "PUZ_CMD") {
+            const p = data.payload;
+            if (p.cmd === "OPEN") openPuzzle(p.giftId);
+            else if (p.cmd === "CLOSE") closePuzzleModal();
+            else if (p.cmd === "RESTART") restartFullGame();
+            else if (p.cmd === "TOGGLE_MAP") showMinimap = !showMinimap;
+            else if (p.cmd === "START_FIREWORKS") triggerFireworksFinale();
+            else if (p.cmd === "INPUT") handlePuzzleInputOnHost(p.action, 2);
+          }
+        } 
+        else if (role === "CLIENT") {
+          if (data.type === "UNLOCK_EVENT") {
+            unlockGiftSuccess(data.giftId);
+            return;
+          }
+          if (data.type === "STATE") {
+            p1.x = data.p1.x; p1.y = data.p1.y; p1.vx = data.p1.vx; p1.vy = data.p1.vy; p1.dirX = data.p1.dx; p1.dirY = data.p1.dy;
+            p2.x = data.p2.x; p2.y = data.p2.y; p2.vx = data.p2.vx; p2.vy = data.p2.vy; p2.dirX = data.p2.dx; p2.dirY = data.p2.dy;
+            timeLeft = data.timeLeft;
+            giftsState = data.giftsState;
+            showMinimap = data.showMinimap;
+
+            if (data.fireworksActive && !fireworksActive) {
+              triggerFireworksFinale();
+            } else if (!data.fireworksActive && fireworksActive) {
+              fireworksActive = false;
+              document.getElementById("fireworks-overlay").style.display = "none";
+            }
+
+            if (data.gameEnded && !gameEnded && !fireworksActive) {
+              const allDone = giftsState.every(g => g.unlocked);
+              showEndModal(allDone);
+            } else if (!data.gameEnded && gameEnded) {
+              gameEnded = false;
+              document.getElementById("end-modal").style.display = "none";
+            }
+
+            const prevGiftId = activePuzzle.giftId;
+            activePuzzle = data.activePuzzle;
+            if (prevGiftId !== activePuzzle.giftId) {
+              renderPuzzleModalUI();
+            }
+          }
+        }
+      });
+    }
+
+    setInterval(() => {
+      if (role !== "CLIENT" && !gameEnded) {
+        if (timeLeft > 0) {
+          timeLeft--;
+          if (timeLeft === 0) showEndModal(false);
+        }
+      }
+    }, 1000);
+
+    // =========================================================================
+    // 9. HỆ THỐNG PHÁO HOA RỰC RỠ TRÊN BẦU TRỜI ĐÊM (FINALE)
+    // =========================================================================
+    const fwCanvas = document.getElementById("fwCanvas");
+    const fwCtx = fwCanvas.getContext("2d");
+    const rockets = [];
+    const sparks = [];
+    const FW_COLORS = ["#ff4d6d", "#ffd166", "#4facfe", "#ff758c", "#7bed9f", "#f3c4fb", "#ffffff", "#ff9f1c"];
+
+    function updateAndDrawFireworks() {
+      if (!fireworksActive) return;
+
+      fwCtx.fillStyle = "rgba(12, 4, 24, 0.22)";
+      fwCtx.fillRect(0, 0, fwCanvas.width, fwCanvas.height);
+
+      if (Math.random() < 0.075) {
+        rockets.push({
+          x: 100 + Math.random() * (fwCanvas.width - 200),
+          y: fwCanvas.height,
+          vx: (Math.random() - 0.5) * 2,
+          vy: -(6.5 + Math.random() * 3.5),
+          targetY: 80 + Math.random() * 200,
+          color: FW_COLORS[Math.floor(Math.random() * FW_COLORS.length)]
+        });
+      }
+
+      for (let i = rockets.length - 1; i >= 0; i--) {
+        const r = rockets[i];
+        r.x += r.vx;
+        r.y += r.vy;
+
+        fwCtx.fillStyle = r.color;
+        fwCtx.beginPath();
+        fwCtx.arc(r.x, r.y, 3, 0, Math.PI * 2);
+        fwCtx.fill();
+
+        if (r.y <= r.targetY) {
+          const count = 42 + Math.floor(Math.random() * 25);
+          for (let s = 0; s < count; s++) {
+            const angle = (Math.PI * 2 * s) / count + (Math.random() - 0.5) * 0.1;
+            const speed = 1.5 + Math.random() * 4.5;
+            sparks.push({
+              x: r.x,
+              y: r.y,
+              vx: Math.cos(angle) * speed,
+              vy: Math.sin(angle) * speed,
+              color: FW_COLORS[Math.floor(Math.random() * FW_COLORS.length)],
+              alpha: 1,
+              size: 2 + Math.random() * 2.2
+            });
+          }
+          playTone(220 + Math.random() * 300, 0.15, "sine", 0.05);
+          rockets.splice(i, 1);
+        }
+      }
+
+      for (let i = sparks.length - 1; i >= 0; i--) {
+        const sp = sparks[i];
+        sp.x += sp.vx;
+        sp.y += sp.vy;
+        sp.vy += 0.055;
+        sp.vx *= 0.985;
+        sp.alpha -= 0.015;
+
+        if (sp.alpha <= 0) {
+          sparks.splice(i, 1);
+          continue;
+        }
+
+        fwCtx.save();
+        fwCtx.globalAlpha = sp.alpha;
+        fwCtx.fillStyle = sp.color;
+        fwCtx.shadowColor = sp.color;
+        fwCtx.shadowBlur = 8;
+        fwCtx.beginPath();
+        fwCtx.arc(sp.x, sp.y, sp.size, 0, Math.PI * 2);
+        fwCtx.fill();
+        fwCtx.restore();
+      }
+    }
+
+    // =========================================================================
+    // 10. VÒNG LẶP GAME & VẼ ĐỒ HỌA BẢN ĐỒ MỞ
+    // =========================================================================
+    const camera = { x: 350, y: 400 };
+
+    function movePlayer(p, inp) {
+      const speed = 4.2;
+      p.vx = 0; p.vy = 0;
+      if (activePuzzle.giftId !== null || gameEnded) return;
+
+      if (inp.left) { p.vx = -speed; p.dirX = -1; p.dirY = 0; }
+      if (inp.right) { p.vx = speed; p.dirX = 1; p.dirY = 0; }
+      if (inp.up) { p.vy = -speed; p.dirY = -1; if (!inp.left && !inp.right) p.dirX = 0; }
+      if (inp.down) { p.vy = speed; p.dirY = 1; if (!inp.left && !inp.right) p.dirX = 0; }
+
+      if (p.vx !== 0 && p.vy !== 0) {
+        p.vx *= 0.7071;
+        p.vy *= 0.7071;
+      }
+
+      p.x = Math.max(40, Math.min(WORLD_W - 40, p.x + p.vx));
+      p.y = Math.max(50, Math.min(WORLD_H - 40, p.y + p.vy));
+    }
+
+    function gameLoop(timestamp) {
+      const localIn = getLocalPlayerInput();
+
+      if (role === "OFFLINE") {
+        if (offlineActiveId === 1) {
+          movePlayer(p1, localIn);
+          p2.vx = 0; p2.vy = 0;
+        } else {
+          movePlayer(p2, localIn);
+          p1.vx = 0; p1.vy = 0;
+        }
+        updateActivePuzzle(timestamp, localIn, localIn);
+      } 
+      else if (role === "HOST") {
+        movePlayer(p1, localIn);
+        movePlayer(p2, remoteInputs);
+        updateActivePuzzle(timestamp, localIn, remoteInputs);
+
+        if (conn && conn.open) {
+          conn.send({
+            type: "STATE",
+            p1: { x: p1.x, y: p1.y, vx: p1.vx, vy: p1.vy, dx: p1.dirX, dy: p1.dirY },
+            p2: { x: p2.x, y: p2.y, vx: p2.vx, vy: p2.vy, dx: p2.dirX, dy: p2.dirY },
+            timeLeft,
+            gameEnded,
+            showMinimap,
+            fireworksActive,
+            giftsState,
+            activePuzzle
+          });
+        }
+      } 
+      else if (role === "CLIENT") {
+        if (conn && conn.open) {
+          conn.send({ type: "INPUT", inputs: localIn });
+        }
+        updateActivePuzzle(timestamp, remoteInputs, localIn);
+      }
+
+      const anyPlayerMoving = Math.abs(p1.vx) > 0.1 || Math.abs(p1.vy) > 0.1 || Math.abs(p2.vx) > 0.1 || Math.abs(p2.vy) > 0.1;
+      if (anyPlayerMoving && activePuzzle.giftId === null && !gameEnded) {
+        playSoftFootstep(timestamp);
+      }
+
+      updateAndDrawFireworks();
+
+      if (role !== "CLIENT" && !giftsState[0].unlocked) {
+        const pad1 = { x: GIFT_CONFIGS[0].x - 65, y: GIFT_CONFIGS[0].y + 55 };
+        const pad2 = { x: GIFT_CONFIGS[0].x + 65, y: GIFT_CONFIGS[0].y + 55 };
+        const onPad1 = Math.hypot(p1.x - pad1.x, p1.y - pad1.y) < 34;
+        const onPad2 = Math.hypot(p2.x - pad2.x, p2.y - pad2.y) < 34;
+
+        if (onPad1 && onPad2) {
+          giftsState[0].plateProgress = Math.min(100, giftsState[0].plateProgress + 0.7);
+          if (giftsState[0].plateProgress >= 100) unlockGiftSuccess(0);
+        } else {
+          giftsState[0].plateProgress = Math.max(0, giftsState[0].plateProgress - 0.5);
+        }
+      }
+
+      const coupleDist = Math.hypot(p1.x - p2.x, p1.y - p2.y);
+      if (coupleDist < 95 && Math.random() < 0.12) {
+        spawnHeartParticle((p1.x + p2.x) / 2, (p1.y + p2.y) / 2);
+      }
+
+      const unlockedCount = giftsState.filter(g => g.unlocked).length;
+      document.getElementById("gift-count-text").innerText = `${unlockedCount} / ${GIFT_CONFIGS.length}`;
+      const mins = String(Math.floor(timeLeft / 60)).padStart(2, "0");
+      const secs = String(timeLeft % 60).padStart(2, "0");
+      document.getElementById("time-text").innerText = `${mins}:${secs}`;
+
+      const targetPlayer = (role === "CLIENT" || (role === "OFFLINE" && offlineActiveId === 2)) ? p2 : p1;
+      const targetCamX = Math.max(0, Math.min(WORLD_W - canvas.width, targetPlayer.x - canvas.width / 2));
+      const targetCamY = Math.max(0, Math.min(WORLD_H - canvas.height, targetPlayer.y - canvas.height / 2));
+      camera.x += (targetCamX - camera.x) * 0.1;
+      camera.y += (targetCamY - camera.y) * 0.1;
+
+      updateDomCharacters(camera);
+
+      // ================= VẼ BẢN ĐỒ CANVAS =================
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.save();
+      ctx.translate(-camera.x, -camera.y);
+
+      // 1. Nền cỏ Caro tươi sáng
+      ctx.fillStyle = "#b8f2e6";
+      ctx.fillRect(0, 0, WORLD_W, WORLD_H);
+      ctx.fillStyle = "#aef0e2";
+      const tileSize = 80;
+      for (let gx = 0; gx < WORLD_W; gx += tileSize) {
+        for (let gy = 0; gy < WORLD_H; gy += tileSize) {
+          if ((gx / tileSize + gy / tileSize) % 2 === 0) {
+            ctx.fillRect(gx, gy, tileSize, tileSize);
+          }
+        }
+      }
+
+      // 2. Vẽ các Bông Hoa Đa Sắc trên mặt cỏ
+      meadowFlowers.forEach(fl => {
+        if (fl.x < camera.x - 20 || fl.x > camera.x + canvas.width + 20 || fl.y < camera.y - 20 || fl.y > camera.y + canvas.height + 20) return;
+        const swayX = Math.sin(timestamp * 0.003 + fl.seed) * 2.2;
+        const fx = fl.x + swayX;
+        const fy = fl.y;
+
+        ctx.strokeStyle = "#52b788";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(fl.x, fy + 8);
+        ctx.lineTo(fx, fy);
+        ctx.stroke();
+
+        ctx.fillStyle = fl.color;
+        for (let p = 0; p < 5; p++) {
+          const ang = (p * Math.PI * 2) / 5 + fl.seed;
+          ctx.beginPath();
+          ctx.arc(fx + Math.cos(ang) * fl.size, fy + Math.sin(ang) * fl.size, fl.size * 0.68, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.fillStyle = fl.centerColor;
+        ctx.beginPath();
+        ctx.arc(fx, fy, fl.size * 0.48, 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+      // 3. Đường lát đá hoa hồng
+      ctx.strokeStyle = "#ffcad4";
+      ctx.lineWidth = 56;
+      ctx.lineCap = "round";
+      ctx.lineJoin = "round";
+      ctx.beginPath();
+      ctx.moveTo(360, 320); ctx.lineTo(800, 600);
+      ctx.moveTo(1240, 280); ctx.lineTo(800, 600);
+      ctx.moveTo(340, 920); ctx.lineTo(800, 600);
+      ctx.moveTo(1280, 900); ctx.lineTo(800, 600);
+      ctx.stroke();
+
+      // Quảng trường Trái Tim trung tâm
+      ctx.fillStyle = "#ffe5ec";
+      ctx.strokeStyle = "#ff8fa3";
+      ctx.lineWidth = 6;
+      ctx.beginPath();
+      ctx.arc(800, 600, 130, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+
+      // 4. Thảm Ma Thuật cho Quà số 1
+      if (!giftsState[0].unlocked) {
+        const pad1 = { x: GIFT_CONFIGS[0].x - 65, y: GIFT_CONFIGS[0].y + 55 };
+        const pad2 = { x: GIFT_CONFIGS[0].x + 65, y: GIFT_CONFIGS[0].y + 55 };
+
+        ctx.fillStyle = "rgba(79, 172, 254, 0.35)";
+        ctx.strokeStyle = "#4facfe";
+        ctx.lineWidth = 3;
+        ctx.beginPath(); ctx.arc(pad1.x, pad1.y, 28, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+        ctx.fillStyle = "#0077b6"; ctx.font = "bold 11px sans-serif"; ctx.textAlign = "center";
+        ctx.fillText("Anh Đứng Đây", pad1.x, pad1.y + 4);
+
+        ctx.fillStyle = "rgba(255, 117, 140, 0.35)";
+        ctx.strokeStyle = "#ff758c";
+        ctx.beginPath(); ctx.arc(pad2.x, pad2.y, 28, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+        ctx.fillStyle = "#c9184a";
+        ctx.fillText("Em Đứng Đây", pad2.x, pad2.y + 4);
+
+        if (giftsState[0].plateProgress > 0) {
+          ctx.fillStyle = "#fff";
+          ctx.fillRect(GIFT_CONFIGS[0].x - 40, GIFT_CONFIGS[0].y - 60, 80, 10);
+          ctx.fillStyle = "#ff4d6d";
+          ctx.fillRect(GIFT_CONFIGS[0].x - 40, GIFT_CONFIGS[0].y - 60, 80 * (giftsState[0].plateProgress / 100), 10);
+        }
+      }
+
+      // 5. Vẽ các Hộp Quà (Kiểm tra naturalWidth > 0 để không bao giờ bị treo nếu link ảnh lỗi)
+      GIFT_CONFIGS.forEach(cfg => {
+        const st = giftsState[cfg.id];
+        const floatY = Math.sin(timestamp * 0.004 + cfg.id) * 6;
+
+        ctx.fillStyle = st.unlocked ? "rgba(46, 213, 115, 0.25)" : "rgba(255, 117, 140, 0.3)";
+        ctx.beginPath();
+        ctx.ellipse(cfg.x, cfg.y + 24, 34, 14, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = "#ffffff";
+        ctx.strokeStyle = st.unlocked ? "#2ed573" : "#ff758c";
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.roundRect(cfg.x - 28, cfg.y - 28 + floatY, 56, 56, 16);
+        ctx.fill();
+        ctx.stroke();
+
+        const imgObj = loadedGiftImages[cfg.id];
+        if (imgObj && imgObj.complete && imgObj.naturalWidth > 0) {
+          ctx.drawImage(imgObj, cfg.x - 22, cfg.y - 22 + floatY, 44, 44);
+        }
+
+        ctx.font = "bold 12px 'Segoe UI', sans-serif";
+        ctx.textAlign = "center";
+        ctx.fillStyle = st.unlocked ? "#1dd1a1" : "#c9184a";
+        ctx.fillText(st.unlocked ? "✓ Đã thu thập" : cfg.name, cfg.x, cfg.y + 44);
+
+        const dist = Math.hypot(targetPlayer.x - cfg.x, targetPlayer.y - cfg.y);
+        if (!st.unlocked && dist < 75) {
+          ctx.fillStyle = "#2b2d42";
+          ctx.beginPath();
+          ctx.roundRect(cfg.x - 75, cfg.y - 58 + floatY, 150, 24, 8);
+          ctx.fill();
+          ctx.fillStyle = "#fff";
+          ctx.font = "bold 11px sans-serif";
+          const promptTxt = cfg.puzzleType === "PLATES" ? "Đứng vào 2 vòng tròn!" : "Bấm [Cách] để chơi.";
+          ctx.fillText(promptTxt, cfg.x, cfg.y - 42 + floatY);
+        }
+      });
+
+      // 6. Sợi dây tơ hồng nối 2 nhân vật
+      if (coupleDist < 220) {
+        ctx.strokeStyle = `rgba(255, 77, 109, ${1 - coupleDist / 220})`;
+        ctx.lineWidth = 3;
+        ctx.setLineDash([6, 6]);
+        ctx.beginPath();
+        ctx.moveTo(p1.x, p1.y);
+        ctx.lineTo(p2.x, p2.y);
+        ctx.stroke();
+        ctx.setLineDash([]);
+      }
+
+      // 7. Vẽ Cây Hoa Anh Đào trang trí
+      trees.forEach(t => {
+        ctx.fillStyle = "rgba(0,0,0,0.12)";
+        ctx.beginPath(); ctx.ellipse(t.x, t.y + 28, t.r * 0.8, 14, 0, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = "#8d5b4c";
+        ctx.fillRect(t.x - 8, t.y, 16, 28);
+        ctx.fillStyle = "#ffafcc";
+        ctx.beginPath(); ctx.arc(t.x, t.y - 10, t.r, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = "#ffc8dd";
+        ctx.beginPath(); ctx.arc(t.x - 10, t.y - 18, t.r * 0.7, 0, Math.PI * 2); ctx.fill();
+      });
+
+      // 8. Vẽ Đàn Bướm Bay Lượn Sinh Động
+      butterflies.forEach(b => {
+        b.angle += b.turnSpeed + Math.sin(timestamp * 0.002 + b.phase) * 0.015;
+        b.x += Math.cos(b.angle) * b.speed;
+        b.y += Math.sin(b.angle) * b.speed;
+
+        if (b.x < 60) b.angle = 0;
+        if (b.x > WORLD_W - 60) b.angle = Math.PI;
+        if (b.y < 60) b.angle = Math.PI / 2;
+        if (b.y > WORLD_H - 60) b.angle = -Math.PI / 2;
+
+        const flap = 0.25 + Math.abs(Math.sin(timestamp * 0.016 + b.phase)) * 0.85;
+        ctx.save();
+        ctx.translate(b.x, b.y);
+        ctx.rotate(b.angle + Math.PI / 2);
+
+        ctx.fillStyle = "rgba(0,0,0,0.08)";
+        ctx.beginPath();
+        ctx.ellipse(4, 14, 5 * flap, 3, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = b.palette.wing;
+        ctx.beginPath();
+        ctx.ellipse(-5 * flap, -2, 6 * flap, 4.5, -0.3, 0, Math.PI * 2);
+        ctx.ellipse(5 * flap, -2, 6 * flap, 4.5, 0.3, 0, Math.PI * 2);
+        ctx.ellipse(-4 * flap, 4, 4.5 * flap, 3.5, 0.3, 0, Math.PI * 2);
+        ctx.ellipse(4 * flap, 4, 4.5 * flap, 3.5, -0.3, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = b.palette.spot;
+        ctx.beginPath();
+        ctx.arc(-5 * flap, -2, 1.6 * flap, 0, Math.PI * 2);
+        ctx.arc(5 * flap, -2, 1.6 * flap, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = "#2b2d42";
+        ctx.fillRect(-1, -5, 2, 10);
+        ctx.restore();
+      });
+
+      // 9. Hiệu ứng Cánh Hoa & Trái Tim
+      for (let i = particles.length - 1; i >= 0; i--) {
+        const pt = particles[i];
+        pt.x += pt.vx;
+        pt.y += pt.vy;
+
+        if (pt.type === "petal") {
+          if (pt.x > WORLD_W) pt.x = 0;
+          if (pt.y > WORLD_H) pt.y = 0;
+          ctx.fillStyle = "#ff8fa3";
+          ctx.beginPath();
+          ctx.ellipse(pt.x, pt.y, pt.size, pt.size * 0.6, pt.angle, 0, Math.PI * 2);
+          ctx.fill();
+        } else if (pt.type === "heart") {
+          pt.alpha -= 0.018;
+          if (pt.alpha <= 0) {
+            particles.splice(i, 1);
+            continue;
+          }
+          ctx.save();
+          ctx.globalAlpha = pt.alpha;
+          ctx.font = `${pt.size}px sans-serif`;
+          ctx.fillText("💗", pt.x, pt.y);
+          ctx.restore();
+        }
+      }
+
+      ctx.restore();
+
+      // 10. La bàn Mini-map
+      drawRadarMinimap();
+
+      requestAnimationFrame(gameLoop);
+    }
+
+    function drawRadarMinimap() {
+      const btnMap = document.getElementById("btn-toggle-map");
+      if (btnMap) btnMap.innerText = showMinimap ? "🗺️ Ẩn Map" : "🗺️ Hiện Map";
+      if (!showMinimap) return;
+
+      const mw = 136, mh = 102;
+      const mx = canvas.width - mw - 14;
+      const my = canvas.height - mh - 14;
+      const scaleX = mw / WORLD_W;
+      const scaleY = mh / WORLD_H;
+
+      ctx.save();
+      ctx.fillStyle = "rgba(255, 255, 255, 0.85)";
+      ctx.strokeStyle = "#ff8fa3";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.roundRect(mx, my, mw, mh, 10);
+      ctx.fill();
+      ctx.stroke();
+
+      GIFT_CONFIGS.forEach(cfg => {
+        ctx.fillStyle = giftsState[cfg.id].unlocked ? "#2ed573" : "#ffa502";
+        ctx.beginPath();
+        ctx.arc(mx + cfg.x * scaleX, my + cfg.y * scaleY, 3.5, 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+      ctx.fillStyle = "#4facfe";
+      ctx.beginPath(); ctx.arc(mx + p1.x * scaleX, my + p1.y * scaleY, 4.5, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = "#ff758c";
+      ctx.beginPath(); ctx.arc(mx + p2.x * scaleX, my + p2.y * scaleY, 4.5, 0, Math.PI * 2); ctx.fill();
+      ctx.restore();
+    }
+
+    requestAnimationFrame(gameLoop);
+  </script>
 </body>
 </html>
