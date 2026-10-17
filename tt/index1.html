@@ -2889,21 +2889,35 @@
       }
     });
 
- // =========================================================================
-    // MODULE LỌC TIẾNG ỒN AI RNNOISE (TÍCH HỢP AN TOÀN TRÊN SCRIPTPROCESSOR)
+// =========================================================================
+    // MODULE LỌC TIẾNG ỒN AI RNNOISE WASM (CHUẨN JITSI WEBRTC - KHÔNG LỖI CDN)
     // =========================================================================
-    let rnnoiseModule = null;
-    let rnnoiseState = null;
+    let rnnoiseWasmModule = null;
+    let rnnoiseContextPtr = null;
+    let rnnoisePcmInputPtr = null;
     let rnnoiseReady = false;
     let isRNNoiseEnabled = true;
-    let globalRnnoiseNode = null; // Giữ tham chiếu toàn cục tránh bị Garbage Collection
+    let globalRnnoiseNode = null; // Giữ tham chiếu toàn cục chống Garbage Collection
 
     async function loadRNNoiseWasm() {
       const btn = document.getElementById("btn-rnnoise-toggle");
       try {
-        const { Rnnoise } = await import("https://cdn.jsdelivr.net/npm/@shiguredo/rnnoise-wasm@2023.1.1/dist/rnnoise.mjs");
-        rnnoiseModule = await Rnnoise.load();
-        rnnoiseState = rnnoiseModule.createDenoiseState();
+        // Sử dụng gói @jitsi/rnnoise-wasm chính thức được đóng gói ESM chuẩn qua esm.sh
+        const mod = await import("https://esm.sh/@jitsi/rnnoise-wasm@0.2.1");
+        const createRNNWasmModule = mod.createRNNWasmModule || mod.default;
+
+        rnnoiseWasmModule = await createRNNWasmModule({
+          locateFile: (path) => {
+            if (path.endsWith(".wasm")) {
+              return "https://cdn.jsdelivr.net/npm/@jitsi/rnnoise-wasm@0.2.1/dist/rnnoise.wasm";
+            }
+            return path;
+          }
+        });
+
+        // Cấp phát bộ nhớ C (480 mẫu Float32 = 480 * 4 = 1920 bytes) trong WASM Heap
+        rnnoisePcmInputPtr = rnnoiseWasmModule._malloc(480 * 4);
+        rnnoiseContextPtr = rnnoiseWasmModule._rnnoise_create();
         rnnoiseReady = true;
 
         if (btn) {
@@ -2911,12 +2925,14 @@
           btn.style.background = isRNNoiseEnabled ? "#2ed573" : "#dfe4ea";
           btn.style.color = isRNNoiseEnabled ? "#fff" : "#2b2d42";
         }
+        console.log("✅ Đã nạp thành công Jitsi RNNoise WebAssembly!");
       } catch (err) {
-        console.error("Lỗi tải RNNoise WASM:", err);
+        console.error("❌ Lỗi tải RNNoise WASM:", err);
         rnnoiseReady = false;
         if (btn) {
-          btn.innerText = "⚠️ Lỗi WASM";
-          btn.style.background = "#ff4757";
+          btn.innerText = "🛡️ Lọc Thường";
+          btn.style.background = "#ffa502";
+          btn.style.color = "#fff";
         }
       }
     }
@@ -2924,7 +2940,7 @@
 
     window.toggleRNNoise = function() {
       if (!rnnoiseReady) {
-        showPopupToast("RNNoise WASM chưa tải xong!", "warn", "⏳");
+        showPopupToast("Đang dùng bộ lọc cơ bản (Mở F12 Console nếu mạng chặn CDN)!", "warn", "🛡️");
         return;
       }
       isRNNoiseEnabled = !isRNNoiseEnabled;
@@ -2934,15 +2950,18 @@
         btn.style.background = isRNNoiseEnabled ? "#2ed573" : "#dfe4ea";
         btn.style.color = isRNNoiseEnabled ? "#fff" : "#2b2d42";
       }
-      showPopupToast(isRNNoiseEnabled ? "Đã BẬT lọc ồn AI!" : "Đã TẮT lọc ồn AI", isRNNoiseEnabled ? "success" : "info", "🤖");
+      showPopupToast(
+        isRNNoiseEnabled ? "Đã BẬT lọc tiếng ồn AI RNNoise!" : "Đã TẮT lọc tiếng ồn AI RNNoise",
+        isRNNoiseEnabled ? "success" : "info",
+        "🤖"
+      );
     };
 
     function createRNNoiseProcessorNode(ctx) {
       const processor = ctx.createScriptProcessor(512, 1, 1);
-      const FRAME_SIZE = 480;
+      const FRAME_SIZE = 480; // Khung chuẩn 10ms ở 48.000Hz của RNNoise C
       const inQueue = new Float32Array(FRAME_SIZE * 4);
       const outQueue = new Float32Array(FRAME_SIZE * 4);
-      const frameBuffer = new Float32Array(FRAME_SIZE);
       let inWriteLen = 0;
       let outReadLen = 0;
 
@@ -2950,7 +2969,8 @@
         const input = e.inputBuffer.getChannelData(0);
         const output = e.outputBuffer.getChannelData(0);
 
-        if (!rnnoiseReady || !isRNNoiseEnabled || !rnnoiseState) {
+        // Nếu tắt AI hoặc WASM chưa sẵn sàng -> Cho âm thanh đi thẳng 100% không bị mất tiếng
+        if (!rnnoiseReady || !isRNNoiseEnabled || !rnnoiseWasmModule || !rnnoisePcmInputPtr) {
           output.set(input);
           return;
         }
@@ -2959,18 +2979,34 @@
         inWriteLen += input.length;
 
         while (inWriteLen >= FRAME_SIZE) {
-          frameBuffer.set(inQueue.subarray(0, FRAME_SIZE));
+          // Trỏ trực tiếp vào vùng nhớ HEAPF32 của WebAssembly
+          const heapFloat32Index = rnnoisePcmInputPtr >> 2;
+          const wasmFrameView = rnnoiseWasmModule.HEAPF32.subarray(
+            heapFloat32Index,
+            heapFloat32Index + FRAME_SIZE
+          );
+
+          // Đổi [-1.0, 1.0] sang chuẩn 16-bit PCM [-32768, 32767] ngay khi chép vào WASM
+          for (let i = 0; i < FRAME_SIZE; i++) {
+            wasmFrameView[i] = inQueue[i] * 32768.0;
+          }
+
+          // Dịch hàng đợi đầu vào
           inQueue.copyWithin(0, FRAME_SIZE, inWriteLen);
           inWriteLen -= FRAME_SIZE;
 
-          for (let i = 0; i < FRAME_SIZE; i++) frameBuffer[i] *= 32768.0;
-          rnnoiseState.processFrame(frameBuffer);
-          for (let i = 0; i < FRAME_SIZE; i++) {
-            let s = frameBuffer[i] / 32768.0;
-            frameBuffer[i] = s > 1.0 ? 1.0 : s < -1.0 ? -1.0 : s;
-          }
+          // Chạy mạng nơ-ron lọc ồn trực tiếp trong C/WASM
+          rnnoiseWasmModule._rnnoise_process_frame(
+            rnnoiseContextPtr,
+            rnnoisePcmInputPtr,
+            rnnoisePcmInputPtr
+          );
 
-          outQueue.set(frameBuffer, outReadLen);
+          // Đổi ngược về [-1.0, 1.0] và đưa vào hàng đợi phát ra
+          for (let i = 0; i < FRAME_SIZE; i++) {
+            let s = wasmFrameView[i] / 32768.0;
+            outQueue[outReadLen + i] = s > 1.0 ? 1.0 : s < -1.0 ? -1.0 : s;
+          }
           outReadLen += FRAME_SIZE;
         }
 
@@ -2979,7 +3015,8 @@
           outQueue.copyWithin(0, output.length, outReadLen);
           outReadLen -= output.length;
         } else {
-          output.fill(0);
+          // Chưa đủ 1 frame đầu tiên thì truyền nguyên bản để không bị ngắt tiếng
+          output.set(input);
         }
       };
 
@@ -3002,7 +3039,13 @@
     async function initLocalAudioWithBooster() {
       try {
         const rawStream = await navigator.mediaDevices.getUserMedia({
-          audio: { sampleRate: 48000, channelCount: 1, echoCancellation: true, noiseSuppression: false, autoGainControl: true },
+          audio: {
+            sampleRate: 48000,
+            channelCount: 1,
+            echoCancellation: true,
+            noiseSuppression: false,
+            autoGainControl: true
+          },
           video: false
         });
         rawMicStream = rawStream;
@@ -3058,78 +3101,7 @@
         activateBackgroundPersistence();
         return processedMicStream;
       } catch (err) {
-        statusText.innerText = "⚠️ Chưa cấp quyền Micro";
-        return null;
-      }
-    }
-
-    initLocalAudioWithBooster();
-
-    async function initLocalAudioWithBooster() {
-      try {
-        const rawStream = await navigator.mediaDevices.getUserMedia({
-          audio: {
-            sampleRate: 48000,
-            channelCount: 1,
-            echoCancellation: true,
-            noiseSuppression: false,
-            autoGainControl: true
-          },
-          video: false
-        });
-        rawMicStream = rawStream;
-
-        const ctx = ensureAudioContext();
-        const source = ctx.createMediaStreamSource(rawStream);
-
-        rnnoiseProcessorNode = createRNNoiseProcessorNode(ctx);
-
-        micHighPass = ctx.createBiquadFilter();
-        micHighPass.type = "highpass";
-        micHighPass.frequency.setValueAtTime(filterState.local.highpassHz, ctx.currentTime);
-
-        micLowPass = ctx.createBiquadFilter();
-        micLowPass.type = "lowpass";
-        micLowPass.frequency.setValueAtTime(filterState.local.lowpassHz, ctx.currentTime);
-
-        micVocalFilter = ctx.createBiquadFilter();
-        micVocalFilter.type = "peaking";
-        micVocalFilter.frequency.setValueAtTime(2500, ctx.currentTime);
-        micVocalFilter.Q.setValueAtTime(1.0, ctx.currentTime);
-        micVocalFilter.gain.setValueAtTime(isVocalTurbo ? 8 : 0, ctx.currentTime);
-
-        localPreGateAnalyser = ctx.createAnalyser();
-        localPreGateAnalyser.fftSize = 256;
-
-        micGateGain = ctx.createGain();
-        micGateGain.gain.setValueAtTime(1.0, ctx.currentTime);
-
-        micGainNode = ctx.createGain();
-        micGainNode.gain.value = currentMicBoost;
-
-        const compressor = ctx.createDynamicsCompressor();
-        compressor.threshold.setValueAtTime(-16, ctx.currentTime);
-        compressor.knee.setValueAtTime(12, ctx.currentTime);
-        compressor.ratio.setValueAtTime(18, ctx.currentTime);
-
-        const destination = ctx.createMediaStreamDestination();
-
-        source.connect(rnnoiseProcessorNode);
-        rnnoiseProcessorNode.connect(micHighPass);
-        micHighPass.connect(micLowPass);
-        micLowPass.connect(micVocalFilter);
-        micVocalFilter.connect(localPreGateAnalyser);
-        micVocalFilter.connect(micGateGain);
-        micGateGain.connect(micGainNode);
-        micGainNode.connect(compressor);
-        compressor.connect(destination);
-
-        processedMicStream = destination.stream;
-        statusText.innerText = "🟢 Sẵn sàng kết nối (RNNoise AI)";
-
-        activateBackgroundPersistence();
-        return processedMicStream;
-      } catch (err) {
+        console.error("Lỗi khởi tạo Mic:", err);
         statusText.innerText = "⚠️ Chưa cấp quyền Micro";
         return null;
       }
