@@ -1260,12 +1260,12 @@
           <div class="boost-box filter-box">
             <!-- THÊM DÒNG NÀY: Công tắc bật/tắt RNNoise WASM -->
             <div class="boost-header" style="border-bottom: 1.5px dashed #ccc; padding-bottom: 4px; margin-bottom: 2px;">
-              <span>🤖 Lọc ồn AI (RNNoise):</span>
+              <span> Lọc âm VipProMax :</span>
               <button id="btn-rnnoise-toggle" class="preset-btn" style="max-width: 95px; background: #2ed573; color: #fff;" onclick="toggleRNNoise()">Đang tải WASM...</button>
             </div>
 
             <div class="boost-header">
-              <span>🛡️ Lọc tạp âm Mic:</span>
+              <span>Lọc âm chưa nạp Vip: </span>
               <span id="local-noise-lvl-txt" style="color:#0077b6;">Mức 1</span>
             </div>
             <div class="noise-lvl-group" id="local-noise-btns">
@@ -1320,7 +1320,7 @@
           <!-- Bộ Lọc Tạp Âm & Chống Tiếng Ồ Phía Đối Phương -->
           <div class="boost-box filter-box">
             <div class="boost-header">
-              <span>🛡️ Lọc ồn đối phương:</span>
+              <span>Lọc âm chưa nạp Vip</span>
               <span id="remote-noise-lvl-txt" style="color:#d90429;">Mức 1</span>
             </div>
             <div class="noise-lvl-group" id="remote-noise-btns">
@@ -2921,7 +2921,7 @@
         rnnoiseReady = true;
 
         if (btn) {
-          btn.innerText = isRNNoiseEnabled ? "🟢 AI: Đang Bật" : "⚪ AI: Đang Tắt";
+          btn.innerText = isRNNoiseEnabled ? "🟢 Bật" : "⚪ Tắt";
           btn.style.background = isRNNoiseEnabled ? "#2ed573" : "#dfe4ea";
           btn.style.color = isRNNoiseEnabled ? "#fff" : "#2b2d42";
         }
@@ -2946,7 +2946,7 @@
       isRNNoiseEnabled = !isRNNoiseEnabled;
       const btn = document.getElementById("btn-rnnoise-toggle");
       if (btn) {
-        btn.innerText = isRNNoiseEnabled ? "🟢 AI: Đang Bật" : "⚪ AI: Đang Tắt";
+        btn.innerText = isRNNoiseEnabled ? "🟢 Bật " : "⚪ Tắt";
         btn.style.background = isRNNoiseEnabled ? "#2ed573" : "#dfe4ea";
         btn.style.color = isRNNoiseEnabled ? "#fff" : "#2b2d42";
       }
