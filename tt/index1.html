@@ -2965,11 +2965,17 @@
       let inWriteLen = 0;
       let outReadLen = 0;
 
+      // Các biến trạng thái cho Bộ triệt tiêu tiếng gõ (Transient Suppressor + AI VAD Gate)
+      let envFast = 0.001;      // Đo năng lượng tức thời (bắt xung gõ cực nhanh)
+      let envSlow = 0.001;      // Đo năng lượng nền trung bình
+      let currentVadGain = 0.0; // Hệ số mở cổng giọng nói AI mượt mà
+      let voiceHoldFrames = 0;  // Số khung giữ cổng mở sau khi nói để không mất âm đuôi
+      let speechStreak = 0;     // Đếm số khung liên tiếp có giọng nói (lọc xung gõ đơn lẻ < 20ms)
+
       processor.onaudioprocess = (e) => {
         const input = e.inputBuffer.getChannelData(0);
         const output = e.outputBuffer.getChannelData(0);
 
-        // Nếu tắt AI hoặc WASM chưa sẵn sàng -> Cho âm thanh đi thẳng 100% không bị mất tiếng
         if (!rnnoiseReady || !isRNNoiseEnabled || !rnnoiseWasmModule || !rnnoisePcmInputPtr) {
           output.set(input);
           return;
@@ -2979,33 +2985,88 @@
         inWriteLen += input.length;
 
         while (inWriteLen >= FRAME_SIZE) {
-          // Trỏ trực tiếp vào vùng nhớ HEAPF32 của WebAssembly
           const heapFloat32Index = rnnoisePcmInputPtr >> 2;
           const wasmFrameView = rnnoiseWasmModule.HEAPF32.subarray(
             heapFloat32Index,
             heapFloat32Index + FRAME_SIZE
           );
 
-          // Đổi [-1.0, 1.0] sang chuẩn 16-bit PCM [-32768, 32767] ngay khi chép vào WASM
+          // =================================================================
+          // BƯỚC 1: KHỬ XUNG GÕ ĐỘT BIẾN (TRANSIENT / CLICK SUPPRESSOR)
+          // Phát hiện các gai âm thanh nhọn (gõ phím, click chuột, gõ bàn)
+          // =================================================================
           for (let i = 0; i < FRAME_SIZE; i++) {
-            wasmFrameView[i] = inQueue[i] * 32768.0;
+            let sample = inQueue[i];
+            const absVal = Math.abs(sample);
+
+            // Cập nhật đường bao năng lượng nhanh và chậm
+            envFast = 0.85 * envFast + 0.15 * absVal;
+            envSlow = 0.996 * envSlow + 0.004 * absVal;
+
+            // Nếu năng lượng tức thời vọt gấp > 3.5 lần nền trung bình -> Đích thị là xung gõ cơ học!
+            if (envFast > envSlow * 3.5 && absVal > 0.015) {
+              const suppressRatio = (envSlow * 2.0) / (envFast + 1e-6);
+              sample *= Math.min(1.0, suppressRatio);
+            }
+
+            // Chuyển sang chuẩn 16-bit PCM [-32768, 32767] cho RNNoise
+            wasmFrameView[i] = sample * 32768.0;
           }
 
-          // Dịch hàng đợi đầu vào
           inQueue.copyWithin(0, FRAME_SIZE, inWriteLen);
           inWriteLen -= FRAME_SIZE;
 
-          // Chạy mạng nơ-ron lọc ồn trực tiếp trong C/WASM
-          rnnoiseWasmModule._rnnoise_process_frame(
+          // =================================================================
+          // BƯỚC 2: CHẠY MẠNG NƠ-RON RNNOISE & LẤY XÁC SUẤT GIỌNG NÓI (VAD)
+          // vadProb từ 0.0 (tạp âm/tiếng gõ) -> 1.0 (giọng nói con người)
+          // =================================================================
+          const vadProb = rnnoiseWasmModule._rnnoise_process_frame(
             rnnoiseContextPtr,
             rnnoisePcmInputPtr,
             rnnoisePcmInputPtr
           );
 
-          // Đổi ngược về [-1.0, 1.0] và đưa vào hàng đợi phát ra
+          // =================================================================
+          // BƯỚC 3: CỔNG AI CHỐNG TIẾNG GÕ (AI VAD GATE)
+          // Tiếng gõ chỉ kéo dài 1-2 khung (10-20ms) và vadProb thấp.
+          // Giọng nói thật kéo dài nhiều khung liên tiếp với vadProb cao.
+          // =================================================================
+          const VAD_THRESHOLD = 0.55; // Ngưỡng nhận diện giọng người chuẩn
+
+          if (vadProb >= VAD_THRESHOLD) {
+            speechStreak++;
+            // Nếu xác suất giọng nói cực cao (>0.78) hoặc duy trì >= 2 khung (20ms) -> Mở cổng ngay
+            if (vadProb > 0.78 || speechStreak >= 2) {
+              voiceHoldFrames = 14; // Giữ mở thêm 140ms sau khi dứt câu để âm đuôi tự nhiên
+            }
+          } else {
+            speechStreak = Math.max(0, speechStreak - 1);
+            if (voiceHoldFrames > 0) {
+              voiceHoldFrames--;
+            }
+          }
+
+          // Tính toán độ mở cổng mục tiêu:
+          // Khi không có giọng nói, ép thẳng về 0.0 để cắt đứt hoàn toàn tiếng lạch cạch bàn phím
+          let targetGateGain = 0.0;
+          if (voiceHoldFrames > 0) {
+            targetGateGain = 1.0;
+          } else if (vadProb > 0.35) {
+            // Vùng chuyển tiếp mềm
+            targetGateGain = ((vadProb - 0.35) / (VAD_THRESHOLD - 0.35)) * 0.25;
+          }
+
+          // Xuất khung âm thanh đã qua cả RNNoise lẫn cổng chống gõ
           for (let i = 0; i < FRAME_SIZE; i++) {
-            let s = wasmFrameView[i] / 32768.0;
-            outQueue[outReadLen + i] = s > 1.0 ? 1.0 : s < -1.0 ? -1.0 : s;
+            // Làm mượt hệ số Gain trên từng mẫu (Sample-level smoothing) chống tiếng "bụp"
+            if (targetGateGain > currentVadGain) {
+              currentVadGain = 0.96 * currentVadGain + 0.04 * targetGateGain; // Attack nhanh (2.5ms)
+            } else {
+              currentVadGain = 0.992 * currentVadGain + 0.008 * targetGateGain; // Release êm (15ms)
+            }
+
+            let cleanSample = (wasmFrameView[i] / 32768.0) * currentVadGain;
+            outQueue[outReadLen + i] = cleanSample > 1.0 ? 1.0 : cleanSample < -1.0 ? -1.0 : cleanSample;
           }
           outReadLen += FRAME_SIZE;
         }
@@ -3015,7 +3076,6 @@
           outQueue.copyWithin(0, output.length, outReadLen);
           outReadLen -= output.length;
         } else {
-          // Chưa đủ 1 frame đầu tiên thì truyền nguyên bản để không bị ngắt tiếng
           output.set(input);
         }
       };
@@ -3023,7 +3083,6 @@
       globalRnnoiseNode = processor;
       return processor;
     }
-
     function ensureAudioContext() {
       if (!audioCtx) {
         const AudioContextClass = window.AudioContext || window.webkitAudioContext;
