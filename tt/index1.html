@@ -2959,18 +2959,32 @@
 
     function createRNNoiseProcessorNode(ctx) {
       const processor = ctx.createScriptProcessor(512, 1, 1);
-      const FRAME_SIZE = 480; // Khung chuẩn 10ms ở 48.000Hz của RNNoise C
-      const inQueue = new Float32Array(FRAME_SIZE * 4);
-      const outQueue = new Float32Array(FRAME_SIZE * 4);
+      const FRAME_SIZE = 480; // 10ms ở 48.000Hz
+      const inQueue = new Float32Array(FRAME_SIZE * 6);
+      const outQueue = new Float32Array(FRAME_SIZE * 6);
       let inWriteLen = 0;
       let outReadLen = 0;
 
-      // Các biến trạng thái cho Bộ triệt tiêu tiếng gõ (Transient Suppressor + AI VAD Gate)
-      let envFast = 0.001;      // Đo năng lượng tức thời (bắt xung gõ cực nhanh)
-      let envSlow = 0.001;      // Đo năng lượng nền trung bình
-      let currentVadGain = 0.0; // Hệ số mở cổng giọng nói AI mượt mà
-      let voiceHoldFrames = 0;  // Số khung giữ cổng mở sau khi nói để không mất âm đuôi
-      let speechStreak = 0;     // Đếm số khung liên tiếp có giọng nói (lọc xung gõ đơn lẻ < 20ms)
+      // =====================================================================
+      // BỘ ĐỆM NHÌN TRƯỚC 3 KHUNG (30ms LOOKAHEAD RING BUFFER)
+      // Giúp giữ lại toàn bộ phụ âm đầu câu (s, t, kh, ph, ch...) trong khi
+      // chờ mạng nơ-ron xác nhận nguyên âm phía sau, đồng thời vẫn diệt sạch tiếng gõ!
+      // =====================================================================
+      const LOOKAHEAD_FRAMES = 3;
+      const delayFrames = [
+        new Float32Array(FRAME_SIZE),
+        new Float32Array(FRAME_SIZE),
+        new Float32Array(FRAME_SIZE)
+      ];
+      const vadHistory = new Float32Array(LOOKAHEAD_FRAMES);
+      const peakHistory = new Float32Array(LOOKAHEAD_FRAMES);
+      let ringIdx = 0;
+      let filledFrames = 0;
+
+      let envFast = 0.001;
+      let envSlow = 0.001;
+      let currentVadGain = 0.0;
+      let voiceHoldFrames = 0;
 
       processor.onaudioprocess = (e) => {
         const input = e.inputBuffer.getChannelData(0);
@@ -2991,82 +3005,101 @@
             heapFloat32Index + FRAME_SIZE
           );
 
-          // =================================================================
-          // BƯỚC 1: KHỬ XUNG GÕ ĐỘT BIẾN (TRANSIENT / CLICK SUPPRESSOR)
-          // Phát hiện các gai âm thanh nhọn (gõ phím, click chuột, gõ bàn)
-          // =================================================================
+          // 1. Kẹp đỉnh xung cơ học (Transient Limiter) nhưng KHÔNG làm mất phụ âm đầu
+          let frameMaxPeak = 0;
           for (let i = 0; i < FRAME_SIZE; i++) {
             let sample = inQueue[i];
             const absVal = Math.abs(sample);
+            if (absVal > frameMaxPeak) frameMaxPeak = absVal;
 
-            // Cập nhật đường bao năng lượng nhanh và chậm
-            envFast = 0.85 * envFast + 0.15 * absVal;
-            envSlow = 0.996 * envSlow + 0.004 * absVal;
+            envFast = 0.88 * envFast + 0.12 * absVal;
+            envSlow = 0.995 * envSlow + 0.005 * absVal;
 
-            // Nếu năng lượng tức thời vọt gấp > 3.5 lần nền trung bình -> Đích thị là xung gõ cơ học!
-            if (envFast > envSlow * 3.5 && absVal > 0.015) {
-              const suppressRatio = (envSlow * 2.0) / (envFast + 1e-6);
-              sample *= Math.min(1.0, suppressRatio);
+            // Chỉ kẹp khi gai xung vọt gấp 4.5 lần nền (tiếng gõ bàn/click chuột sát mic)
+            if (envFast > envSlow * 4.5 && absVal > 0.025) {
+              const suppressRatio = (envSlow * 2.5) / (envFast + 1e-6);
+              sample *= Math.min(1.0, Math.max(0.18, suppressRatio));
             }
 
-            // Chuyển sang chuẩn 16-bit PCM [-32768, 32767] cho RNNoise
             wasmFrameView[i] = sample * 32768.0;
           }
 
           inQueue.copyWithin(0, FRAME_SIZE, inWriteLen);
           inWriteLen -= FRAME_SIZE;
 
-          // =================================================================
-          // BƯỚC 2: CHẠY MẠNG NƠ-RON RNNOISE & LẤY XÁC SUẤT GIỌNG NÓI (VAD)
-          // vadProb từ 0.0 (tạp âm/tiếng gõ) -> 1.0 (giọng nói con người)
-          // =================================================================
+          // 2. Chạy mạng nơ-ron RNNoise lọc sạch tiếng xe cộ & lấy xác suất giọng nói (VAD)
           const vadProb = rnnoiseWasmModule._rnnoise_process_frame(
             rnnoiseContextPtr,
             rnnoisePcmInputPtr,
             rnnoisePcmInputPtr
           );
 
-          // =================================================================
-          // BƯỚC 3: CỔNG AI CHỐNG TIẾNG GÕ (AI VAD GATE)
-          // Tiếng gõ chỉ kéo dài 1-2 khung (10-20ms) và vadProb thấp.
-          // Giọng nói thật kéo dài nhiều khung liên tiếp với vadProb cao.
-          // =================================================================
-          const VAD_THRESHOLD = 0.55; // Ngưỡng nhận diện giọng người chuẩn
+          // 3. Lưu khung đã lọc sạch vào Bộ đệm xoay vòng (Lookahead 3 khung = 30ms)
+          const curBuf = delayFrames[ringIdx];
+          for (let i = 0; i < FRAME_SIZE; i++) {
+            curBuf[i] = wasmFrameView[i] / 32768.0;
+          }
+          vadHistory[ringIdx] = vadProb;
+          peakHistory[ringIdx] = frameMaxPeak;
 
-          if (vadProb >= VAD_THRESHOLD) {
-            speechStreak++;
-            // Nếu xác suất giọng nói cực cao (>0.78) hoặc duy trì >= 2 khung (20ms) -> Mở cổng ngay
-            if (vadProb > 0.78 || speechStreak >= 2) {
-              voiceHoldFrames = 14; // Giữ mở thêm 140ms sau khi dứt câu để âm đuôi tự nhiên
-            }
-          } else {
-            speechStreak = Math.max(0, speechStreak - 1);
-            if (voiceHoldFrames > 0) {
-              voiceHoldFrames--;
-            }
+          ringIdx = (ringIdx + 1) % LOOKAHEAD_FRAMES;
+          if (filledFrames < LOOKAHEAD_FRAMES) {
+            filledFrames++;
+            continue; // Chờ gom đủ 3 khung (30ms) đầu tiên
           }
 
-          // Tính toán độ mở cổng mục tiêu:
-          // Khi không có giọng nói, ép thẳng về 0.0 để cắt đứt hoàn toàn tiếng lạch cạch bàn phím
+          // Lúc này:
+          // - oldestIdx (ringIdx hiện tại): Khung N-2 (Cách đây 20ms - Chứa phụ âm đầu câu!)
+          // - midIdx: Khung N-1 (Cách đây 10ms)
+          // - newestIdx: Khung N (Vừa mới thu xong - Chứa nguyên âm hoặc xác nhận tiếng gõ)
+          const oldestIdx = ringIdx;
+          const midIdx = (ringIdx + 1) % LOOKAHEAD_FRAMES;
+          const newestIdx = (ringIdx + 2) % LOOKAHEAD_FRAMES;
+
+          const v0 = vadHistory[oldestIdx];
+          const v1 = vadHistory[midIdx];
+          const v2 = vadHistory[newestIdx];
+
+          // =================================================================
+          // PHÂN BIỆT "PHỤ ÂM ĐẦU CÂU" VÀ "TIẾNG GÕ BÀN PHÍM" NHỜ NHÌN TRƯỚC TƯƠNG LAI:
+          // - Nếu là giọng nói: Dù v0 (phụ âm đầu) chỉ có VAD ~ 0.15, nhưng v1 hoặc v2
+          //   ngay sau đó sẽ vọt lên > 0.52 (khi vào nguyên âm) -> Mở cổng cứu ngay v0!
+          // - Nếu là tiếng gõ phím: Chỉ lóe lên ở 1 khung đơn độc, tổng VAD cả 3 khung thấp
+          //   và không duy trì liên tục -> Khóa chặt cổng!
+          // =================================================================
+          const isRealSpeechConfirmed =
+            (v2 >= 0.62) ||                         // Khung mới nhất chắc chắn là giọng nói -> Cứu 2 khung phụ âm trước!
+            (v1 >= 0.58 && v2 >= 0.35) ||           // 2 khung liên tiếp có giọng nói
+            (v0 >= 0.45 && v1 >= 0.45) ||           // Duy trì giọng nói ổn định
+            (v0 + v1 + v2 >= 1.15);                 // Tổng năng lượng thanh quản trong 30ms đủ ngưỡng
+
+          if (isRealSpeechConfirmed) {
+            voiceHoldFrames = 18; // Giữ cổng mở thêm 180ms sau khi dứt câu
+          } else if (voiceHoldFrames > 0) {
+            voiceHoldFrames--;
+          }
+
           let targetGateGain = 0.0;
           if (voiceHoldFrames > 0) {
             targetGateGain = 1.0;
-          } else if (vadProb > 0.35) {
-            // Vùng chuyển tiếp mềm
-            targetGateGain = ((vadProb - 0.35) / (VAD_THRESHOLD - 0.35)) * 0.25;
+          } else if (v0 > 0.28 && (v1 > 0.32 || v2 > 0.35)) {
+            // Mở nhẹ đón đầu nếu thấy xu hướng VAD đang tăng dần (bắt đầu lấy hơi nói)
+            targetGateGain = 0.65;
           }
 
-          // Xuất khung âm thanh đã qua cả RNNoise lẫn cổng chống gõ
+          // 4. Xuất khung oldestIdx (Khung N-2) với tốc độ mở cổng tức thời (Ultra-fast Attack)
+          const outFrame = delayFrames[oldestIdx];
           for (let i = 0; i < FRAME_SIZE; i++) {
-            // Làm mượt hệ số Gain trên từng mẫu (Sample-level smoothing) chống tiếng "bụp"
             if (targetGateGain > currentVadGain) {
-              currentVadGain = 0.96 * currentVadGain + 0.04 * targetGateGain; // Attack nhanh (2.5ms)
+              // Attack cực nhanh (~0.4ms) để mở trọn vẹn ngay từ mẫu đầu tiên của phụ âm
+              currentVadGain = 0.82 * currentVadGain + 0.18 * targetGateGain;
             } else {
-              currentVadGain = 0.992 * currentVadGain + 0.008 * targetGateGain; // Release êm (15ms)
+              // Release mượt mà (~18ms) để âm cuối câu ngân tự nhiên
+              currentVadGain = 0.993 * currentVadGain + 0.007 * targetGateGain;
             }
 
-            let cleanSample = (wasmFrameView[i] / 32768.0) * currentVadGain;
-            outQueue[outReadLen + i] = cleanSample > 1.0 ? 1.0 : cleanSample < -1.0 ? -1.0 : cleanSample;
+            let s = outFrame[i] * currentVadGain;
+            outQueue[outReadLen + i] = s > 1.0 ? 1.0 : s < -1.0 ? -1.0 : s;
           }
           outReadLen += FRAME_SIZE;
         }
@@ -3076,7 +3109,7 @@
           outQueue.copyWithin(0, output.length, outReadLen);
           outReadLen -= output.length;
         } else {
-          output.set(input);
+          output.fill(0);
         }
       };
 
@@ -3234,15 +3267,18 @@
       return Math.min(100, Math.round((avg / 140) * 100));
     }
 
-    setInterval(() => {
+setInterval(() => {
       if (!audioCtx) return;
 
       if (localPreGateAnalyser && micGateGain) {
         const pct = computeSignalPercent(localPreGateAnalyser);
-        const thres = filterState.local.gateThreshold;
+        // Khi AI RNNoise đang bật, dùng ngưỡng 1% để hiển thị đèn và mở thông suốt micGateGain (tránh cắt phụ âm đầu)
+        const thres = (rnnoiseReady && isRNNoiseEnabled) ? 1 : filterState.local.gateThreshold;
         const pass = isMicOn && (thres === 0 || pct >= thres);
 
-        micGateGain.gain.setTargetAtTime(pass ? 1.0 : 0.0, audioCtx.currentTime, pass ? 0.012 : 0.08);
+        // Nếu AI đang bật thì giữ micGateGain = 1.0 (vì AI đã tự đóng/mở cổng Lookahead bên trong)
+        const gateGainValue = !isMicOn ? 0.0 : ((rnnoiseReady && isRNNoiseEnabled) ? 1.0 : (pass ? 1.0 : 0.0));
+        micGateGain.gain.setTargetAtTime(gateGainValue, audioCtx.currentTime, 0.008);
         localVolumeLevel = pass ? pct : 0;
 
         if (document.visibilityState === "visible") {
