@@ -2951,7 +2951,7 @@
         btn.style.color = isRNNoiseEnabled ? "#fff" : "#2b2d42";
       }
       showPopupToast(
-        isRNNoiseEnabled ? "Đã BẬT lọc tiếng ồn AI RNNoise!" : "Đã TẮT lọc tiếng ồn AI RNNoise",
+        isRNNoiseEnabled ? "Đã BẬT lọc tiếng ồn bá hơn DISCORD" : "Đã TẮT lọc tiếng ồn bá hơn DISCORD",
         isRNNoiseEnabled ? "success" : "info",
         "🤖"
       );
@@ -3067,14 +3067,19 @@
           // - Nếu là tiếng gõ phím: Chỉ lóe lên ở 1 khung đơn độc, tổng VAD cả 3 khung thấp
           //   và không duy trì liên tục -> Khóa chặt cổng!
           // =================================================================
+   // =================================================================
+          // THAY THẾ ĐOẠN ĐIỀU KIỆN CŨ BẰNG ĐOẠN MỚI NÀY:
+          // Cho phép kết hợp vừa gõ phím vừa nói mà không bị ngắt quãng giọng
+          // =================================================================
           const isRealSpeechConfirmed =
-            (v2 >= 0.62) ||                         // Khung mới nhất chắc chắn là giọng nói -> Cứu 2 khung phụ âm trước!
-            (v1 >= 0.58 && v2 >= 0.35) ||           // 2 khung liên tiếp có giọng nói
-            (v0 >= 0.45 && v1 >= 0.45) ||           // Duy trì giọng nói ổn định
-            (v0 + v1 + v2 >= 1.15);                 // Tổng năng lượng thanh quản trong 30ms đủ ngưỡng
+            (v2 >= 0.48) ||                        // Hạ ngưỡng VAD khung mới nhất xuống để bắt giọng cực nhạy
+            (v1 >= 0.42 && v2 >= 0.25) ||          // Duy trì 2 khung liên tiếp có tiếng nói
+            (v0 >= 0.35 && v1 >= 0.35) ||          // Giữ giọng ổn định
+            (v0 + v1 + v2 >= 0.85) ||              // Tổng năng lượng thấp hơn vẫn được chấp nhận
+            (frameMaxPeak > 0.04 && v2 >= 0.20);   // ĐẶC BIỆT: Dù có tiếng gõ mạnh làm nhiễu (peak cao), miễn là có giọng nói xuất hiện là lập tức mở cổng cứu tiếng nói!
 
           if (isRealSpeechConfirmed) {
-            voiceHoldFrames = 18; // Giữ cổng mở thêm 180ms sau khi dứt câu
+            voiceHoldFrames = 22; // Giữ cổng mở lâu hơn (220ms) để không bị hụt hơi khi vừa gõ vừa nói liên tục
           } else if (voiceHoldFrames > 0) {
             voiceHoldFrames--;
           }
@@ -3082,9 +3087,8 @@
           let targetGateGain = 0.0;
           if (voiceHoldFrames > 0) {
             targetGateGain = 1.0;
-          } else if (v0 > 0.28 && (v1 > 0.32 || v2 > 0.35)) {
-            // Mở nhẹ đón đầu nếu thấy xu hướng VAD đang tăng dần (bắt đầu lấy hơi nói)
-            targetGateGain = 0.65;
+          } else if (v0 > 0.20) {
+            targetGateGain = 0.5; // Chế độ cổng mềm (Soft Gate), không cắt cụt tiếng khi có tạp âm đè
           }
 
           // 4. Xuất khung oldestIdx (Khung N-2) với tốc độ mở cổng tức thời (Ultra-fast Attack)
