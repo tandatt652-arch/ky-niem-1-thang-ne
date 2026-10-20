@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Mong là không lỗi a di đà phậtt</title>
+  <title>  </title>
   <!-- Font chữ nét mảnh & điệu đà (Great Vibes & Alex Brush) hỗ trợ đầy đủ tiếng Việt -->
   <link href="https://fonts.googleapis.com/css2?family=Alex+Brush&family=Great+Vibes&display=swap" rel="stylesheet">
   <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
@@ -687,10 +687,12 @@
 <body>
 
   <!-- Thanh Kết nối Online & Điều chỉnh Nhạc nền 8-bit -->
+  <!-- Thanh Kết nối Online & Điều chỉnh Nhạc nền 8-bit -->
   <div id="top-bar">
     <div class="conn-group">
       <span>Mã: <span id="my-id" class="badge">Đang tạo...</span></span>
-      <input type="text" id="target-id" placeholder="Dán mã cho ăm chã" />
+      <button id="btn-copy-link" class="btn btn-blue" title="Sao chép đường dẫn gửi cho Tuyến">🔗 Chép Link</button>
+      <input type="text" id="target-id" placeholder="Mã tự điền qua link..." />
       <button id="btn-connect" class="btn">Ghép Đôi 💕</button>
     </div>
     <div class="conn-group">
@@ -703,6 +705,7 @@
       <button id="btn-toggle-touch" class="btn btn-blue">📱 Phím Ảo</button>
     </div>
   </div>
+      
 
   <!-- Thanh Thông số Trận đấu -->
   <div id="hud">
@@ -798,6 +801,7 @@
     </div>
 
     <!-- MÀN HÌNH BÓ HOA TỪ TỪ TRỒI LÊN KẾT THÀNH BÓ -->
+    <!-- MÀN HÌNH BÓ HOA TỪ TỪ TRỒI LÊN KẾT THÀNH BÓ -->
     <div id="fireworks-overlay">
       <canvas id="fwCanvas" width="900" height="520"></canvas>
       <div class="finale-content" style="position: absolute; bottom: 12px; width: 100%; padding: 0;">
@@ -806,6 +810,9 @@
         </button>
       </div>
     </div>
+  </div> <!-- THÊM DÒNG NÀY ĐỂ ĐÓNG KHUNG #game-wrapper -->
+
+  <!-- Cụm điều khiển cảm ứng -->
   <!-- Cụm điều khiển cảm ứng -->
   <div id="touch-controls">
     <div class="dpad">
@@ -2615,16 +2622,43 @@ Anh thương bé nhiều lắmmm. ❤️`,
     }
 
     // =========================================================================
-    // 7. HỆ THỐNG ĐIỀU KHIỂN (BÀN PHÍM + CẢM ỨNG ĐỘNG)
+    // 7. HỆ THỐNG ĐIỀU KHIỂN (ĐÃ VÁ LỖI UNIKEY, SAFARI & CẢM ỨNG)
     // =========================================================================
+    if (!CanvasRenderingContext2D.prototype.roundRect) {
+      CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h, r) {
+        const radius = typeof r === "number" ? r : 8;
+        this.moveTo(x + radius, y);
+        this.arcTo(x + w, y, x + w, y + h, radius);
+        this.arcTo(x + w, y + h, x, y + h, radius);
+        this.arcTo(x, y + h, x, y, radius);
+        this.arcTo(x, y, x + w, y, radius);
+        this.closePath();
+        return this;
+      };
+    }
+
     const keys = {};
     const touchState = { up: false, down: false, left: false, right: false, action: false };
 
-    window.addEventListener("pointerdown", () => initAudio(), { once: true });
+    window.addEventListener("pointerdown", (e) => {
+      initAudio();
+      if (e.target.id !== "target-id" && e.target.id !== "math-inp") {
+        const activeEl = document.activeElement;
+        if (activeEl && (activeEl.id === "target-id" || activeEl.tagName === "BUTTON")) {
+          activeEl.blur();
+        }
+      }
+    });
 
     window.addEventListener("keydown", (e) => {
       initAudio();
+      if (document.activeElement && document.activeElement.id === "target-id") {
+        if (e.key === "Enter") document.getElementById("btn-connect").click();
+        return;
+      }
+
       const k = e.key.toLowerCase();
+      const code = e.code;
 
       if (activePuzzle.giftId !== null && activePuzzle.type === "SUDOKU" && k >= "1" && k <= "9") {
         triggerPuzzleInput(`SDK_NUM_${k}`);
@@ -2639,56 +2673,57 @@ Anh thương bé nhiều lắmmm. ❤️`,
       if (k === "tab" && role === "OFFLINE") {
         offlineActiveId = offlineActiveId === 1 ? 2 : 1;
       }
-      if ((k === " " || k === "enter") && !keys[k]) {
+      if ((k === " " || k === "enter") && !keys[code]) {
         if (document.activeElement && document.activeElement.id === "math-inp") {
           submitMathWrongAnswer();
           return;
         }
         handleActionKeyPress();
       }
+      keys[code] = true;
       keys[k] = true;
     });
 
     window.addEventListener("keyup", (e) => {
+      keys[e.code] = false;
       keys[e.key.toLowerCase()] = false;
     });
 
     const touchControls = document.getElementById("touch-controls");
-    let touchVisible = false;
+    let touchVisible = ("ontouchstart" in window) || navigator.maxTouchPoints > 0;
+    touchControls.style.display = touchVisible ? "flex" : "none";
+
     document.getElementById("btn-toggle-touch").addEventListener("click", () => {
       touchVisible = !touchVisible;
       touchControls.style.display = touchVisible ? "flex" : "none";
     });
 
-    function handleTouches(e) {
-      initAudio();
-      const activeSet = new Set();
-      for (let i = 0; i < e.touches.length; i++) {
-        const t = e.touches[i];
-        const el = document.elementFromPoint(t.clientX, t.clientY);
-        if (el && el.classList.contains("t-btn")) {
-          activeSet.add(el.getAttribute("data-key"));
-        }
-      }
-      ["up", "down", "left", "right", "action"].forEach(k => {
-        const pressed = activeSet.has(k);
-        if (k === "action" && pressed && !touchState.action) handleActionKeyPress();
-        touchState[k] = pressed;
-        const btn = document.querySelector(`.t-btn[data-key="${k}"]`);
-        if (btn) btn.classList.toggle("active", pressed);
-      });
-    }
-
-    touchControls.addEventListener("touchstart", e => { e.preventDefault(); handleTouches(e); }, { passive: false });
-    touchControls.addEventListener("touchmove", e => { e.preventDefault(); handleTouches(e); }, { passive: false });
-    touchControls.addEventListener("touchend", e => { e.preventDefault(); handleTouches(e); }, { passive: false });
+    document.querySelectorAll(".t-btn").forEach(btn => {
+      const keyName = btn.getAttribute("data-key");
+      const press = (e) => {
+        e.preventDefault();
+        initAudio();
+        if (keyName === "action" && !touchState.action) handleActionKeyPress();
+        touchState[keyName] = true;
+        btn.classList.add("active");
+      };
+      const release = (e) => {
+        e.preventDefault();
+        touchState[keyName] = false;
+        btn.classList.remove("active");
+      };
+      btn.addEventListener("pointerdown", press);
+      btn.addEventListener("pointerup", release);
+      btn.addEventListener("pointerleave", release);
+      btn.addEventListener("pointercancel", release);
+    });
 
     function getLocalPlayerInput() {
       return {
-        up: !!keys["w"] || !!keys["arrowup"] || touchState.up,
-        down: !!keys["s"] || !!keys["arrowdown"] || touchState.down,
-        left: !!keys["a"] || !!keys["arrowleft"] || touchState.left,
-        right: !!keys["d"] || !!keys["arrowright"] || touchState.right
+        up: !!keys["KeyW"] || !!keys["ArrowUp"] || !!keys["w"] || !!keys["ư"] || !!keys["arrowup"] || touchState.up,
+        down: !!keys["KeyS"] || !!keys["ArrowDown"] || !!keys["s"] || !!keys["arrowdown"] || touchState.down,
+        left: !!keys["KeyA"] || !!keys["ArrowLeft"] || !!keys["a"] || !!keys["arrowleft"] || touchState.left,
+        right: !!keys["KeyD"] || !!keys["ArrowRight"] || !!keys["d"] || !!keys["arrowright"] || touchState.right
       };
     }
 
@@ -2710,14 +2745,28 @@ Anh thương bé nhiều lắmmm. ❤️`,
     }
 
     // =========================================================================
-    // 8. KẾT NỐI MẠNG P2P PEERJS (TÍCH HỢP SẴN TURN SERVER CỦA BẠN)
+    // 8. KẾT NỐI P2P PEERJS + TẠO LINK MỜI TỰ ĐỘNG ĐIỀN MÃ (?host=...)
     // =========================================================================
     let conn = null;
+    let connectTimeout = null;
     let remoteInputs = { up: false, down: false, left: false, right: false };
 
+    // Đọc mã phòng từ đường dẫn nếu Tuyến bấm vào Link mời
+    const urlParams = new URLSearchParams(window.location.search);
+    const hostFromUrl = urlParams.get("host");
+    if (hostFromUrl) {
+      document.getElementById("target-id").value = hostFromUrl;
+      document.getElementById("status").innerText = "💌 Đã nhận mã từ link! Hãy bấm [Ghép Đôi 💕]";
+      document.getElementById("status").style.color = "#ff4d6d";
+    }
+
     const peer = new Peer({
+      pingInterval: 5000,
       config: {
         iceServers: [
+          { urls: "stun:stun.l.google.com:19302" },
+          { urls: "stun:stun1.l.google.com:19302" },
+          { urls: "stun:stun.cloudflare.com:3478" },
           { urls: "stun:stun.relay.metered.ca:80" },
           {
             urls: "turn:global.relay.metered.ca:80",
@@ -2744,35 +2793,101 @@ Anh thương bé nhiều lắmmm. ❤️`,
       }
     });
 
-    peer.on("open", id => { document.getElementById("my-id").innerText = id; });
+    peer.on("open", id => {
+      document.getElementById("my-id").innerText = id;
+    });
+
     peer.on("error", err => {
-      document.getElementById("status").innerText = "Lỗi kết nối: " + err.type;
+      if (connectTimeout) clearTimeout(connectTimeout);
+      role = "OFFLINE";
+      document.getElementById("status").innerText = "Lỗi kết nối (" + err.type + ") - Hãy bấm Ghép Đôi lại!";
+      document.getElementById("status").style.color = "#ff4d6d";
+    });
+
+    // Sự kiện nút "🔗 Chép Link" để gửi cho bạn gái
+    document.getElementById("btn-copy-link").addEventListener("click", () => {
+      initAudio();
+      if (!peer || !peer.id) {
+        alert("Đang khởi tạo mã kết nối, bạn đợi 1-2 giây rồi bấm lại nhé!");
+        return;
+      }
+      const inviteUrl = new URL(window.location.href);
+      inviteUrl.searchParams.set("host", peer.id);
+      const linkStr = inviteUrl.toString();
+
+      const btnCopy = document.getElementById("btn-copy-link");
+      const showCopiedFeedback = () => {
+        btnCopy.innerText = "✅ Đã chép Link!";
+        document.getElementById("status").innerText = "Đã chép link! Gửi cho Tuyến rồi chờ ở màn hình này nhé 💕";
+        document.getElementById("status").style.color = "#0077b6";
+        setTimeout(() => { btnCopy.innerText = "🔗 Chép Link"; }, 3000);
+      };
+
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(linkStr).then(showCopiedFeedback).catch(() => {
+          prompt("Sao chép đường dẫn dưới đây gửi cho Tuyến:", linkStr);
+        });
+      } else {
+        const tempInput = document.createElement("input");
+        tempInput.value = linkStr;
+        document.body.appendChild(tempInput);
+        tempInput.select();
+        document.execCommand("copy");
+        document.body.removeChild(tempInput);
+        showCopiedFeedback();
+      }
     });
 
     peer.on("connection", c => {
+      if (conn && conn.open) conn.close();
       conn = c;
-      role = "HOST";
-      restartFullGame();
       conn.on("open", () => {
-        document.getElementById("status").innerText = "💑 Bạn là Đạt";
+        role = "HOST";
+        restartFullGame();
+        document.getElementById("status").innerText = "💑 Đã ghép đôi! Bạn là Đạt 💙";
         document.getElementById("status").style.color = "#2ed573";
+        setupConnEvents();
       });
-      setupConnEvents();
     });
 
     document.getElementById("btn-connect").addEventListener("click", () => {
       initAudio();
+      document.getElementById("target-id").blur();
+
       const target = document.getElementById("target-id").value.trim();
       if (!target || target === peer.id) return;
-      if (conn) conn.close();
 
-      conn = peer.connect(target);
-      role = "CLIENT";
-      document.getElementById("status").innerText = "Đang kết nối...";
+      if (conn) conn.close();
+      if (connectTimeout) clearTimeout(connectTimeout);
+
+      document.getElementById("status").innerText = "⏳ Đang kết nối với Đạt...";
+      document.getElementById("status").style.color = "#ffa502";
+
+      conn = peer.connect(target, {
+        reliable: true,
+        serialization: "json"
+      });
+
+      connectTimeout = setTimeout(() => {
+        if (!conn || !conn.open) {
+          role = "OFFLINE";
+          document.getElementById("status").innerText = "⚠️ Kẹt mạng! Hãy mở link bằng Safari/Chrome rồi bấm lại";
+          document.getElementById("status").style.color = "#ff4d6d";
+        }
+      }, 10000);
+
       conn.on("open", () => {
-        document.getElementById("status").innerText = "💑 Bạn là Tuyến (Bà chã hơm)";
+        if (connectTimeout) clearTimeout(connectTimeout);
+        role = "CLIENT";
+        document.getElementById("status").innerText = "💑 Đã ghép đôi! Bạn là Tuyến 💖";
         document.getElementById("status").style.color = "#ff4d6d";
         setupConnEvents();
+      });
+
+      conn.on("close", () => {
+        role = "OFFLINE";
+        document.getElementById("status").innerText = "Đã ngắt kết nối - Chế độ Offline";
+        document.getElementById("status").style.color = "#ff758c";
       });
     });
 
@@ -2834,7 +2949,6 @@ Anh thương bé nhiều lắmmm. ❤️`,
         }
       });
     }
-
     setInterval(() => {
       if (role !== "CLIENT" && !gameEnded) {
         if (timeLeft > 0) {
