@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>  </title>
+  <title>Khu Vườn Bí Mật 20/10 - Co-op Adventure</title>
   <!-- Font chữ nét mảnh & điệu đà (Great Vibes & Alex Brush) hỗ trợ đầy đủ tiếng Việt -->
   <link href="https://fonts.googleapis.com/css2?family=Alex+Brush&family=Great+Vibes&display=swap" rel="stylesheet">
   <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
@@ -2764,35 +2764,31 @@ Anh thương bé nhiều lắmmm. ❤️`,
       pingInterval: 5000,
       config: {
         iceServers: [
-          { urls: "stun:stun.l.google.com:19302" },
-          { urls: "stun:stun1.l.google.com:19302" },
-          { urls: "stun:stun.cloudflare.com:3478" },
           { urls: "stun:stun.relay.metered.ca:80" },
           {
             urls: "turn:global.relay.metered.ca:80",
-            username: "8a9147e70a62e057ae66290f",
-            credential: "GhlDl9OroRDzeCzf",
+            username: "d32fd3b7a21cd5272913dc5b",
+            credential: "xJv65cmRK3CKvT1F",
           },
           {
             urls: "turn:global.relay.metered.ca:80?transport=tcp",
-            username: "8a9147e70a62e057ae66290f",
-            credential: "GhlDl9OroRDzeCzf",
+            username: "d32fd3b7a21cd5272913dc5b",
+            credential: "xJv65cmRK3CKvT1F",
           },
           {
             urls: "turn:global.relay.metered.ca:443",
-            username: "8a9147e70a62e057ae66290f",
-            credential: "GhlDl9OroRDzeCzf",
+            username: "d32fd3b7a21cd5272913dc5b",
+            credential: "xJv65cmRK3CKvT1F",
           },
           {
             urls: "turns:global.relay.metered.ca:443?transport=tcp",
-            username: "8a9147e70a62e057ae66290f",
-            credential: "GhlDl9OroRDzeCzf",
+            username: "d32fd3b7a21cd5272913dc5b",
+            credential: "xJv65cmRK3CKvT1F",
           }
         ],
         iceCandidatePoolSize: 10
       }
     });
-
     peer.on("open", id => {
       document.getElementById("my-id").innerText = id;
     });
