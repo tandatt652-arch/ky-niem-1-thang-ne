@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Caro Đôi Lứa 💕 — Chơi Cùng Người Yêu</title>
+  <title>Caro Đôi Lứa 💕 — 30x30 Fullscreen</title>
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- PeerJS Library -->
@@ -17,7 +17,7 @@
 
   <style>
     :root {
-      --bg-romantic: #120817;
+      --bg-romantic: #110716;
       --x-color: #38bdf8;
       --o-color: #fb7185;
     }
@@ -33,50 +33,66 @@
       -webkit-user-select: text;
     }
 
-    body {
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100vw;
+      height: 100dvh;
+      overflow: hidden;
       font-family: 'Plus Jakarta Sans', sans-serif;
       background-color: var(--bg-romantic);
-      background-image: 
-        radial-gradient(circle at 15% 15%, rgba(244, 114, 182, 0.16), transparent 40%),
-        radial-gradient(circle at 85% 85%, rgba(192, 132, 252, 0.16), transparent 40%),
-        radial-gradient(circle at 50% 50%, rgba(251, 113, 133, 0.08), transparent 55%);
       color: #fdf2f8;
-      overflow: hidden;
-      height: 100dvh;
+    }
+
+    /* Fullscreen Canvas */
+    #gomokuCanvas {
+      position: fixed;
+      inset: 0;
       width: 100vw;
+      height: 100dvh;
+      display: block;
+      touch-action: none;
+      cursor: crosshair;
+      z-index: 1;
     }
 
     /* Glassmorphism panels */
     .glass-panel {
-      background: rgba(31, 16, 39, 0.72);
-      backdrop-filter: blur(18px);
-      -webkit-backdrop-filter: blur(18px);
-      border: 1px solid rgba(244, 114, 182, 0.16);
-      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+      background: rgba(28, 13, 36, 0.78);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(244, 114, 182, 0.22);
+      box-shadow: 0 14px 38px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.09);
     }
 
     .glass-card {
-      background: rgba(46, 23, 58, 0.55);
+      background: rgba(48, 22, 62, 0.58);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
-      border: 1px solid rgba(244, 114, 182, 0.14);
+      border: 1px solid rgba(244, 114, 182, 0.18);
     }
 
     .active-turn-self {
-      border-color: rgba(244, 114, 182, 0.8) !important;
-      box-shadow: 0 0 22px rgba(244, 114, 182, 0.28), inset 0 0 12px rgba(244, 114, 182, 0.12);
+      border-color: rgba(244, 114, 182, 0.9) !important;
+      box-shadow: 0 0 22px rgba(244, 114, 182, 0.35), inset 0 0 12px rgba(244, 114, 182, 0.16);
     }
 
     .active-turn-opp {
-      border-color: rgba(192, 132, 252, 0.75) !important;
-      box-shadow: 0 0 22px rgba(192, 132, 252, 0.25), inset 0 0 12px rgba(192, 132, 252, 0.12);
+      border-color: rgba(192, 132, 252, 0.85) !important;
+      box-shadow: 0 0 22px rgba(192, 132, 252, 0.32), inset 0 0 12px rgba(192, 132, 252, 0.15);
     }
 
     .cheat-active-btn {
       background: linear-gradient(135deg, #f43f5e, #a855f7) !important;
       color: #ffffff !important;
-      border-color: rgba(255, 255, 255, 0.4) !important;
-      box-shadow: 0 0 20px rgba(244, 63, 94, 0.55);
+      border-color: rgba(255, 255, 255, 0.5) !important;
+      box-shadow: 0 0 22px rgba(244, 63, 94, 0.65);
+    }
+
+    .piece-option-selected {
+      background: linear-gradient(135deg, rgba(244, 114, 182, 0.32), rgba(168, 85, 247, 0.32)) !important;
+      border-color: rgba(244, 114, 182, 0.9) !important;
+      box-shadow: 0 0 18px rgba(244, 114, 182, 0.35);
     }
 
     /* Custom Scrollbar */
@@ -88,7 +104,7 @@
       background: transparent;
     }
     ::-webkit-scrollbar-thumb {
-      background: rgba(244, 114, 182, 0.3);
+      background: rgba(244, 114, 182, 0.35);
       border-radius: 9999px;
     }
 
@@ -96,21 +112,21 @@
     @keyframes floatUpBubble {
       0% {
         opacity: 0;
-        transform: translateY(20px) scale(0.8);
+        transform: translate(-50%, 24px) scale(0.82);
       }
       12% {
         opacity: 1;
-        transform: translateY(0px) scale(1.03);
+        transform: translate(-50%, 0px) scale(1.03);
       }
       24% {
-        transform: translateY(-6px) scale(1);
+        transform: translate(-50%, -6px) scale(1);
       }
       85% {
         opacity: 1;
       }
       100% {
         opacity: 0;
-        transform: translateY(-65px) scale(0.95);
+        transform: translate(-50%, -70px) scale(0.95);
       }
     }
 
@@ -127,238 +143,327 @@
     .heart-beat {
       animation: pulseHeart 1.4s infinite ease-in-out;
     }
-
-    canvas {
-      touch-action: none;
-    }
   </style>
 </head>
-<body class="flex flex-col lg:flex-row h-full w-full p-2 sm:p-3 gap-2.5 overflow-hidden">
+<body>
 
-  <!-- Toast Container -->
-  <div id="toastContainer" class="fixed top-3 right-3 z-50 flex flex-col gap-2 max-w-xs w-full pointer-events-none"></div>
+  <!-- 1. FULLSCREEN BACKGROUND CANVAS (30x30 BOARD) -->
+  <canvas id="gomokuCanvas"></canvas>
+
+  <!-- Toast Notifications -->
+  <div id="toastContainer" class="fixed top-20 right-3 z-50 flex flex-col gap-2 max-w-xs w-full pointer-events-none"></div>
 
   <!-- Floating Reaction & Chat Bubble Stage -->
-  <div id="floatingStage" class="fixed inset-0 pointer-events-none z-40 overflow-hidden"></div>
+  <div id="floatingStage" class="fixed inset-0 pointer-events-none z-30 overflow-hidden"></div>
 
-  <!-- SIDEBAR: Minimalist Couple Controls -->
-  <aside class="w-full lg:w-[340px] xl:w-[360px] flex flex-col gap-2 shrink-0 z-20 max-h-[45dvh] lg:max-h-full overflow-y-auto lg:overflow-visible">
-    
-    <!-- 1. Compact Header & Connection Bar -->
-    <div class="glass-panel rounded-2xl p-3 flex flex-col gap-2.5">
-      <div class="flex items-center justify-between">
-        <div class="flex items-center gap-2">
-          <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-pink-500/30 to-purple-500/30 border border-pink-400/30 flex items-center justify-center">
-            <span class="text-base heart-beat">💕</span>
+  <!-- 2. FLOATING TOP HUD BAR (Minimalist Scoreboard + Turn + Quick Connect) -->
+  <header class="fixed top-2.5 left-1/2 -translate-x-1/2 z-20 w-[96vw] max-w-3xl pointer-events-none flex flex-col gap-1.5">
+    <div class="glass-panel rounded-2xl px-2.5 py-2 sm:px-4 sm:py-2.5 pointer-events-auto flex items-center justify-between gap-2">
+      
+      <!-- Left: Self Player Card & Piece Badge -->
+      <div id="cardSelf" class="glass-card rounded-xl px-2.5 py-1.5 flex items-center gap-2 transition-all duration-300 min-w-[115px] sm:min-w-[160px]">
+        <button onclick="openNewRoundModal()" title="Bấm để chọn lại quân X/O"
+          id="selfSymbolBadge"
+          class="w-7 h-7 sm:w-8 sm:h-8 shrink-0 rounded-lg bg-sky-500/20 border border-sky-400/50 text-sky-300 font-extrabold text-xs sm:text-sm flex items-center justify-center hover:scale-105 transition active:scale-95">
+          X
+        </button>
+        <div class="flex flex-col min-w-0 flex-1">
+          <input id="inputSelfName" type="text" maxlength="14" value="Anh ❤️" onchange="updateSelfName()"
+            class="w-full bg-transparent text-xs sm:text-sm font-bold text-white focus:outline-none focus:bg-black/30 rounded px-1 -ml-1 truncate" />
+          <span id="selfTurnStatus" class="text-[10px] font-bold text-pink-300 truncate">Lượt bạn 💕</span>
+        </div>
+      </div>
+
+      <!-- Center: Score, Turn & Quick Actions -->
+      <div class="flex flex-col items-center justify-center shrink-0 px-1">
+        <div class="flex items-center gap-2 sm:gap-3">
+          <span id="scoreSelf" class="text-lg sm:text-2xl font-extrabold text-sky-400">0</span>
+          <div class="flex flex-col items-center">
+            <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-pink-500/20 border border-pink-400/30 text-pink-200">
+              Ván <span id="roundNumText">1</span>
+            </span>
           </div>
-          <span class="font-extrabold text-sm sm:text-base tracking-tight bg-gradient-to-r from-pink-200 via-rose-200 to-purple-200 bg-clip-text text-transparent">
-            Caro Đôi Lứa
+          <span id="scoreOpponent" class="text-lg sm:text-2xl font-extrabold text-rose-400">0</span>
+        </div>
+
+        <!-- Turn / Cheat Status Pill -->
+        <div class="flex items-center gap-1.5 mt-0.5">
+          <span id="hudTurnIndicator" class="w-2 h-2 rounded-full bg-sky-400 shadow-[0_0_8px_#38bdf8]"></span>
+          <span id="hudTurnText" class="text-[11px] font-bold text-pink-100 truncate max-w-[120px] sm:max-w-[180px]">Lượt bạn</span>
+          <span id="cheatActiveBadge" class="hidden text-[10px] font-extrabold px-1.5 py-0.5 rounded-full bg-rose-500/35 text-rose-200 border border-rose-400/50 animate-pulse">
+            😈 Ăn gian
           </span>
         </div>
+      </div>
 
-        <div class="flex items-center gap-1.5">
-          <!-- Connection Status Pill -->
-          <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full glass-card text-[11px] font-semibold">
-            <span id="connDot" class="w-2 h-2 rounded-full bg-amber-400"></span>
-            <span id="connStatusText" class="text-pink-100">Đang mở...</span>
+      <!-- Right: Partner Player Card + Connect / Sound -->
+      <div class="flex items-center gap-1.5 sm:gap-2">
+        <div id="cardOpponent" class="glass-card rounded-xl px-2.5 py-1.5 flex items-center gap-2 transition-all duration-300 min-w-[115px] sm:min-w-[160px]">
+          <div class="flex flex-col min-w-0 flex-1 text-right">
+            <div id="oppNameDisplay" class="text-xs sm:text-sm font-bold text-white truncate">Em 🌷</div>
+            <span id="oppTurnStatus" class="text-[10px] font-medium text-pink-200/50 truncate">Đợi...</span>
           </div>
-
-          <!-- Sound Toggle -->
-          <button onclick="toggleSound()" class="p-2 rounded-xl glass-card hover:bg-pink-500/20 text-pink-200 transition active:scale-95" title="Âm thanh">
-            <i data-lucide="volume-2" class="w-4 h-4 text-pink-300" id="soundIcon"></i>
-          </button>
-        </div>
-      </div>
-
-      <!-- Invite Link & Connect Row (Hidden automatically once connected) -->
-      <div id="connectBox" class="flex flex-col gap-2 pt-1 border-t border-pink-500/10">
-        <div class="flex items-center gap-1.5">
-          <button onclick="copyInviteLink()" class="flex-1 py-2 px-3 rounded-xl bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-400 hover:to-rose-400 text-white font-bold text-xs shadow-lg shadow-pink-500/25 flex items-center justify-center gap-1.5 transition active:scale-95">
-            <i data-lucide="link" class="w-3.5 h-3.5"></i>
-            <span>Sao chép link</span>
-          </button>
-          <button onclick="copyRoomCodeOnly()" class="py-2 px-2.5 rounded-xl glass-card hover:bg-pink-500/20 text-pink-200 font-semibold text-xs flex items-center gap-1 transition active:scale-95" title="Sao chép mã phòng">
-            <i data-lucide="copy" class="w-3.5 h-3.5"></i>
-            <span>Mã</span>
+          <button onclick="openNewRoundModal()" title="Bấm để chọn quân X/O"
+            id="oppSymbolBadge"
+            class="w-7 h-7 sm:w-8 sm:h-8 shrink-0 rounded-lg bg-rose-500/20 border border-rose-400/50 text-rose-300 font-extrabold text-xs sm:text-sm flex items-center justify-center hover:scale-105 transition active:scale-95">
+            O
           </button>
         </div>
 
-        <div class="flex items-center gap-1.5">
-          <input id="remotePeerIdInput" type="text" placeholder="Dán link hoặc mã của người ấy..."
-            class="w-full text-xs bg-black/35 text-pink-100 placeholder-pink-300/40 px-3 py-2 rounded-xl border border-pink-400/20 focus:outline-none focus:border-pink-400" />
-          <button onclick="connectToPeer()" class="shrink-0 px-3.5 py-2 rounded-xl bg-purple-500/30 hover:bg-purple-500/45 text-purple-100 border border-purple-400/40 font-bold text-xs transition active:scale-95">
-            Kết nối
-          </button>
-        </div>
-      </div>
-
-      <!-- Connected Bar (Shown when connected) -->
-      <div id="connectedBar" class="hidden items-center justify-between pt-1 border-t border-pink-500/10 text-xs">
-        <span class="text-emerald-300 font-semibold flex items-center gap-1.5">
-          <i data-lucide="heart-handshake" class="w-4 h-4 text-pink-400"></i>
-          <span>Đã kết nối với người ấy</span>
-        </span>
-        <button onclick="disconnectPeer()" class="px-2.5 py-1 rounded-lg bg-rose-500/20 hover:bg-rose-500/30 text-rose-200 text-[11px] font-semibold transition">
-          Ngắt
+        <!-- Connection Button -->
+        <button onclick="toggleConnectModal()" id="btnOpenConnect"
+          class="h-10 px-2.5 sm:px-3 rounded-xl glass-card hover:bg-pink-500/20 flex items-center gap-1.5 transition active:scale-95 shrink-0"
+          title="Kết nối với người yêu">
+          <span id="connDot" class="w-2.5 h-2.5 rounded-full bg-amber-400"></span>
+          <span id="connStatusText" class="hidden md:inline text-xs font-bold text-pink-100">Kết nối</span>
+          <i data-lucide="link-2" class="w-4 h-4 text-pink-300 md:hidden"></i>
         </button>
+
+        <!-- Sound Toggle -->
+        <button onclick="toggleSound()" class="h-10 w-10 rounded-xl glass-card hover:bg-pink-500/20 flex items-center justify-center text-pink-200 transition active:scale-95 shrink-0" title="Bật/Tắt âm thanh">
+          <i data-lucide="volume-2" class="w-4 h-4 text-pink-300" id="soundIcon"></i>
+        </button>
+      </div>
+
+    </div>
+
+    <!-- Quick Invite Banner (Only visible when not connected yet) -->
+    <div id="quickInviteStrip" class="mx-auto pointer-events-auto glass-panel rounded-full px-3 py-1 flex items-center gap-2 text-xs border border-pink-400/30 shadow-lg">
+      <span class="text-pink-200 font-medium hidden sm:inline">Chơi cùng người yêu:</span>
+      <button onclick="copyInviteLink()" class="px-2.5 py-1 rounded-full bg-gradient-to-r from-pink-500 to-rose-500 text-white font-bold text-[11px] flex items-center gap-1 hover:opacity-95 active:scale-95 transition">
+        <i data-lucide="copy" class="w-3 h-3"></i>
+        <span>Sao chép link mời</span>
+      </button>
+      <button onclick="toggleConnectModal()" class="px-2.5 py-1 rounded-full bg-purple-500/30 hover:bg-purple-500/45 border border-purple-400/40 text-purple-100 font-bold text-[11px] transition">
+        Nhập mã
+      </button>
+    </div>
+  </header>
+
+  <!-- 3. FLOATING RIGHT ZOOM CONTROLS -->
+  <div class="fixed right-3 top-1/2 -translate-y-1/2 z-20 flex flex-col gap-1.5 glass-panel p-1.5 rounded-2xl">
+    <button onclick="zoomBoard(1.2)" class="p-2 rounded-xl hover:bg-pink-500/20 text-pink-100 transition active:scale-95" title="Phóng to">
+      <i data-lucide="zoom-in" class="w-4 h-4"></i>
+    </button>
+    <button onclick="zoomBoard(0.82)" class="p-2 rounded-xl hover:bg-pink-500/20 text-pink-100 transition active:scale-95" title="Thu nhỏ">
+      <i data-lucide="zoom-out" class="w-4 h-4"></i>
+    </button>
+    <button onclick="centerBoardView()" class="p-2 rounded-xl hover:bg-pink-500/20 text-pink-300 transition active:scale-95" title="Căn giữa bàn cờ 30x30">
+      <i data-lucide="locate-fixed" class="w-4 h-4"></i>
+    </button>
+  </div>
+
+  <!-- 4. FLOATING BOTTOM CONTROL & CHAT BAR -->
+  <footer class="fixed bottom-2.5 left-1/2 -translate-x-1/2 z-20 w-[96vw] max-w-3xl pointer-events-none flex flex-col gap-1.5">
+    
+    <!-- Collapsible Chat History Drawer -->
+    <div id="chatDrawer" class="hidden pointer-events-auto glass-panel rounded-2xl p-3 max-h-44 flex flex-col gap-2 border border-pink-400/30">
+      <div class="flex items-center justify-between text-xs font-bold text-pink-200 border-b border-pink-500/15 pb-1.5">
+        <span class="flex items-center gap-1.5">
+          <i data-lucide="message-circle-heart" class="w-3.5 h-3.5 text-pink-400"></i>
+          Hộp thư đôi lứa
+        </span>
+        <button onclick="toggleChatDrawer()" class="text-pink-300/70 hover:text-white text-[11px] px-1.5">Đóng ✕</button>
+      </div>
+      <div id="chatMessages" class="flex-1 overflow-y-auto space-y-1.5 pr-1 text-xs flex flex-col">
+        <div class="text-pink-200/75 bg-pink-500/10 rounded-xl px-2.5 py-1.5 border border-pink-400/15 text-[11px]">
+          💌 Mọi tin nhắn gửi đi sẽ bay lên màn hình của cả hai người!
+        </div>
       </div>
     </div>
 
-    <!-- 2. Couple Scoreboard & Action Buttons (Ván mới + Ăn gian) -->
-    <div class="glass-panel rounded-2xl p-3 flex flex-col gap-2.5">
-      <div class="grid grid-cols-7 items-center gap-1.5">
-        <!-- Self Player -->
-        <div id="cardSelf" class="col-span-3 glass-card rounded-xl p-2 transition-all duration-300 flex flex-col">
-          <div class="flex items-center justify-between">
-            <span id="selfTurnStatus" class="text-[10px] font-bold text-pink-300 truncate">Lượt bạn 💕</span>
-            <span id="selfSymbolBadge" class="w-5 h-5 rounded-md bg-sky-500/20 border border-sky-400/40 text-sky-300 font-extrabold text-[11px] flex items-center justify-center">X</span>
-          </div>
-          <input id="inputSelfName" type="text" maxlength="14" value="Anh ❤️" onchange="updateSelfName()"
-            class="w-full bg-transparent text-xs sm:text-sm font-bold text-white focus:outline-none focus:bg-black/30 rounded px-1 mt-1 truncate" />
-        </div>
-
-        <!-- Score Center -->
-        <div class="col-span-1 flex flex-col items-center justify-center">
-          <div class="text-base sm:text-lg font-extrabold tracking-tight text-white flex items-center gap-0.5">
-            <span id="scoreSelf" class="text-sky-400">0</span>
-            <span class="text-pink-400/60 text-xs">:</span>
-            <span id="scoreOpponent" class="text-rose-400">0</span>
-          </div>
-          <span class="text-[10px] text-pink-300/60 font-bold">Ván <span id="roundNumText">1</span></span>
-        </div>
-
-        <!-- Partner Player -->
-        <div id="cardOpponent" class="col-span-3 glass-card rounded-xl p-2 transition-all duration-300 flex flex-col text-right">
-          <div class="flex items-center justify-between">
-            <span id="oppSymbolBadge" class="w-5 h-5 rounded-md bg-rose-500/20 border border-rose-400/40 text-rose-300 font-extrabold text-[11px] flex items-center justify-center">O</span>
-            <span id="oppTurnStatus" class="text-[10px] font-bold text-pink-200/50 truncate">Đợi...</span>
-          </div>
-          <div id="oppNameDisplay" class="text-xs sm:text-sm font-bold text-white truncate px-1 mt-1">Em 🌷</div>
-        </div>
-      </div>
-
-      <!-- Minimal Action Row: Cheat Mode & New Round -->
-      <div class="grid grid-cols-2 gap-2 pt-0.5">
-        <button id="btnCheatToggle" onclick="toggleCheatMode()" class="py-2 px-3 rounded-xl glass-card hover:bg-pink-500/15 text-pink-200 font-bold text-xs flex items-center justify-center gap-1.5 transition active:scale-95">
+    <!-- Main Bottom Bar -->
+    <div class="glass-panel rounded-2xl p-2 sm:px-3 sm:py-2 pointer-events-auto flex flex-wrap sm:flex-nowrap items-center gap-2">
+      
+      <!-- Synchronized Cheat Button + New Round & Piece Select Button -->
+      <div class="flex items-center gap-1.5 w-full sm:w-auto justify-between sm:justify-start shrink-0">
+        <button id="btnCheatToggle" onclick="toggleSharedCheatMode()"
+          class="flex-1 sm:flex-initial py-2 px-3 rounded-xl glass-card hover:bg-pink-500/20 text-pink-100 font-bold text-xs flex items-center justify-center gap-1.5 transition active:scale-95"
+          title="Cả 2 người đều có thể bật/tắt cho lượt hiện tại">
           <span>😈</span>
           <span id="cheatBtnLabel">Ăn gian: Tắt</span>
         </button>
 
-        <button onclick="requestNewRound()" class="py-2 px-3 rounded-xl bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-400 hover:to-purple-400 text-white font-bold text-xs shadow-lg shadow-pink-500/20 flex items-center justify-center gap-1.5 transition active:scale-95">
+        <button onclick="openNewRoundModal()"
+          class="flex-1 sm:flex-initial py-2 px-3 rounded-xl bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-400 hover:to-purple-400 text-white font-bold text-xs shadow-lg shadow-pink-500/25 flex items-center justify-center gap-1.5 transition active:scale-95"
+          title="Tạo ván mới và chọn quân X/O">
           <i data-lucide="rotate-cw" class="w-3.5 h-3.5"></i>
-          <span>Ván mới</span>
+          <span>Ván mới / Chọn quân</span>
         </button>
-      </div>
-    </div>
 
-    <!-- 3. Custom Real-Time Text Chat -->
-    <div class="glass-panel rounded-2xl p-3 flex-1 flex flex-col gap-2 min-h-[130px] lg:min-h-0 overflow-hidden">
-      <!-- Quick Love Reactions + Clear Label -->
-      <div class="flex items-center justify-between">
-        <span class="text-xs font-bold text-pink-200 flex items-center gap-1">
-          <i data-lucide="message-circle-heart" class="w-3.5 h-3.5 text-pink-400"></i>
-          <span>Nhắn tin</span>
-        </span>
-        <div class="flex items-center gap-1">
-          <button onclick="sendQuickReaction('❤️')" class="hover:scale-125 transition text-sm px-1">❤️</button>
-          <button onclick="sendQuickReaction('😘')" class="hover:scale-125 transition text-sm px-1">😘</button>
-          <button onclick="sendQuickReaction('🥺')" class="hover:scale-125 transition text-sm px-1">🥺</button>
-          <button onclick="sendQuickReaction('😈')" class="hover:scale-125 transition text-sm px-1">😈</button>
-          <button onclick="sendQuickReaction('🌷')" class="hover:scale-125 transition text-sm px-1">🌷</button>
+        <!-- Quick Emoji Bar on Mobile/Desktop -->
+        <div class="flex items-center gap-0.5 glass-card px-1.5 py-1 rounded-xl">
+          <button onclick="sendQuickReaction('❤️')" class="hover:scale-125 transition text-sm px-1" title="Thả tim">❤️</button>
+          <button onclick="sendQuickReaction('😘')" class="hover:scale-125 transition text-sm px-1" title="Hôn gió">😘</button>
+          <button onclick="sendQuickReaction('🥺')" class="hover:scale-125 transition text-sm px-1" title="Năn nỉ">🥺</button>
+          <button onclick="sendQuickReaction('😈')" class="hover:scale-125 transition text-sm px-1" title="Trêu">😈</button>
         </div>
       </div>
 
-      <!-- Chat History -->
-      <div id="chatMessages" class="flex-1 overflow-y-auto space-y-1.5 pr-1 text-xs flex flex-col justify-end">
-        <div class="text-pink-200/70 bg-pink-500/10 rounded-xl px-2.5 py-1.5 border border-pink-400/15 text-[11px]">
-          💌 Bấm <b>Sao chép link</b> gửi cho người yêu để vào chơi ngay nhé!
-        </div>
-      </div>
-
-      <!-- Free Text Input -->
-      <form onsubmit="handleChatSubmit(event)" class="flex items-center gap-1.5">
-        <input id="chatInput" type="text" maxlength="150" placeholder="Nhập tin nhắn..."
-          class="w-full text-xs bg-black/35 text-white placeholder-pink-200/40 px-3 py-2 rounded-xl border border-pink-400/20 focus:outline-none focus:border-pink-400" />
-        <button type="submit" class="shrink-0 px-3 py-2 rounded-xl bg-gradient-to-r from-pink-500 to-rose-500 text-white font-bold text-xs transition active:scale-95 flex items-center gap-1">
-          <span>Gửi</span>
+      <!-- Free-Text Chat Input -->
+      <form onsubmit="handleChatSubmit(event)" class="flex items-center gap-1.5 flex-1 w-full sm:w-auto">
+        <button type="button" onclick="toggleChatDrawer()" class="p-2 rounded-xl glass-card hover:bg-pink-500/20 text-pink-300 transition shrink-0 relative" title="Xem lịch sử tin nhắn">
+          <i data-lucide="messages-square" class="w-4 h-4"></i>
+          <span id="unreadChatDot" class="hidden absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-rose-500"></span>
+        </button>
+        <input id="chatInput" type="text" maxlength="150" placeholder="Nhắn lời yêu thương..."
+          class="w-full text-xs bg-black/40 text-white placeholder-pink-200/45 px-3 py-2 rounded-xl border border-pink-400/25 focus:outline-none focus:border-pink-400" />
+        <button type="submit" class="shrink-0 px-3.5 py-2 rounded-xl bg-gradient-to-r from-pink-500 to-rose-500 text-white font-bold text-xs transition active:scale-95">
+          Gửi
         </button>
       </form>
+
     </div>
+  </footer>
 
-  </aside>
-
-  <!-- MAIN AREA: Interactive Board -->
-  <main class="flex-1 glass-panel rounded-2xl relative overflow-hidden flex flex-col min-h-[52dvh]">
-    
-    <!-- Minimalist Top HUD on Board -->
-    <div class="absolute top-3 left-3 right-3 z-10 flex items-center justify-between pointer-events-none gap-2">
-      <div class="pointer-events-auto glass-panel px-3.5 py-1.5 rounded-xl flex items-center gap-2 border border-pink-400/30">
-        <span id="hudTurnIndicator" class="w-2.5 h-2.5 rounded-full bg-sky-400 shadow-[0_0_8px_#38bdf8]"></span>
-        <span id="hudTurnText" class="text-xs sm:text-sm font-bold text-white">Lượt bạn</span>
-        <span id="cheatActiveBadge" class="hidden text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-500/30 text-rose-200 border border-rose-400/40">
-          😈 Đang ăn gian
-        </span>
-      </div>
-
-      <!-- Zoom Controls -->
-      <div class="pointer-events-auto flex items-center gap-1 glass-panel p-1 rounded-xl">
-        <button onclick="zoomBoard(1.18)" class="p-1.5 rounded-lg hover:bg-pink-500/20 text-pink-100 transition active:scale-95" title="Phóng to">
-          <i data-lucide="zoom-in" class="w-4 h-4"></i>
-        </button>
-        <button onclick="zoomBoard(0.85)" class="p-1.5 rounded-lg hover:bg-pink-500/20 text-pink-100 transition active:scale-95" title="Thu nhỏ">
-          <i data-lucide="zoom-out" class="w-4 h-4"></i>
-        </button>
-        <button onclick="centerBoardView()" class="p-1.5 rounded-lg hover:bg-pink-500/20 text-pink-300 transition active:scale-95" title="Căn giữa">
-          <i data-lucide="locate-fixed" class="w-4 h-4"></i>
+  <!-- 5. MODAL: CONNECT & INVITE LINK -->
+  <div id="connectModal" class="hidden fixed inset-0 z-40 bg-black/65 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="glass-panel rounded-3xl p-5 sm:p-6 max-w-md w-full border border-pink-400/35 shadow-2xl flex flex-col gap-4">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <span class="text-xl heart-beat">💕</span>
+          <h3 class="text-base sm:text-lg font-extrabold text-white">Kết Nối Đôi Lứa</h3>
+        </div>
+        <button onclick="toggleConnectModal(false)" class="p-1.5 rounded-xl glass-card text-pink-200 hover:text-white">
+          <i data-lucide="x" class="w-4 h-4"></i>
         </button>
       </div>
-    </div>
 
-    <!-- Canvas Container -->
-    <div id="canvasContainer" class="w-full h-full flex-1 relative cursor-crosshair overflow-hidden">
-      <canvas id="gomokuCanvas" class="block w-full h-full"></canvas>
-    </div>
-
-    <!-- Victory Modal -->
-    <div id="victoryModal" class="hidden absolute inset-0 z-30 bg-black/65 backdrop-blur-md flex items-center justify-center p-4">
-      <div class="glass-panel rounded-3xl p-6 max-w-sm w-full border border-pink-400/30 shadow-2xl text-center flex flex-col items-center gap-4">
-        <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-pink-500/30 to-purple-500/30 border border-pink-400/40 flex items-center justify-center text-3xl shadow-lg heart-beat">
-          👑
-        </div>
-
-        <div>
-          <h2 id="victoryTitle" class="text-xl sm:text-2xl font-extrabold text-white">Chiến Thắng!</h2>
-          <p id="victorySubtitle" class="text-xs text-pink-200/80 mt-1">+1 điểm yêu thương 💕</p>
-        </div>
-
-        <div class="w-full glass-card rounded-2xl p-3 flex items-center justify-around">
-          <div class="flex flex-col items-center">
-            <span id="modalNameSelf" class="text-xs text-pink-200 truncate max-w-[100px]">Anh ❤️</span>
-            <span id="modalScoreSelf" class="text-2xl font-extrabold text-sky-400">1</span>
-          </div>
-          <span class="text-sm">💞</span>
-          <div class="flex flex-col items-center">
-            <span id="modalNameOpp" class="text-xs text-pink-200 truncate max-w-[100px]">Em 🌷</span>
-            <span id="modalScoreOpp" class="text-2xl font-extrabold text-rose-400">0</span>
-          </div>
-        </div>
-
-        <div class="flex items-center gap-2 w-full">
-          <button onclick="hideVictoryModalOnly()" class="flex-1 py-2.5 px-3 rounded-xl glass-card hover:bg-pink-500/20 text-pink-100 font-semibold text-xs transition">
-            Xem bàn cờ
+      <!-- Step 1: Copy Invite Link -->
+      <div class="glass-card rounded-2xl p-3.5 flex flex-col gap-2">
+        <span class="text-xs font-bold text-pink-200">Cách 1: Gửi link mời cho người yêu</span>
+        <div class="flex items-center gap-2">
+          <button onclick="copyInviteLink()" class="flex-1 py-2.5 px-3 rounded-xl bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-400 hover:to-rose-400 text-white font-bold text-xs shadow-lg shadow-pink-500/25 flex items-center justify-center gap-1.5 transition active:scale-95">
+            <i data-lucide="link" class="w-4 h-4"></i>
+            <span>Sao chép link mời</span>
           </button>
-          <button onclick="requestNewRound()" class="flex-1 py-2.5 px-3 rounded-xl bg-gradient-to-r from-pink-500 to-purple-500 text-white font-extrabold text-xs shadow-lg shadow-pink-500/25 transition">
-            Chơi tiếp 💕
+          <button onclick="copyRoomCodeOnly()" class="py-2.5 px-3 rounded-xl glass-card hover:bg-pink-500/20 text-pink-100 font-bold text-xs flex items-center gap-1.5 transition active:scale-95">
+            <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+            <span>Chép mã</span>
           </button>
         </div>
       </div>
-    </div>
 
-  </main>
+      <!-- Step 2: Paste Partner Link or Code -->
+      <div id="modalConnectInputSection" class="glass-card rounded-2xl p-3.5 flex flex-col gap-2">
+        <span class="text-xs font-bold text-pink-200">Cách 2: Dán link hoặc mã của người ấy</span>
+        <div class="flex items-center gap-2">
+          <input id="remotePeerIdInput" type="text" placeholder="Dán link hoặc mã phòng vào đây..."
+            class="w-full text-xs bg-black/45 text-pink-100 placeholder-pink-300/40 px-3 py-2.5 rounded-xl border border-pink-400/25 focus:outline-none focus:border-pink-400" />
+          <button onclick="connectToPeer()" class="shrink-0 px-4 py-2.5 rounded-xl bg-purple-500 hover:bg-purple-400 text-white font-bold text-xs transition active:scale-95">
+            Vào phòng
+          </button>
+        </div>
+      </div>
+
+      <!-- Connected Status inside Modal -->
+      <div id="modalConnectedSection" class="hidden glass-card rounded-2xl p-3.5 items-center justify-between">
+        <div class="flex items-center gap-2 text-emerald-300 text-xs font-bold">
+          <i data-lucide="heart-handshake" class="w-4 h-4 text-pink-400"></i>
+          <span>Đã kết nối với <span id="modalPartnerName">Em 🌷</span></span>
+        </div>
+        <button onclick="disconnectPeer()" class="px-3 py-1.5 rounded-xl bg-rose-500/25 hover:bg-rose-500/40 text-rose-200 text-xs font-bold transition">
+          Ngắt kết nối
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6. MODAL: CHỌN QUÂN (X / O) & BẮT ĐẦU VÁN MỚI (NO ROLE SWAPPING) -->
+  <div id="newRoundModal" class="hidden fixed inset-0 z-40 bg-black/65 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="glass-panel rounded-3xl p-5 sm:p-6 max-w-sm w-full border border-pink-400/35 shadow-2xl flex flex-col gap-4">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <span class="text-xl">🎯</span>
+          <h3 class="text-base sm:text-lg font-extrabold text-white">Chọn Quân & Ván Mới</h3>
+        </div>
+        <button onclick="closeNewRoundModal()" class="p-1.5 rounded-xl glass-card text-pink-200 hover:text-white">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <!-- Choose Your Piece (Without swapping player slots/scores) -->
+      <div class="flex flex-col gap-2">
+        <span class="text-xs font-bold text-pink-200">Bạn muốn cầm quân nào? (Giữ nguyên điểm số)</span>
+        <div class="grid grid-cols-2 gap-2.5">
+          <button id="btnPickX" onclick="selectMyPiece('X', true)"
+            class="glass-card rounded-2xl p-3 flex flex-col items-center gap-1 border transition active:scale-95">
+            <span class="text-2xl font-black text-sky-400 drop-shadow-[0_0_8px_rgba(56,189,248,0.6)]">❌ (X)</span>
+            <span id="labelPickX" class="text-[11px] font-bold text-pink-100">Bạn cầm X</span>
+          </button>
+
+          <button id="btnPickO" onclick="selectMyPiece('O', true)"
+            class="glass-card rounded-2xl p-3 flex flex-col items-center gap-1 border transition active:scale-95">
+            <span class="text-2xl font-black text-rose-400 drop-shadow-[0_0_8px_rgba(251,113,133,0.6)]">⭕ (O)</span>
+            <span id="labelPickO" class="text-[11px] font-bold text-pink-100">Bạn cầm O</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Choose Who Goes First -->
+      <div class="flex flex-col gap-2">
+        <span class="text-xs font-bold text-pink-200">Quân nào đi trước ở ván này?</span>
+        <div class="grid grid-cols-2 gap-2">
+          <button id="btnStarterX" onclick="selectStarterSymbol('X', true)"
+            class="glass-card rounded-xl py-2 px-3 text-xs font-bold text-sky-300 border transition active:scale-95">
+            Quân X đi trước
+          </button>
+          <button id="btnStarterO" onclick="selectStarterSymbol('O', true)"
+            class="glass-card rounded-xl py-2 px-3 text-xs font-bold text-rose-300 border transition active:scale-95">
+            Quân O đi trước
+          </button>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2 pt-1">
+        <button onclick="closeNewRoundModal()" class="flex-1 py-2.5 rounded-xl glass-card hover:bg-pink-500/20 text-pink-200 font-bold text-xs transition">
+          Đóng
+        </button>
+        <button onclick="confirmStartNewRound()" class="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-400 hover:to-purple-400 text-white font-extrabold text-xs shadow-lg shadow-pink-500/30 transition active:scale-95">
+          Bắt đầu ván mới 💕
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 7. MODAL: VICTORY CELEBRATION -->
+  <div id="victoryModal" class="hidden fixed inset-0 z-40 bg-black/65 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="glass-panel rounded-3xl p-6 max-w-sm w-full border border-pink-400/35 shadow-2xl text-center flex flex-col items-center gap-4">
+      <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-pink-500/30 to-purple-500/30 border border-pink-400/40 flex items-center justify-center text-3xl shadow-lg heart-beat">
+        👑
+      </div>
+
+      <div>
+        <h2 id="victoryTitle" class="text-xl sm:text-2xl font-extrabold text-white">Chiến Thắng!</h2>
+        <p id="victorySubtitle" class="text-xs text-pink-200/80 mt-1">Đạt 5 quân liên tiếp — +1 điểm yêu thương 💕</p>
+      </div>
+
+      <div class="w-full glass-card rounded-2xl p-3 flex items-center justify-around">
+        <div class="flex flex-col items-center">
+          <span id="modalNameSelf" class="text-xs text-pink-200 truncate max-w-[110px]">Anh ❤️</span>
+          <span id="modalScoreSelf" class="text-2xl font-extrabold text-sky-400">1</span>
+        </div>
+        <span class="text-sm">💞</span>
+        <div class="flex flex-col items-center">
+          <span id="modalNameOpp" class="text-xs text-pink-200 truncate max-w-[110px]">Em 🌷</span>
+          <span id="modalScoreOpp" class="text-2xl font-extrabold text-rose-400">0</span>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2 w-full">
+        <button onclick="hideVictoryModalOnly()" class="flex-1 py-2.5 px-3 rounded-xl glass-card hover:bg-pink-500/20 text-pink-100 font-semibold text-xs transition">
+          Xem bàn cờ
+        </button>
+        <button onclick="openNewRoundModalFromVictory()" class="flex-1 py-2.5 px-3 rounded-xl bg-gradient-to-r from-pink-500 to-purple-500 text-white font-extrabold text-xs shadow-lg shadow-pink-500/25 transition">
+          Ván mới / Chọn quân 💕
+        </button>
+      </div>
+    </div>
+  </div>
 
   <script>
     /**************************************************************
-     * 1. SOUND EFFECTS (WEB AUDIO API)
+     * 1. WEB AUDIO API SOUND EFFECTS
      **************************************************************/
     let audioCtx = null;
     let soundEnabled = true;
@@ -398,7 +503,7 @@
           osc.type = type === 'moveX' ? 'sine' : 'triangle';
           osc.frequency.setValueAtTime(type === 'moveX' ? 540 : 440, now);
           osc.frequency.exponentialRampToValueAtTime(type === 'moveX' ? 880 : 680, now + 0.08);
-          gain.gain.setValueAtTime(0.2, now);
+          gain.gain.setValueAtTime(0.18, now);
           gain.gain.exponentialRampToValueAtTime(0.001, now + 0.11);
           osc.connect(gain);
           gain.connect(ctx.destination);
@@ -447,21 +552,23 @@
     }
 
     /**************************************************************
-     * 2. GAME STATE & CHEAT MODE CONFIGURATION
+     * 2. GAME STATE (30x30 BOARD, PIECE SELECTION, SHARED CHEAT)
      **************************************************************/
-    const BOARD_SIZE = 22;
+    const BOARD_SIZE = 30;
     let board = [];
     let moveHistory = [];
     let winningLine = null;
     let gameOver = false;
 
+    // Player symbols (No role swapping: each player keeps their identity & score)
     let mySymbol = 'X';
     let currentTurn = 'X';
     let roundStarter = 'X';
     let roundNumber = 1;
 
-    // Cheat Mode ("Ăn gian"): When enabled during your turn, your move doesn't end your turn
-    let isCheatMode = false;
+    // Shared Synchronized Cheat Mode ("Ăn gian"): Either player can toggle ON/OFF
+    // Applies to currentTurn: while ON, placing a piece does NOT switch turn
+    let sharedCheatMode = false;
 
     let scores = { self: 0, opponent: 0 };
     let selfName = 'Anh ❤️';
@@ -473,10 +580,10 @@
     let myPeerId = '';
     let isOnlineConnected = false;
 
-    // Canvas Viewport
+    // Fullscreen Canvas Viewport
     const canvas = document.getElementById('gomokuCanvas');
     const ctx = canvas.getContext('2d');
-    let cellSize = 40;
+    let cellSize = 36;
     let zoomScale = 1.0;
     let panX = 0;
     let panY = 0;
@@ -496,7 +603,7 @@
     }
 
     /**************************************************************
-     * 3. PEERJS & AUTO-INVITE LINK (?room=...)
+     * 3. EXACT PEERJS & TURN CONFIGURATION
      **************************************************************/
     function initPeerConnection() {
       if (peer) {
@@ -538,7 +645,7 @@
 
       peer.on('open', (id) => {
         myPeerId = id;
-        updateConnectionStatusUI('ready', 'Sẵn sàng');
+        updateConnectionStatusUI('ready', 'Kết nối');
 
         // Auto-connect if URL has ?room=...
         const urlParams = new URLSearchParams(window.location.search);
@@ -573,7 +680,7 @@
           msg = 'Lỗi kết nối: ' + (err.type || 'Mạng bận');
         }
         showToast(msg, 'error');
-        updateConnectionStatusUI('ready', 'Sẵn sàng');
+        updateConnectionStatusUI('ready', 'Kết nối');
       });
 
       peer.on('disconnected', () => {
@@ -582,7 +689,6 @@
       });
     }
 
-    // Extract Peer ID whether user pasted a full URL (?room=xyz) or raw ID
     function extractPeerId(rawInput) {
       const trimmed = (rawInput || '').trim();
       if (!trimmed) return '';
@@ -608,7 +714,7 @@
         return;
       }
       if (peer && targetId === peer.id) {
-        showToast('Đây là mã của bạn mà! Hãy gửi link cho người ấy nhé 💕', 'info');
+        showToast('Đây là mã của bạn! Hãy gửi link cho người ấy nhé 💕', 'info');
         return;
       }
       if (!peer || !peer.open) {
@@ -641,18 +747,22 @@
         currentTurn = 'X';
 
         updateConnectionStatusUI('connected', 'Đã kết nối 💕');
-        document.getElementById('connectBox').classList.add('hidden');
-        const connectedBar = document.getElementById('connectedBar');
-        connectedBar.classList.remove('hidden');
-        connectedBar.classList.add('flex');
+        document.getElementById('quickInviteStrip').classList.add('hidden');
+        document.getElementById('modalConnectInputSection').classList.add('hidden');
+        const connectedSec = document.getElementById('modalConnectedSection');
+        connectedSec.classList.remove('hidden');
+        connectedSec.classList.add('flex');
+        toggleConnectModal(false);
 
         sendP2PMessage({
           type: 'HANDSHAKE',
           name: selfName,
-          symbol: mySymbol
+          symbol: mySymbol,
+          sharedCheatMode: sharedCheatMode
         });
 
         startRound(false);
+        updatePieceModalButtonsUI();
         showToast('Đã kết nối với người yêu! Cùng chơi thôi 💕', 'success');
       });
 
@@ -680,12 +790,45 @@
 
         case 'HANDSHAKE':
           opponentName = data.name || 'Người ấy 💕';
+          document.getElementById('modalPartnerName').textContent = opponentName;
+          if (typeof data.sharedCheatMode === 'boolean') {
+            applySharedCheatState(data.sharedCheatMode, false);
+          }
           updateScoreboardAndTurnUI();
           break;
 
         case 'NAME_UPDATE':
           opponentName = data.name || 'Người ấy 💕';
+          document.getElementById('modalPartnerName').textContent = opponentName;
           updateScoreboardAndTurnUI();
+          break;
+
+        case 'SELECT_PIECE':
+          // Partner picked their symbol ('X' or 'O'), so we get the opposite symbol WITHOUT swapping scores or roles
+          mySymbol = (data.partnerSymbol === 'X') ? 'O' : 'X';
+          if (data.roundStarter) {
+            roundStarter = data.roundStarter;
+          }
+          if (moveHistory.length === 0 && !gameOver) {
+            currentTurn = roundStarter;
+          }
+          updateScoreboardAndTurnUI();
+          updatePieceModalButtonsUI();
+          playTone('pop');
+          showToast(`${opponentName} đã chọn quân ${data.partnerSymbol} (Bạn cầm ${mySymbol})`, 'info');
+          break;
+
+        case 'SELECT_STARTER':
+          roundStarter = data.roundStarter || 'X';
+          if (moveHistory.length === 0 && !gameOver) {
+            currentTurn = roundStarter;
+          }
+          updateScoreboardAndTurnUI();
+          updatePieceModalButtonsUI();
+          break;
+
+        case 'SYNC_CHEAT':
+          applySharedCheatState(Boolean(data.active), false, opponentName);
           break;
 
         case 'MOVE':
@@ -695,8 +838,13 @@
         case 'NEW_ROUND':
           roundNumber = data.roundNumber;
           roundStarter = data.roundStarter;
+          if (data.hostSymbolForPartner) {
+            mySymbol = data.hostSymbolForPartner;
+          }
+          closeNewRoundModal();
           startRound(false);
-          showToast(`Ván #${roundNumber} bắt đầu!`, 'info');
+          updatePieceModalButtonsUI();
+          showToast(`Ván #${roundNumber} bắt đầu! Quân ${roundStarter} đi trước 💕`, 'info');
           break;
 
         case 'CHAT':
@@ -728,13 +876,13 @@
     function handlePeerDisconnect(reasonMsg) {
       conn = null;
       isOnlineConnected = false;
-      mySymbol = 'X';
-      updateConnectionStatusUI('ready', 'Sẵn sàng');
+      updateConnectionStatusUI('ready', 'Kết nối');
 
-      document.getElementById('connectBox').classList.remove('hidden');
-      const connectedBar = document.getElementById('connectedBar');
-      connectedBar.classList.add('hidden');
-      connectedBar.classList.remove('flex');
+      document.getElementById('quickInviteStrip').classList.remove('hidden');
+      document.getElementById('modalConnectInputSection').classList.remove('hidden');
+      const connectedSec = document.getElementById('modalConnectedSection');
+      connectedSec.classList.add('hidden');
+      connectedSec.classList.remove('flex');
 
       updateScoreboardAndTurnUI();
       showToast(reasonMsg, 'info');
@@ -747,16 +895,26 @@
       if (!dot) return;
 
       if (state === 'connected') {
-        dot.className = 'w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_#34d399]';
+        dot.className = 'w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_8px_#34d399]';
       } else if (state === 'ready') {
-        dot.className = 'w-2 h-2 rounded-full bg-pink-400 shadow-[0_0_8px_#f472b6]';
+        dot.className = 'w-2.5 h-2.5 rounded-full bg-pink-400 shadow-[0_0_8px_#f472b6]';
       } else {
-        dot.className = 'w-2 h-2 rounded-full bg-amber-400';
+        dot.className = 'w-2.5 h-2.5 rounded-full bg-amber-400';
+      }
+    }
+
+    function toggleConnectModal(forceState) {
+      const modal = document.getElementById('connectModal');
+      const shouldShow = typeof forceState === 'boolean' ? forceState : modal.classList.contains('hidden');
+      if (shouldShow) {
+        modal.classList.remove('hidden');
+      } else {
+        modal.classList.add('hidden');
       }
     }
 
     /**************************************************************
-     * 4. COPY INVITE LINK & ROOM CODE (100% RELIABLE FALLBACK)
+     * 4. COPY INVITE LINK & ROOM CODE
      **************************************************************/
     function getInviteLink() {
       const baseUrl = window.location.origin + window.location.pathname;
@@ -770,7 +928,6 @@
           return true;
         } catch (err) {}
       }
-      // Fallback textarea + execCommand for iframes/WebViews
       const ta = document.createElement('textarea');
       ta.value = textToCopy;
       ta.style.position = 'fixed';
@@ -816,26 +973,139 @@
     }
 
     /**************************************************************
-     * 5. CHEAT MODE ("ĂN GIAN") & GOMOKU LOGIC
+     * 5. SYNCHRONIZED CHEAT MODE ("ĂN GIAN") FOR BOTH PLAYERS
      **************************************************************/
-    function toggleCheatMode() {
-      isCheatMode = !isCheatMode;
+    function toggleSharedCheatMode() {
+      const nextState = !sharedCheatMode;
+      applySharedCheatState(nextState, true, selfName);
+    }
+
+    function applySharedCheatState(activeState, broadcastToPeer = false, actorName = '') {
+      sharedCheatMode = activeState;
       const btn = document.getElementById('btnCheatToggle');
       const label = document.getElementById('cheatBtnLabel');
       const badge = document.getElementById('cheatActiveBadge');
 
-      if (isCheatMode) {
+      if (sharedCheatMode) {
         btn.classList.add('cheat-active-btn');
-        label.textContent = 'Ăn gian: Bật';
+        label.textContent = 'Ăn gian: BẬT';
         badge.classList.remove('hidden');
         playTone('pop');
-        showToast('Đã bật Ăn gian 😈 Đánh thoải mái không mất lượt!', 'info');
+        if (actorName) {
+          spawnFloatingBubble(actorName, 'Đã BẬT Ăn gian cho lượt hiện tại 😈', false);
+        }
       } else {
         btn.classList.remove('cheat-active-btn');
         label.textContent = 'Ăn gian: Tắt';
         badge.classList.add('hidden');
         playTone('pop');
+        if (actorName) {
+          spawnFloatingBubble(actorName, 'Đã TẮT Ăn gian 😇', false);
+        }
       }
+
+      if (broadcastToPeer && isOnlineConnected) {
+        sendP2PMessage({
+          type: 'SYNC_CHEAT',
+          active: sharedCheatMode
+        });
+      }
+    }
+
+    /**************************************************************
+     * 6. PIECE SELECTION (CHỌN QUÂN X / O WITHOUT ROLE SWAPPING)
+     **************************************************************/
+    function openNewRoundModal() {
+      updatePieceModalButtonsUI();
+      document.getElementById('newRoundModal').classList.remove('hidden');
+    }
+
+    function closeNewRoundModal() {
+      document.getElementById('newRoundModal').classList.add('hidden');
+    }
+
+    function openNewRoundModalFromVictory() {
+      hideVictoryModalOnly();
+      openNewRoundModal();
+    }
+
+    function selectMyPiece(symbol, broadcast = true) {
+      if (symbol !== 'X' && symbol !== 'O') return;
+      mySymbol = symbol;
+
+      // If no moves placed yet in current round, keep turn aligned with roundStarter
+      if (moveHistory.length === 0 && !gameOver) {
+        currentTurn = roundStarter;
+      }
+
+      updateScoreboardAndTurnUI();
+      updatePieceModalButtonsUI();
+      playTone('pop');
+
+      if (broadcast && isOnlineConnected) {
+        sendP2PMessage({
+          type: 'SELECT_PIECE',
+          partnerSymbol: mySymbol,
+          roundStarter: roundStarter
+        });
+      }
+    }
+
+    function selectStarterSymbol(starterSym, broadcast = true) {
+      if (starterSym !== 'X' && starterSym !== 'O') return;
+      roundStarter = starterSym;
+      if (moveHistory.length === 0 && !gameOver) {
+        currentTurn = roundStarter;
+      }
+      updateScoreboardAndTurnUI();
+      updatePieceModalButtonsUI();
+      playTone('pop');
+
+      if (broadcast && isOnlineConnected) {
+        sendP2PMessage({
+          type: 'SELECT_STARTER',
+          roundStarter: roundStarter
+        });
+      }
+    }
+
+    function updatePieceModalButtonsUI() {
+      const btnX = document.getElementById('btnPickX');
+      const btnO = document.getElementById('btnPickO');
+      const labelX = document.getElementById('labelPickX');
+      const labelO = document.getElementById('labelPickO');
+
+      const btnStarterX = document.getElementById('btnStarterX');
+      const btnStarterO = document.getElementById('btnStarterO');
+
+      if (mySymbol === 'X') {
+        btnX.classList.add('piece-option-selected');
+        btnO.classList.remove('piece-option-selected');
+        labelX.textContent = `${selfName} cầm X`;
+        labelO.textContent = `${opponentName} cầm O`;
+      } else {
+        btnO.classList.add('piece-option-selected');
+        btnX.classList.remove('piece-option-selected');
+        labelO.textContent = `${selfName} cầm O`;
+        labelX.textContent = `${opponentName} cầm X`;
+      }
+
+      if (roundStarter === 'X') {
+        btnStarterX.classList.add('piece-option-selected');
+        btnStarterO.classList.remove('piece-option-selected');
+      } else {
+        btnStarterO.classList.add('piece-option-selected');
+        btnStarterX.classList.remove('piece-option-selected');
+      }
+    }
+
+    function confirmStartNewRound() {
+      if (moveHistory.length > 0 || gameOver) {
+        roundNumber++;
+      }
+      closeNewRoundModal();
+      startRound(true);
+      playTone('pop');
     }
 
     function startRound(broadcastToPeer = false) {
@@ -854,23 +1124,18 @@
         sendP2PMessage({
           type: 'NEW_ROUND',
           roundNumber: roundNumber,
-          roundStarter: roundStarter
+          roundStarter: roundStarter,
+          hostSymbolForPartner: (mySymbol === 'X') ? 'O' : 'X'
         });
       }
     }
 
-    function requestNewRound() {
-      if (moveHistory.length > 0 || gameOver) {
-        roundNumber++;
-        roundStarter = (roundStarter === 'X') ? 'O' : 'X';
-      }
-      startRound(true);
-      playTone('pop');
-    }
-
+    /**************************************************************
+     * 7. 30x30 GOMOKU MOVE & 5-IN-A-ROW WIN LOGIC
+     **************************************************************/
     function handleBoardClick(r, c) {
       if (gameOver) {
-        showToast('Ván đấu đã xong! Bấm "Ván mới" nhé 💕', 'info');
+        openNewRoundModal();
         return;
       }
       if (r < 0 || r >= BOARD_SIZE || c < 0 || c >= BOARD_SIZE) return;
@@ -881,10 +1146,10 @@
           showToast('Đợi người ấy đánh xong đã nhé 🥺', 'info');
           return;
         }
-        applyMoveOnBoard(r, c, mySymbol, true, isCheatMode);
+        applyMoveOnBoard(r, c, mySymbol, true, sharedCheatMode);
       } else {
-        // Offline practice mode on same device
-        applyMoveOnBoard(r, c, currentTurn, false, isCheatMode);
+        // Offline / Local mode on same screen
+        applyMoveOnBoard(r, c, currentTurn, false, sharedCheatMode);
       }
     }
 
@@ -912,7 +1177,7 @@
         winningLine = winCells;
         gameOver = true;
 
-        const isSelfWinner = isOnlineConnected ? (symbol === mySymbol) : (symbol === 'X');
+        const isSelfWinner = (symbol === mySymbol);
         if (isSelfWinner) {
           scores.self++;
         } else {
@@ -925,22 +1190,19 @@
 
         setTimeout(() => {
           showVictoryModal(symbol, isSelfWinner);
-        }, 600);
+        }, 650);
         return;
       }
 
       if (moveHistory.length >= BOARD_SIZE * BOARD_SIZE) {
         gameOver = true;
-        showToast('Hòa nhau rồi! Cả hai đều giỏi 💕', 'info');
+        showToast('Hòa nhau rồi! Cả hai đều siêu đỉnh 💕', 'info');
         return;
       }
 
-      // If Cheat Mode ("Ăn gian") was active on this move, DO NOT switch currentTurn!
+      // If Synchronized Cheat Mode ("Ăn gian") is ON, currentTurn stays unchanged!
       if (keepExtraTurn) {
         currentTurn = symbol;
-        if (!isLocalAction) {
-          spawnFloatingBubble(opponentName, 'Lêu lêu ăn gian thêm lượt 😈', false);
-        }
       } else {
         currentTurn = (symbol === 'X') ? 'O' : 'X';
       }
@@ -981,7 +1243,7 @@
     }
 
     /**************************************************************
-     * 6. MINIMALIST SCOREBOARD & HUD UPDATES
+     * 8. SCOREBOARD & HUD UI UPDATES
      **************************************************************/
     function updateSelfName() {
       const input = document.getElementById('inputSelfName');
@@ -997,6 +1259,7 @@
         });
       }
       updateScoreboardAndTurnUI();
+      updatePieceModalButtonsUI();
     }
 
     function updateScoreboardAndTurnUI() {
@@ -1007,13 +1270,13 @@
 
       selfBadge.textContent = mySymbol;
       selfBadge.className = mySymbol === 'X'
-        ? 'w-5 h-5 rounded-md bg-sky-500/20 border border-sky-400/50 text-sky-300 font-extrabold text-[11px] flex items-center justify-center'
-        : 'w-5 h-5 rounded-md bg-rose-500/20 border border-rose-400/50 text-rose-300 font-extrabold text-[11px] flex items-center justify-center';
+        ? 'w-7 h-7 sm:w-8 sm:h-8 shrink-0 rounded-lg bg-sky-500/20 border border-sky-400/50 text-sky-300 font-extrabold text-xs sm:text-sm flex items-center justify-center hover:scale-105 transition'
+        : 'w-7 h-7 sm:w-8 sm:h-8 shrink-0 rounded-lg bg-rose-500/20 border border-rose-400/50 text-rose-300 font-extrabold text-xs sm:text-sm flex items-center justify-center hover:scale-105 transition';
 
       oppBadge.textContent = oppSymbol;
       oppBadge.className = oppSymbol === 'X'
-        ? 'w-5 h-5 rounded-md bg-sky-500/20 border border-sky-400/50 text-sky-300 font-extrabold text-[11px] flex items-center justify-center'
-        : 'w-5 h-5 rounded-md bg-rose-500/20 border border-rose-400/50 text-rose-300 font-extrabold text-[11px] flex items-center justify-center';
+        ? 'w-7 h-7 sm:w-8 sm:h-8 shrink-0 rounded-lg bg-sky-500/20 border border-sky-400/50 text-sky-300 font-extrabold text-xs sm:text-sm flex items-center justify-center hover:scale-105 transition'
+        : 'w-7 h-7 sm:w-8 sm:h-8 shrink-0 rounded-lg bg-rose-500/20 border border-rose-400/50 text-rose-300 font-extrabold text-xs sm:text-sm flex items-center justify-center hover:scale-105 transition';
 
       document.getElementById('scoreSelf').textContent = scores.self;
       document.getElementById('scoreOpponent').textContent = scores.opponent;
@@ -1035,35 +1298,33 @@
           selfTurnStatus.textContent = 'Lượt bạn 💕';
           selfTurnStatus.className = 'text-[10px] font-bold text-pink-300 truncate';
           oppTurnStatus.textContent = 'Đợi bạn...';
-          oppTurnStatus.className = 'text-[10px] font-medium text-pink-200/40 truncate';
+          oppTurnStatus.className = 'text-[10px] font-medium text-pink-200/45 truncate';
         } else {
           cardOpponent.classList.add('active-turn-opp');
           selfTurnStatus.textContent = 'Đợi người ấy...';
-          selfTurnStatus.className = 'text-[10px] font-medium text-pink-200/40 truncate';
+          selfTurnStatus.className = 'text-[10px] font-medium text-pink-200/45 truncate';
           oppTurnStatus.textContent = 'Đang đánh 💭';
           oppTurnStatus.className = 'text-[10px] font-bold text-purple-300 truncate';
         }
       } else {
-        selfTurnStatus.textContent = 'Xong ván';
-        oppTurnStatus.textContent = 'Xong ván';
+        selfTurnStatus.textContent = 'Kết thúc';
+        oppTurnStatus.textContent = 'Kết thúc';
       }
 
       const hudDot = document.getElementById('hudTurnIndicator');
       const hudText = document.getElementById('hudTurnText');
       if (gameOver && winningLine) {
         const winSym = board[winningLine[0].r][winningLine[0].c];
-        const winPlayer = (isOnlineConnected ? (winSym === mySymbol) : (winSym === 'X')) ? selfName : opponentName;
+        const winPlayer = (winSym === mySymbol) ? selfName : opponentName;
         hudText.textContent = `🎉 ${winPlayer} thắng!`;
       } else {
         hudDot.className = currentTurn === 'X'
-          ? 'w-2.5 h-2.5 rounded-full bg-sky-400 shadow-[0_0_8px_#38bdf8]'
-          : 'w-2.5 h-2.5 rounded-full bg-rose-400 shadow-[0_0_8px_#fb7185]';
+          ? 'w-2 h-2 rounded-full bg-sky-400 shadow-[0_0_8px_#38bdf8]'
+          : 'w-2 h-2 rounded-full bg-rose-400 shadow-[0_0_8px_#fb7185]';
 
-        if (isOnlineConnected) {
-          hudText.textContent = (currentTurn === mySymbol) ? 'Lượt của bạn 💕' : `Lượt của ${opponentName}`;
-        } else {
-          hudText.textContent = currentTurn === 'X' ? `Lượt: ${selfName} (X)` : `Lượt: ${opponentName} (O)`;
-        }
+        hudText.textContent = (currentTurn === mySymbol)
+          ? `Lượt bạn (${mySymbol})`
+          : `Lượt ${opponentName} (${oppSymbol})`;
       }
     }
 
@@ -1086,35 +1347,36 @@
     }
 
     /**************************************************************
-     * 7. CANVAS BOARD RENDERER & HEART CONFETTI
+     * 9. FULLSCREEN 100vw x 100dvh CANVAS RENDERER (30x30 GRID)
      **************************************************************/
     function resizeCanvas() {
-      const container = document.getElementById('canvasContainer');
-      if (!container) return;
       const dpr = window.devicePixelRatio || 1;
-      const rect = container.getBoundingClientRect();
-      canvas.width = rect.width * dpr;
-      canvas.height = rect.height * dpr;
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+      canvas.width = w * dpr;
+      canvas.height = h * dpr;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     }
 
     function centerBoardView() {
-      const container = document.getElementById('canvasContainer');
-      if (!container) return;
-      const rect = container.getBoundingClientRect();
-      zoomScale = rect.width < 640 ? 0.85 : 1.0;
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+      // Fit 30x30 nicely between top HUD and bottom bar while filling screen
+      const availableW = w * 0.92;
+      const availableH = h - 155;
+      const minDim = Math.max(260, Math.min(availableW, availableH));
+      zoomScale = Math.min(1.35, Math.max(0.5, minDim / (BOARD_SIZE * cellSize)));
+
       const totalBoardPx = BOARD_SIZE * cellSize * zoomScale;
-      panX = (rect.width - totalBoardPx) / 2;
-      panY = (rect.height - totalBoardPx) / 2;
+      panX = (w - totalBoardPx) / 2;
+      panY = (h - totalBoardPx) / 2 + 4;
     }
 
     function zoomBoard(factor) {
-      const container = document.getElementById('canvasContainer');
-      const rect = container.getBoundingClientRect();
-      const centerX = rect.width / 2;
-      const centerY = rect.height / 2;
+      const centerX = window.innerWidth / 2;
+      const centerY = window.innerHeight / 2;
 
-      const newZoom = Math.min(2.2, Math.max(0.55, zoomScale * factor));
+      const newZoom = Math.min(2.4, Math.max(0.42, zoomScale * factor));
       const scaleChange = newZoom / zoomScale;
 
       panX = centerX - (centerX - panX) * scaleChange;
@@ -1123,9 +1385,8 @@
     }
 
     function screenToBoardCell(clientX, clientY) {
-      const rect = canvas.getBoundingClientRect();
-      const x = clientX - rect.left - panX;
-      const y = clientY - rect.top - panY;
+      const x = clientX - panX;
+      const y = clientY - panY;
       const scaledCell = cellSize * zoomScale;
       const c = Math.floor(x / scaledCell);
       const r = Math.floor(y / scaledCell);
@@ -1167,7 +1428,13 @@
           const pts = Array.from(activePointers.values());
           const dist = Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y);
           if (dist > 10) {
-            zoomScale = Math.min(2.2, Math.max(0.55, initialZoom * (dist / initialPinchDist)));
+            const midX = (pts[0].x + pts[1].x) / 2;
+            const midY = (pts[0].y + pts[1].y) / 2;
+            const newZoom = Math.min(2.4, Math.max(0.42, initialZoom * (dist / initialPinchDist)));
+            const scaleChange = newZoom / zoomScale;
+            panX = midX - (midX - panX) * scaleChange;
+            panY = midY - (midY - panY) * scaleChange;
+            zoomScale = newZoom;
           }
           dragMovedDistance = 999;
           return;
@@ -1198,11 +1465,10 @@
       canvas.addEventListener('wheel', (e) => {
         e.preventDefault();
         const factor = e.deltaY < 0 ? 1.1 : 0.9;
-        const rect = canvas.getBoundingClientRect();
-        const mouseX = e.clientX - rect.left;
-        const mouseY = e.clientY - rect.top;
+        const mouseX = e.clientX;
+        const mouseY = e.clientY;
 
-        const newZoom = Math.min(2.2, Math.max(0.55, zoomScale * factor));
+        const newZoom = Math.min(2.4, Math.max(0.42, zoomScale * factor));
         const scaleChange = newZoom / zoomScale;
 
         panX = mouseX - (mouseX - panX) * scaleChange;
@@ -1212,17 +1478,17 @@
     }
 
     function spawnHeartConfetti() {
-      const container = document.getElementById('canvasContainer');
-      const rect = container.getBoundingClientRect();
+      const w = window.innerWidth;
+      const h = window.innerHeight;
       const hearts = ['❤️', '💖', '💕', '🌸', '✨'];
       heartParticles = [];
-      for (let i = 0; i < 45; i++) {
+      for (let i = 0; i < 55; i++) {
         heartParticles.push({
-          x: rect.width / 2 + (Math.random() - 0.5) * 180,
-          y: rect.height / 2 + (Math.random() - 0.5) * 100,
-          vx: (Math.random() - 0.5) * 8,
-          vy: (Math.random() - 0.85) * 8 - 2,
-          size: 16 + Math.random() * 12,
+          x: w / 2 + (Math.random() - 0.5) * 240,
+          y: h / 2 + (Math.random() - 0.5) * 140,
+          vx: (Math.random() - 0.5) * 9,
+          vy: (Math.random() - 0.85) * 9 - 2,
+          size: 16 + Math.random() * 14,
           char: hearts[Math.floor(Math.random() * hearts.length)],
           alpha: 1
         });
@@ -1231,11 +1497,24 @@
 
     function renderLoop() {
       animPhase += 0.06;
-      const container = document.getElementById('canvasContainer');
-      const width = container.clientWidth;
-      const height = container.clientHeight;
+      const width = window.innerWidth;
+      const height = window.innerHeight;
 
-      ctx.clearRect(0, 0, width, height);
+      // Fullscreen Romantic Gradient Background
+      ctx.fillStyle = '#110716';
+      ctx.fillRect(0, 0, width, height);
+
+      const grad1 = ctx.createRadialGradient(width * 0.2, height * 0.2, 10, width * 0.2, height * 0.2, Math.max(width, height) * 0.55);
+      grad1.addColorStop(0, 'rgba(244, 114, 182, 0.14)');
+      grad1.addColorStop(1, 'transparent');
+      ctx.fillStyle = grad1;
+      ctx.fillRect(0, 0, width, height);
+
+      const grad2 = ctx.createRadialGradient(width * 0.8, height * 0.8, 10, width * 0.8, height * 0.8, Math.max(width, height) * 0.55);
+      grad2.addColorStop(0, 'rgba(168, 85, 247, 0.14)');
+      grad2.addColorStop(1, 'transparent');
+      ctx.fillStyle = grad2;
+      ctx.fillRect(0, 0, width, height);
 
       const sCell = cellSize * zoomScale;
       const boardPx = BOARD_SIZE * sCell;
@@ -1243,12 +1522,12 @@
       ctx.save();
       ctx.translate(panX, panY);
 
-      // Board background
-      ctx.fillStyle = 'rgba(26, 12, 34, 0.85)';
-      ctx.strokeStyle = 'rgba(244, 114, 182, 0.28)';
-      ctx.lineWidth = 2;
+      // 30x30 Board Surface
+      ctx.fillStyle = 'rgba(26, 11, 35, 0.9)';
+      ctx.strokeStyle = sharedCheatMode ? 'rgba(244, 63, 94, 0.55)' : 'rgba(244, 114, 182, 0.32)';
+      ctx.lineWidth = 2.2;
       ctx.beginPath();
-      ctx.roundRect(-16 * zoomScale, -16 * zoomScale, boardPx + 32 * zoomScale, boardPx + 32 * zoomScale, 14 * zoomScale);
+      ctx.roundRect(-14 * zoomScale, -14 * zoomScale, boardPx + 28 * zoomScale, boardPx + 28 * zoomScale, 14 * zoomScale);
       ctx.fill();
       ctx.stroke();
 
@@ -1256,7 +1535,7 @@
       if (hoverCell && !gameOver && board[hoverCell.r][hoverCell.c] === null) {
         const canPreview = !isOnlineConnected || (currentTurn === mySymbol);
         if (canPreview) {
-          ctx.fillStyle = currentTurn === 'X' ? 'rgba(56, 189, 248, 0.12)' : 'rgba(251, 113, 133, 0.12)';
+          ctx.fillStyle = currentTurn === 'X' ? 'rgba(56, 189, 248, 0.14)' : 'rgba(251, 113, 133, 0.14)';
           ctx.fillRect(hoverCell.c * sCell + 1, hoverCell.r * sCell + 1, sCell - 2, sCell - 2);
         }
       }
@@ -1266,7 +1545,7 @@
         const last = moveHistory[moveHistory.length - 1];
         const lx = last.c * sCell;
         const ly = last.r * sCell;
-        const pulseAlpha = 0.2 + Math.sin(animPhase * 2) * 0.08;
+        const pulseAlpha = 0.22 + Math.sin(animPhase * 2) * 0.08;
         ctx.fillStyle = last.symbol === 'X'
           ? `rgba(56, 189, 248, ${pulseAlpha})`
           : `rgba(251, 113, 133, ${pulseAlpha})`;
@@ -1277,34 +1556,38 @@
         ctx.strokeRect(lx + 2, ly + 2, sCell - 4, sCell - 4);
       }
 
-      // Grid lines
+      // 30x30 Grid Lines
       ctx.lineWidth = 1;
-      ctx.strokeStyle = 'rgba(244, 114, 182, 0.14)';
+      ctx.strokeStyle = 'rgba(244, 114, 182, 0.15)';
+      ctx.beginPath();
       for (let i = 0; i <= BOARD_SIZE; i++) {
         const pos = i * sCell;
-        ctx.beginPath();
         ctx.moveTo(0, pos);
         ctx.lineTo(boardPx, pos);
-        ctx.stroke();
-
-        ctx.beginPath();
         ctx.moveTo(pos, 0);
         ctx.lineTo(pos, boardPx);
-        ctx.stroke();
       }
+      ctx.stroke();
+
+      // Center Star Marker (15, 15)
+      const centerPos = (BOARD_SIZE / 2) * sCell;
+      ctx.fillStyle = 'rgba(244, 114, 182, 0.45)';
+      ctx.beginPath();
+      ctx.arc(centerPos, centerPos, 3.5 * zoomScale, 0, Math.PI * 2);
+      ctx.fill();
 
       // Ghost Piece on Hover
       if (hoverCell && !gameOver && board[hoverCell.r][hoverCell.c] === null) {
         const canPreview = !isOnlineConnected || (currentTurn === mySymbol);
         if (canPreview) {
           ctx.save();
-          ctx.globalAlpha = 0.35;
+          ctx.globalAlpha = 0.36;
           drawPiece(hoverCell.r, hoverCell.c, currentTurn, sCell);
           ctx.restore();
         }
       }
 
-      // Draw All Pieces
+      // Draw All Placed Pieces
       for (let r = 0; r < BOARD_SIZE; r++) {
         for (let c = 0; c < BOARD_SIZE; c++) {
           if (board[r][c]) {
@@ -1313,7 +1596,7 @@
         }
       }
 
-      // Draw Winning 5-in-a-row Line
+      // Draw Winning 5-in-a-row Neon Line
       if (winningLine && winningLine.length >= 5) {
         const first = winningLine[0];
         const last = winningLine[winningLine.length - 1];
@@ -1324,7 +1607,7 @@
         const winSym = board[first.r][first.c];
 
         winningLine.forEach(cell => {
-          ctx.fillStyle = winSym === 'X' ? 'rgba(56, 189, 248, 0.25)' : 'rgba(251, 113, 133, 0.25)';
+          ctx.fillStyle = winSym === 'X' ? 'rgba(56, 189, 248, 0.26)' : 'rgba(251, 113, 133, 0.26)';
           ctx.fillRect(cell.c * sCell + 2, cell.r * sCell + 2, sCell - 4, sCell - 4);
         });
 
@@ -1343,14 +1626,14 @@
 
       ctx.restore();
 
-      // Heart Confetti
+      // Heart Confetti Particles
       if (heartParticles.length > 0) {
         for (let i = heartParticles.length - 1; i >= 0; i--) {
           const p = heartParticles[i];
           p.x += p.vx;
           p.y += p.vy;
           p.vy += 0.15;
-          p.alpha -= 0.009;
+          p.alpha -= 0.008;
 
           if (p.alpha <= 0) {
             heartParticles.splice(i, 1);
@@ -1376,12 +1659,12 @@
       ctx.save();
       ctx.lineCap = 'round';
       ctx.lineJoin = 'round';
-      ctx.lineWidth = Math.max(2.5, 3.6 * zoomScale);
+      ctx.lineWidth = Math.max(2.2, 3.4 * zoomScale);
 
       if (symbol === 'X') {
         ctx.strokeStyle = '#38bdf8';
         ctx.shadowColor = 'rgba(56, 189, 248, 0.75)';
-        ctx.shadowBlur = 10 * zoomScale;
+        ctx.shadowBlur = 9 * zoomScale;
 
         ctx.beginPath();
         ctx.moveTo(cx - radius, cy - radius);
@@ -1392,7 +1675,7 @@
       } else {
         ctx.strokeStyle = '#fb7185';
         ctx.shadowColor = 'rgba(251, 113, 133, 0.75)';
-        ctx.shadowBlur = 10 * zoomScale;
+        ctx.shadowBlur = 9 * zoomScale;
 
         ctx.beginPath();
         ctx.arc(cx, cy, radius, 0, Math.PI * 2);
@@ -1402,8 +1685,17 @@
     }
 
     /**************************************************************
-     * 8. CUSTOM TEXT CHAT & FLOATING MESSAGE BUBBLES
+     * 10. COUPLE CHAT & FLOATING BUBBLES
      **************************************************************/
+    function toggleChatDrawer() {
+      const drawer = document.getElementById('chatDrawer');
+      const dot = document.getElementById('unreadChatDot');
+      drawer.classList.toggle('hidden');
+      if (!drawer.classList.contains('hidden') && dot) {
+        dot.classList.add('hidden');
+      }
+    }
+
     function handleChatSubmit(e) {
       e.preventDefault();
       const input = document.getElementById('chatInput');
@@ -1434,6 +1726,12 @@
       } else {
         msgDiv.className = 'bg-purple-500/20 border border-purple-400/30 rounded-xl px-2.5 py-1.5 self-start max-w-[92%] break-words';
         msgDiv.innerHTML = `<span class="font-bold text-purple-300 text-[11px]">${escapeHtml(sender)}:</span> <span class="text-white">${escapeHtml(text)}</span>`;
+
+        const drawer = document.getElementById('chatDrawer');
+        const dot = document.getElementById('unreadChatDot');
+        if (drawer && drawer.classList.contains('hidden') && dot) {
+          dot.classList.remove('hidden');
+        }
       }
 
       box.appendChild(msgDiv);
@@ -1456,10 +1754,10 @@
       if (!stage) return;
 
       const el = document.createElement('div');
-      const randomLeft = 25 + Math.random() * 50;
+      const randomLeft = 28 + Math.random() * 44;
       el.style.left = `${randomLeft}%`;
-      el.style.bottom = '14%';
-      el.className = 'floating-bubble fixed -translate-x-1/2 flex flex-col items-center max-w-[260px] text-center';
+      el.style.bottom = '16%';
+      el.className = 'floating-bubble fixed flex flex-col items-center max-w-[270px] text-center';
 
       if (isBigEmoji) {
         el.innerHTML = `
@@ -1511,7 +1809,7 @@
     }
 
     /**************************************************************
-     * 9. BOOTSTRAP
+     * 11. BOOTSTRAP
      **************************************************************/
     window.onload = function () {
       lucide.createIcons();
@@ -1520,9 +1818,12 @@
       centerBoardView();
       initCanvasInteractions();
       updateScoreboardAndTurnUI();
+      updatePieceModalButtonsUI();
       initPeerConnection();
 
-      window.addEventListener('resize', resizeCanvas);
+      window.addEventListener('resize', () => {
+        resizeCanvas();
+      });
       requestAnimationFrame(renderLoop);
     };
   </script>
